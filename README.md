@@ -83,30 +83,6 @@ During this step, besides computing all the diameters at the selected heights, t
 Tree location [(x, y) coordinates] is obtained at this step too, either derived from the proxy section (to BH) when appropriate; that is, when it passes all goodness of fit tests and it is coherent, or from the tree axis when not.
 
 
-# Dependencies
-
-
-The script imports several Python libraries and functions. They can be found listed below:
-
-__libraries__. These are libraries that are imported directly:
-
-* os
-* sys
-* laspy
-* numpy
-* timeit
-* tkinter
-
-__functions__. These are libraries from which only specific functions are imported:
-
-* PIL (imports ImageTk and Image)
-* copy (imports deepcopy)
-* jakteristics (imports compute_features)
-* scipy (imports cluster.hierarchy, optimize and spatial.distance_matrix)
-* sklearn (imports cluster.DBSCAN and decomposition.PCA)
-* tkinter (imports filedialog)
-
-
 # Inputs
 
 
