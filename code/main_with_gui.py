@@ -96,7 +96,7 @@ from sklearn.cluster import DBSCAN
 from sklearn.decomposition import PCA
 
 import gui
-from functions import *
+import dendromatics as dm
 
 
 ### This function allows to retrieve the path of the data used to generate the images and
