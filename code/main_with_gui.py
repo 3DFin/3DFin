@@ -144,8 +144,7 @@ stem_search_radius = StringVar()
 minimum_height = StringVar()
 maximum_height = StringVar()
 section_len = StringVar()
-distance_to_axis = StringVar()
-axis_upstep = StringVar()
+section_wid = StringVar()
  
  ### Expert parameters ###
  
@@ -155,7 +154,6 @@ res_z_stripe = StringVar()
 number_of_points = StringVar()
 verticality_scale_stripe = StringVar()
 verticality_thresh_stripe = StringVar()
-epsilon_stripe = StringVar()
  
  # Tree individualization #
 res_xy = StringVar()
@@ -163,14 +161,13 @@ res_z = StringVar()
 minimum_points = StringVar()
 verticality_scale_stems = StringVar()
 verticality_thresh_stems = StringVar()
-epsilon_stems = StringVar()
 height_range = StringVar()
 maximum_d = StringVar()
+distance_to_axis = StringVar()
 res_heights = StringVar()
 maximum_dev = StringVar()
  
  # Extracting sections #
-section_wid = StringVar()
 number_points_section = StringVar()
 radius_proportion = StringVar()
 minimum_radius = StringVar()
@@ -184,11 +181,12 @@ circle_width = StringVar()
 circa = StringVar()
 p_interval = StringVar()
 axis_downstep = StringVar()
- 
+axis_upstep = StringVar()
+
  # Other parameters #
-X_column = StringVar()
-Y_column = StringVar()
-Z_column = StringVar()
+res_ground = StringVar()
+min_points_ground = StringVar()
+res_cloth = StringVar()
 
 
 ### Reading config file only if it is available under name '3DFINconfig.ini' ###
@@ -212,8 +210,7 @@ except FileNotFoundError:
     minimum_height.set("0.3")
     maximum_height.set("25")
     section_len.set("0.2")
-    distance_to_axis.set("1.5")
-    axis_upstep.set("10")
+    section_wid.set("0.05")
     
     ### Expert parameters ###
     
@@ -223,7 +220,7 @@ except FileNotFoundError:
     number_of_points.set("1000")
     verticality_scale_stripe.set("0.1")
     verticality_thresh_stripe.set("0.7")
-    epsilon_stripe.set("0.037")
+
     
     # Tree individualization #
     res_xy.set("0.035")
@@ -231,14 +228,13 @@ except FileNotFoundError:
     minimum_points.set("20")
     verticality_scale_stems.set("0.1")
     verticality_thresh_stems.set("0.7")
-    epsilon_stems.set("0.08")
     height_range.set("1.2")
     maximum_d.set("15")
+    distance_to_axis.set("1.5")
     res_heights.set("0.3")
     maximum_dev.set("25")
     
     # Extracting sections #
-    section_wid.set("0.05")
     number_points_section.set("80")
     radius_proportion.set("0.5")
     minimum_radius.set("0.03")
@@ -246,17 +242,18 @@ except FileNotFoundError:
     point_distance.set("0.02")
     number_sectors.set("16")
     m_number_sectors.set("9")
-    circle_width.set("2")
+    circle_width.set("0.02")
     
     # Drawing circles and axes #
     circa.set("200")
     p_interval.set("0.01")
     axis_downstep.set("0.5")
-    
+    axis_upstep.set("10")
+
     # Other parameters #
-    X_column.set("0")
-    Y_column.set("1")
-    Z_column.set("2")
+    res_ground.set("0.15")
+    min_points_ground.set("2")
+    res_cloth.set("2")
 
 else:
     
@@ -278,33 +275,30 @@ else:
     minimum_height.set(config['advanced']['minimum_height'])
     maximum_height.set(config['advanced']['maximum_height'])
     section_len.set(config['advanced']['section_len'])
-    distance_to_axis.set(config['advanced']['distance_to_axis'])
-    axis_upstep.set(config['advanced']['axis_upstep'])
+    section_wid.set(config['advanced']['section_wid'])
     
     ### Expert parameters ###
     
-    # Stem extraction #
+    # Stem identification whithin the stripe #
     res_xy_stripe.set(config['expert']['res_xy_stripe'])
     res_z_stripe.set(config['expert']['res_z_stripe'])
     number_of_points.set(config['expert']['number_of_points'])
     verticality_scale_stripe.set(config['expert']['verticality_scale_stripe'])
     verticality_thresh_stripe.set(config['expert']['verticality_thresh_stripe'])
-    epsilon_stripe.set(config['expert']['epsilon_stripe'])
     
-    # Tree individualization #
+    # Stem extraction and tree individualization #
     res_xy.set(config['expert']['res_xy'])
     res_z.set(config['expert']['res_z'])
     minimum_points.set(config['expert']['minimum_points'])
     verticality_scale_stems.set(config['expert']['verticality_scale_stems'])
     verticality_thresh_stems.set(config['expert']['verticality_thresh_stems'])
-    epsilon_stems.set(config['expert']['epsilon_stems'])
     height_range.set(config['expert']['height_range'])
     maximum_d.set(config['expert']['maximum_d'])
+    distance_to_axis.set(config['expert']['distance_to_axis'])
     res_heights.set(config['expert']['res_heights'])
     maximum_dev.set(config['expert']['maximum_dev'])
     
     # Extracting sections #
-    section_wid.set(config['expert']['section_wid'])
     number_points_section.set(config['expert']['number_points_section'])
     radius_proportion.set(config['expert']['radius_proportion'])
     minimum_radius.set(config['expert']['minimum_radius'])
@@ -318,11 +312,12 @@ else:
     circa.set(config['expert']['circa'])
     p_interval.set(config['expert']['p_interval'])
     axis_downstep.set(config['expert']['axis_downstep'])
-    
+    axis_upstep.set(config['expert']['axis_upstep'])
+
     # Other parameters #
-    X_column.set(config['expert']['X_column'])
-    Y_column.set(config['expert']['Y_column'])
-    Z_column.set(config['expert']['Z_column'])
+    res_ground.set(config['expert']['res_ground'])
+    min_points_ground.set(config['expert']['min_points_ground'])
+    res_cloth.set(config['expert']['res_cloth'])
 
 
 ### ----------------------------- ###
@@ -586,28 +581,31 @@ ttk.Label(advanced_tab, text = "Advanced parameters", font = ("Helvetica", 10, "
 ttk.Label(advanced_tab, text = insert_text2).grid(column = 6, row = 2, rowspan = 8, sticky = "NW")
 
 
+for child in advanced_tab.winfo_children(): 
+    child.grid_configure(padx=5, pady=5)
+
+
+
 #### Adding images ####
 
 sections_img = ImageTk.PhotoImage(Image.open(resource_path("section_details.png")))
-ttk.Label(advanced_tab, image = sections_img).grid(column = 5, row = 9, columnspan=7, sticky = "S")
+ttk.Label(advanced_tab, image = sections_img).grid(column = 1, row = 9, columnspan=15, sticky = "W", padx = 35, pady = 5)
 
-sections_text = """A) Cross-sections along the stem B) Detail of stem slices showing height interval for 
-their extraction, and their thickness C) Circle fitting to the points of a stem slice.
+sections_text = """A) Sections along the stem B) Detail of computed sections showing the distance 
+between them and their width C) Circle fitting to the points of a section.
 """
-ttk.Label(advanced_tab, text = sections_text).grid(column = 5, row = 10, columnspan = 7, sticky = "N")
+ttk.Label(advanced_tab, text = sections_text).grid(column = 1, row = 10, columnspan = 15, sticky = "NW", padx = 35, pady = 5)
 
 
 sectors_img = ImageTk.PhotoImage(Image.open(resource_path("sectors.png")))
-ttk.Label(advanced_tab, image = sectors_img).grid(column = 1, row = 9, columnspan=4, sticky = "S")
+ttk.Label(advanced_tab, image = sectors_img).grid(column = 1, row = 9, columnspan=15, sticky = "E", padx = 35, pady = 5)
 
-sectors_text = """Several quality measurements are implemented. 
-For instance, verbatim verbatim."""
+sectors_text = """Several quality controls are implemented to
+validate the fitted circles, such as measuring
+the point distribution along the sections."""
 
-ttk.Label(advanced_tab, text = sectors_text).grid(column = 1, row = 10, columnspan = 4, sticky = "N")
+ttk.Label(advanced_tab, text = sectors_text).grid(column = 1, row = 10, columnspan = 15, sticky = "NE", padx = 35, pady = 5)
 
-
-for child in advanced_tab.winfo_children(): 
-    child.grid_configure(padx=5, pady=5)
 
 
 #### Adding info buttons ####
@@ -855,27 +853,27 @@ ttk.Label(expert_tab, text="meters").grid(column=9, row=13, sticky="W")
 ttk.Label(expert_tab, text="meters").grid(column=9, row=14, sticky="W")
 
     
-### Other parameters ###
-ttk.Label(expert_tab, text="Other parameters", font = ("Helvetica", 10, "bold")).grid(column = 7, row=15, sticky="E")
-
-# Which column contains X field #
-X_column_entry = ttk.Entry(expert_tab, width=7, textvariable=X_column)
-X_column_entry.grid(column = 8, row=16, sticky="EW")
+### Height normalization ###
+ttk.Label(expert_tab, text="Height normalization", font = ("Helvetica", 10, "bold")).grid(column = 7, row=15, sticky="E")
 
 
-# Which column contains Y field #
-Y_column_entry = ttk.Entry(expert_tab, width=7, textvariable=Y_column)
-Y_column_entry.grid(column = 8, row=17, sticky="EW")
+# (x, y) voxel resolution during denoising
+res_ground_entry = ttk.Entry(expert_tab, width=7, textvariable=res_ground)
+res_ground_entry.grid(column=8, row=16, sticky="EW")
+
+min_points_ground_entry = ttk.Entry(expert_tab, width=7, textvariable=min_points_ground)
+min_points_ground_entry.grid(column = 8, row=17, sticky="EW")
+
+res_cloth_entry = ttk.Entry(expert_tab, width=7, textvariable=res_cloth)
+res_cloth_entry.grid(column = 8, row=18, sticky="EW")
+
+ttk.Label(expert_tab, text="(x, y) voxel resolution").grid(column = 7, row=16, sticky="W")
+ttk.Label(expert_tab, text="Minimum number of points").grid(column = 7, row=17, sticky="W")
+ttk.Label(expert_tab, text="Cloth resolution").grid(column = 7, row=18, sticky="W")
 
 
-# Which column contains Z field #
-Z_column_entry = ttk.Entry(expert_tab, width=7, textvariable=Z_column)
-Z_column_entry.grid(column = 8, row=18, sticky="EW")
-
-
-ttk.Label(expert_tab, text="X field").grid(column = 7, row=16, sticky="W")
-ttk.Label(expert_tab, text="Y field").grid(column = 7, row=17, sticky="W")
-ttk.Label(expert_tab, text="Z field").grid(column = 7, row=18, sticky="W")
+ttk.Label(expert_tab, text="meters").grid(column=9, row=16, sticky="W")
+ttk.Label(expert_tab, text="meters").grid(column=9, row=18, sticky="W")
 
 for child in expert_tab.winfo_children(): 
     child.grid_configure(padx=5, pady=5)
@@ -894,7 +892,7 @@ gui.CreateToolTip(res_z_stripe_info, text = '(z) voxel resolution during stem ex
 
 number_of_points_info = ttk.Label(expert_tab, image = info_icon)
 number_of_points_info.grid(column = 1, row = 4)
-gui.CreateToolTip(number_of_points_info, text = 'minimum number of points per stem within the stripe\n'
+gui.CreateToolTip(number_of_points_info, text = 'minimum number of points (voxels) per stem within the stripe\n'
               '(DBSCAN clustering). Reasonable values are between 500 and 3000.\n'
               'Default value: 1000.')
 
@@ -921,7 +919,7 @@ gui.CreateToolTip(res_z_info, text = '(z) voxel resolution during tree individua
 
 minimum_points_info = ttk.Label(expert_tab, image = info_icon)
 minimum_points_info.grid(column = 1, row = 11)
-gui.CreateToolTip(minimum_points_info, text = 'Minimum number of points within a stripe to consider it\n'
+gui.CreateToolTip(minimum_points_info, text = 'Minimum number of points (voxels) within a stripe to consider it\n'
               'as a potential tree during tree individualization.\n'
               'Default value: 20.')
 
@@ -1008,9 +1006,9 @@ gui.CreateToolTip(m_number_sectors_info, text = 'Minimum number of sectors that 
 
 circle_width_info = ttk.Label(expert_tab, image = info_icon)
 circle_width_info.grid(column = 6, row = 9)
-gui.CreateToolTip(circle_width_info, text = 'Width, in centimeters, around the circumference to look\n'
+gui.CreateToolTip(circle_width_info, text = 'Width, in meters, around the circumference to look\n'
               'for points.\n'
-              'Defaul value: 2 centimeters.')
+              'Defaul value: 0.02 meters.')
 
 circa_info = ttk.Label(expert_tab, image = info_icon)
 circa_info.grid(column = 6, row = 11)
@@ -1038,20 +1036,23 @@ gui.CreateToolTip(axis_upstep_info, text = 'From the stripe centroid, how much (
               'how long will the drawn axes be.\n'
               'Default value: 10 meters.')
 
-X_column_info = ttk.Label(expert_tab, image = info_icon)
-X_column_info.grid(column = 6, row = 16)
-gui.CreateToolTip(X_column_info, text = 'Which column contains X field.\n'
-              'Default value: 0.')
+res_ground_info = ttk.Label(expert_tab, image = info_icon)
+res_ground_info.grid(column = 6, row = 16)
+gui.CreateToolTip(res_ground_info, text = '(x, y, z) voxel resolution during denoising.|n'
+                  ' Note that the whole point cloud is voxelated.\n'
+                  'Default value: 0.15.')
 
-Y_column_info = ttk.Label(expert_tab, image = info_icon)
-Y_column_info.grid(column = 6, row = 17)
-gui.CreateToolTip(Y_column_info, text = 'Which column contains Y field.\n'
-              'Default value: 1.')
+min_points_ground_info = ttk.Label(expert_tab, image = info_icon)
+min_points_ground_info.grid(column = 6, row = 17)
+gui.CreateToolTip(min_points_ground_info, text = 'Clusters with size smaller than this value will be\n'
+                  'regarded as noise and thus eliminated.\n'
+                  'Default value: 2.')
 
-Z_column_info = ttk.Label(expert_tab, image = info_icon)
-Z_column_info.grid(column = 6, row = 18)
-gui.CreateToolTip(Z_column_info, text = 'Which column contains Z field.\n'
-              'Default value: 2.')
+res_cloth_info = ttk.Label(expert_tab, image = info_icon)
+res_cloth_info.grid(column = 6, row = 18)
+gui.CreateToolTip(res_cloth_info, text = 'Initial cloth grid resolution to generate the DTM that\n'
+                  'be used to compute normalized heights.\n'
+                  'Default value: 0.5.')
 
 warning_img = ImageTk.PhotoImage(Image.open(resource_path("warning_img_1.png")))
 
@@ -1194,16 +1195,22 @@ csic_project_lab.grid(row = 7, column = 1, columnspan = 3)
 
 
 nerc_logo_img = ImageTk.PhotoImage(Image.open(resource_path("nerc_logo_1.png")))
-ttk.Label(scrollable, image = nerc_logo_img).grid(row = 8, column = 1, columnspan = 3, sticky = "W")
+ttk.Label(scrollable, image = nerc_logo_img).grid(row = 8, column = 1, columnspan = 3, sticky="W")
 
 swansea_logo_img = ImageTk.PhotoImage(Image.open(resource_path("swansea_logo_1.png")))
-ttk.Label(scrollable, image = swansea_logo_img).grid(row = 8, column = 1, columnspan = 3, sticky = "E")
+ttk.Label(scrollable, image = swansea_logo_img).grid(row = 8, column = 1, columnspan = 3, sticky="E")
+
+spain_logo_img = ImageTk.PhotoImage(Image.open(resource_path("spain_logo_1.png")))
+ttk.Label(scrollable, image = spain_logo_img).grid(row = 9, column = 1, columnspan = 3, sticky="W")
+
+csic_logo_img = ImageTk.PhotoImage(Image.open(resource_path("csic_logo_1.png")))
+ttk.Label(scrollable, image = csic_logo_img).grid(row = 9, column = 1, columnspan = 3)
 
 uniovi_logo_img = ImageTk.PhotoImage(Image.open(resource_path("uniovi_logo_1.png")))
-ttk.Label(scrollable, image = uniovi_logo_img).grid(row = 8, column = 1, columnspan = 3)
+ttk.Label(scrollable, image = uniovi_logo_img).grid(row = 9, column = 1, columnspan = 3, sticky="E")
 
-ttk.Separator(scrollable, orient = "horizontal").grid(row = 9, column = 1, columnspan = 3, sticky = "EW")
 
+ttk.Separator(scrollable, orient = "horizontal").grid(row = 10, column = 1, columnspan = 3, sticky = "EW")
 
 
 team_lab = ttk.Label(scrollable, text = 'Team', font = ("Helvetica", 12, "bold"))
@@ -1281,9 +1288,9 @@ def open_license():
    
    new.geometry("620x400")
    new.title("LICENSE")
-   ttk.Label(license_scrollable, text = "GNU GENERAL PUBLIC LICENSE", font = ("Helvetica", 10, "bold"), anchor = "E", justify="LEFT").grid(row = 1, column = 1)
+   ttk.Label(license_scrollable, text = "GNU GENERAL PUBLIC LICENSE", font = ("Helvetica", 10, "bold")).grid(row = 1, column = 1)
    
-   ttk.Label(license_scrollable, text = gnu_license, font = ("Helvetica", 10)).grid(row = 2, column = 1)
+   ttk.Label(license_scrollable, text = gnu_license, font = ("Helvetica", 10)).grid(row = 2, column = 1, sticky="W")
    
    # Create canvas window to hold the buttons_frame.
    license_canvas.create_window((0, 0), window=license_scrollable, anchor='nw')
@@ -1370,10 +1377,6 @@ max_h = float(maximum_height.get()) # highest height
 
 section_length = float(section_len.get()) # sections are this long (z length)
 
-d_heights = float(distance_to_axis.get()) # Points within this distance from tree axes will be used to find tree height
-
-line_upstep = float(axis_upstep.get()) # From the stripe centroid, how much (upwards direction) will the drawn axes extend.
-
 
 #-------------------------------------------------------------------------------------------------
 # EXPERT PARAMETERS. They should only be modified when no good results are obtained peaking basic parameters.
@@ -1392,7 +1395,6 @@ n_points = int(number_of_points.get()) # minimum number of points per stem withi
 # Values, normally between 500 and 3000 
 
 n_points_stripe = int(number_of_points.get())  # DBSCAN minimum number of points during stem extraction
-eps_stripe = float(epsilon_stripe.get()) # DBSCAN radius during stem extraction
 
 vert_scale_stripe = float(verticality_scale_stripe.get()) # Vicinity radius for PCA during stem extraction
 vert_threshold_stripe = float(verticality_thresh_stripe.get())  # Verticality threshold durig stem extraction
@@ -1406,15 +1408,14 @@ resolution_xy = float(res_xy.get())  # (x, y) voxel resolution during tree indiv
 resolution_z = float(res_z.get())  # (z) voxel resolution during tree individualization
 
 min_points = int(minimum_points.get()) # Minimum number of points within a stripe to consider it as a potential tree during tree individualization
-eps_stems = float(epsilon_stems.get()) # DBSCAN radius during tree individualization
 
 vert_scale_stems = float(verticality_scale_stems.get()) # Vicinity radius for PCA  during tree individualization
 vert_threshold_stems = float(verticality_thresh_stems.get()) # Verticality threshold  during tree individualization
 
 h_range = float(height_range.get())  # only stems where points extend vertically throughout this range are considered. 
-
 d_max = float(maximum_d.get()) # Points that are closer than d_max to an axis are assigned to that axis during individualize_trees process.
 
+d_heights = float(distance_to_axis.get()) # Points within this distance from tree axes will be used to find tree height
 resolution_heights = float(res_heights.get()) # Resolution for the voxelization while computing tree heights 
 max_dev = float(maximum_dev.get()) # Maximum degree of vertical deviation from the axis
 
@@ -1446,14 +1447,23 @@ circa_points = int(circa.get())
 #-------------------------------------------------------------------------------------------------
 point_interval = float(p_interval.get())
 line_downstep = float(axis_downstep.get())
+line_upstep = float(axis_upstep.get()) # From the stripe centroid, how much (upwards direction) will the drawn axes extend.
+
+#-------------------------------------------------------------------------------------------------
+# Height normalization
+#-------------------------------------------------------------------------------------------------
+
+ground_res = float(res_ground.get())
+points_ground = int(min_points_ground.get())
+cloth_res = float(res_cloth.get())
 
 #-------------------------------------------------------------------------------------------------
 # NON MODIFIABLE. These parameters should never be modified by the user.
 #-------------------------------------------------------------------------------------------------
 
-X_field = int(X_column.get()) # Which column contains X field  - NON MODIFIABLE
-Y_field = int(Y_column.get()) # Which column contains Y field  - NON MODIFIABLE
-Z_field = int(Z_column.get()) # Which column contains Z field  - NON MODIFIABLE
+X_field = 0 # Which column contains X field  - NON MODIFIABLE
+Y_field = 1 # Which column contains Y field  - NON MODIFIABLE
+Z_field = 2 # Which column contains Z field  - NON MODIFIABLE
 
 Z0_field = 3 # Which column contains Z0 field  - NON MODIFIABLE
 tree_id_field = 4 # Which column contains tree ID field  - NON MODIFIABLE
@@ -1529,7 +1539,7 @@ else:
         print('---------------------------------------------')
         t = timeit.default_timer()
         # Noise elimination
-        clean_points = dm.clean_ground(coords)
+        clean_points = dm.clean_ground(coords, ground_res, points_ground)
         
         elapsed = timeit.default_timer() - t
         print('        ',"%.2f" % elapsed,'s: denoising')
@@ -1551,7 +1561,7 @@ else:
         print('---------------------------------------------')
         t = timeit.default_timer()
         # Extracting ground points and DTM
-        cloth_nodes = dm.generate_dtm(coords)
+        cloth_nodes = dm.generate_dtm(coords, cloth_resolution=cloth_res)
         
         elapsed = timeit.default_timer() - t
         print('        ',"%.2f" % elapsed,'s: generating the DTM')
@@ -1594,7 +1604,7 @@ print('1.-Extracting the stripe and peeling the stems...')
 print('---------------------------------------------')
 
 stripe = coords[(coords[:, 3] > stripe_lower_limit) & (coords[:, 3] < stripe_upper_limit), 0:4]
-clust_stripe = dm.verticality_clustering(stripe, vert_scale_stripe, vert_threshold_stripe, eps_stripe, n_points_stripe, n_iter_stripe, resolution_xy_stripe, resolution_z_stripe, n_digits)
+clust_stripe = dm.verticality_clustering(stripe, vert_scale_stripe, vert_threshold_stripe, n_points_stripe, n_iter_stripe, resolution_xy_stripe, resolution_z_stripe, n_digits)
 
 print('---------------------------------------------')
 print('2.-Computing distances to axes and individualizating trees...')
@@ -1649,7 +1659,7 @@ print('4.-Extracting and curating stems...')
 print('---------------------------------------------')
 
 xyz0_coords = assigned_cloud[(assigned_cloud[:, 5] < expected_R) & (assigned_cloud[:, 3] > min_h) & (assigned_cloud[:,3] < max_h + section_width),:]
-stems = dm.verticality_clustering(xyz0_coords, vert_scale_stems, vert_threshold_stems, eps_stems, n_points_stems, n_iter_stems, resolution_xy_stripe, resolution_z_stripe, n_digits)[:, 0:6]
+stems = dm.verticality_clustering(xyz0_coords, vert_scale_stems, vert_threshold_stems, n_points_stems, n_iter_stems, resolution_xy_stripe, resolution_z_stripe, n_digits)[:, 0:6]
 
 
 # Computing circles 
