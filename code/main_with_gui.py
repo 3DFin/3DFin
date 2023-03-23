@@ -904,7 +904,9 @@ gui.CreateToolTip(verticality_scale_stripe_info, text = 'Vicinity radius for PCA
 verticality_thresh_stripe_info = ttk.Label(expert_tab, image = info_icon)
 verticality_thresh_stripe_info.grid(column = 1, row = 6)
 gui.CreateToolTip(verticality_thresh_stripe_info, text = 'Verticality threshold durig stem extraction.\n'
-              'Default value: 0.7.')
+                  'Verticality is defined as (1 - sin(V)), being V the vertical angle of the normal\n'
+                  'vector, measured from the horizontal. Note that it does not grow linearly.\n'
+                  'Default value: 0.7.')
 
 
 res_xy_info = ttk.Label(expert_tab, image = info_icon)
@@ -930,8 +932,10 @@ gui.CreateToolTip(verticality_scale_stems_info, text = 'Vicinity radius for PCA 
 
 verticality_thresh_stems_info = ttk.Label(expert_tab, image = info_icon)
 verticality_thresh_stems_info.grid(column = 1, row = 13)
-gui.CreateToolTip(verticality_thresh_stems_info, text = 'Verticality threshold durig tree individualization.\n'
-              'Default value: 0.7.')
+gui.CreateToolTip(verticality_thresh_stems_info, text = 'Verticality threshold durig stem extraction.\n'
+                  'Verticality is defined as (1 - sin(V)), being V the vertical angle of the normal\n'
+                  'vector, measured from the horizontal. Note that it does not grow linearly.\n'
+                  'Default value: 0.7.')
 
 height_range_info = ttk.Label(expert_tab, image = info_icon)
 height_range_info.grid(column = 1, row = 14)
