@@ -208,7 +208,7 @@ except FileNotFoundError:
     
     ### Advanced parameters ###  
     maximum_diameter.set("1.0")
-    stem_search_diameter.set("1.0")
+    stem_search_diameter.set("2.0")
     minimum_height.set("0.3")
     maximum_height.set("25")
     section_len.set("0.2")
@@ -1708,16 +1708,6 @@ las_tree_locations.z = tree_locations[:, 2]
 las_tree_locations.write(filename_las[:-4] + "_tree_locator.las")
 
 
-# matrix with tree height, DBH and (x,y) coordinates of each tree
-dbh_and_heights = np.zeros((dbh_values.shape[0], 4))
-if tree_heights.shape[0] != dbh_values.shape[0]:
-    tree_heights = tree_heights[0:dbh_values.shape[0], :]
-dbh_and_heights[:, 0] = tree_heights[:, 3]
-dbh_and_heights[:, 1] = dbh_values[:, 0]
-dbh_and_heights[:, 2] = tree_locations[:, 0]
-dbh_and_heights[:, 3] = tree_locations[:, 1]
-
-
 # -------------------------------------------------------------------------------------------------------------
 # Exporting results 
 # -------------------------------------------------------------------------------------------------------------
@@ -1741,14 +1731,14 @@ if not txt:
         # Covers np.arrays of shape == 2 (almost every case)
         if len(data.shape) == 2:
             df = pd.DataFrame(data=data,
-                              index=['T'+str(i) for i in range(data.shape[0])],
-                              columns=['S'+str(i) for i in range(data.shape[1])])
+                              index=['T'+str(i + 1) for i in range(data.shape[0])],
+                              columns=['S'+str(i + 1) for i in range(data.shape[1])])
         
         # Covers np.arrays of shape == 1 (basically, data regarding the normalized height of every section).
         if len(data.shape) == 1:
             df = pd.DataFrame(data=data).transpose()
             df.index = ['Z0']
-            df.columns = ['S'+str(i) for i in range(data.shape[0])]
+            df.columns = ['S'+str(i + 1) for i in range(data.shape[0])]
             
         return(df)
     
@@ -1762,6 +1752,18 @@ if not txt:
     df_sector_perct = to_pandas(sector_perct)
     df_n_points_in = to_pandas(n_points_in)
     
+    df_dbh = pd.DataFrame(data=dbh_values[:, 0], 
+                          index=['T'+str(i + 1) for i in range(dbh_values.shape[0])],
+                          columns = ['DBH'])
+    
+    df_heights = pd.DataFrame(data=tree_heights[:, 3], 
+                              index=['T'+str(i + 1) for i in range(tree_heights.shape[0])],
+                              columns = ['TH'])
+    
+    df_locations = pd.DataFrame(data=tree_locations[:, 0:2], 
+                                index=['T'+str(i + 1) for i in range(tree_heights.shape[0])],
+                                columns = ['X', 'Y'])
+    
     # Description to be added to each excel sheet.
     info_diameters = """Diameter of every section (S) of every tree (T). 
         Units are meters.
@@ -1771,7 +1773,7 @@ if not txt:
     info_sections = """Normalized height (Z0) of every section (S).
     Units are meters."""
     info_quality = """Overal quality of every section (S) of every tree (T).
-    0: Section passes quality checks - 1: Section does not pass quality checks.
+    0: Section does not pass quality checks - 1: Section passes quality checks.
     """
     info_outliers = """'Outlier probability' of every section (S) of every tree (T).
     It takes values between 0 and 1.
@@ -1782,7 +1784,14 @@ if not txt:
     info_n_points_in = """Number of points in the inner circle of every section (S) of every tree (T).
     The lowest, the better.
     """
-
+    info_dbh = """Diameter at breast height (DBH) of each tree (T).
+    Units are meters.
+    """
+    info_heights = """Total height (TH) of each tree (T).
+    Units are meters.
+    """
+    info_locations = """(x, y) coordinates (X and Y) of each tree (T)."""
+    
     # Converting descriptions to pandas DataFrames for ease to include them in the excel file.
     df_info_diameters = pd.Series(info_diameters)
     df_info_X_c = pd.Series(info_X_c)
@@ -1792,6 +1801,9 @@ if not txt:
     df_info_outliers = pd.Series(info_outliers)
     df_info_sector_perct = pd.Series(info_sector_perct)
     df_info_n_points_in = pd.Series(info_n_points_in)
+    df_info_dbh = pd.Series(info_dbh)
+    df_info_heights = pd.Series(info_heights)
+    df_info_locations = pd.Series(info_locations)
         
     
     # Creating an instance of a excel writer
@@ -1821,6 +1833,24 @@ if not txt:
                               header = False, 
                               index = False, 
                               merge_cells = False)
+   
+    df_info_dbh.to_excel(writer,
+                         sheet_name = "Tree DBH", 
+                         header = False, 
+                         index = False, 
+                         merge_cells = False)
+    
+    df_info_heights.to_excel(writer,
+                             sheet_name = "Tree Total Height", 
+                             header = False, 
+                             index = False, 
+                             merge_cells = False)
+    
+    df_info_locations.to_excel(writer,
+                               sheet_name = "Tree Location", 
+                               header = False, 
+                               index = False, 
+                               merge_cells = False)
     
     df_info_quality.to_excel(writer,
                              sheet_name = "Q(Overall Quality 0-1)", 
@@ -1845,11 +1875,16 @@ if not txt:
                                  header = False, 
                                  index = False, 
                                  merge_cells = False)
+    
+
     # Writing the data
     df_diameters.to_excel(writer, sheet_name="Diameters", startrow=2, startcol= 1)  
     df_X_c.to_excel(writer, sheet_name="X", startrow=2, startcol= 1)
     df_Y_c.to_excel(writer, sheet_name="Y", startrow=2, startcol= 1)
     df_sections.to_excel(writer, sheet_name="Sections", startrow=2, startcol= 1)
+    df_dbh.to_excel(writer, sheet_name="Tree DBH", startrow=2, startcol= 1)
+    df_heights.to_excel(writer, sheet_name="Tree Total Height", startrow=2, startcol= 1)
+    df_locations.to_excel(writer, sheet_name="Tree Location", startrow=2, startcol= 1)
     df_quality.to_excel(writer, sheet_name="Q(Overall Quality 0-1)", startrow=2, startcol= 1)
     df_outliers.to_excel(writer, sheet_name="Q1(Outlier Probability)", startrow=2, startcol= 1)
     df_sector_perct.to_excel(writer, sheet_name="Q2(Sector Occupancy)", startrow=2, startcol= 1)
@@ -1858,7 +1893,17 @@ if not txt:
     writer.close()
 
 else:
-          
+    
+    # matrix with tree height, DBH and (x,y) coordinates of each tree
+    dbh_and_heights = np.zeros((dbh_values.shape[0], 4))
+    if tree_heights.shape[0] != dbh_values.shape[0]:
+        tree_heights = tree_heights[0:dbh_values.shape[0], :]
+    dbh_and_heights[:, 0] = tree_heights[:, 3]
+    dbh_and_heights[:, 1] = dbh_values[:, 0]
+    dbh_and_heights[:, 2] = tree_locations[:, 0]
+    dbh_and_heights[:, 3] = tree_locations[:, 1]
+
+
     np.savetxt(filename_las[:-4]+'_diameters.txt', R * 2, fmt = ('%.3f'))
     np.savetxt(filename_las[:-4]+'_X_c.txt', X_c, fmt = ('%.3f'))
     np.savetxt(filename_las[:-4]+'_Y_c.txt', Y_c, fmt = ('%.3f'))
