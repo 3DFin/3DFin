@@ -617,7 +617,7 @@ stem_search_diameter_info = ttk.Label(advanced_tab, image = info_icon)
 stem_search_diameter_info.grid(column = 1, row = 2)
 gui.CreateToolTip(stem_search_diameter_info, text = 'Points within this distance from tree axes will be considered\n'
               'as potential stem points. Reasonable values are "Maximum diameter"-2 meters \n'
-              '(exceptionally greater than 1: very large diameters and/or intricate stems).')
+              '(exceptionally greater than 2: very large diameters and/or intricate stems).')
 
 minimum_height_info = ttk.Label(advanced_tab, image = info_icon)
 minimum_height_info.grid(column = 1, row = 3)
