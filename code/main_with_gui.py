@@ -1502,7 +1502,7 @@ t_t = timeit.default_timer()
 
 if is_normalized:
     
-    # Read .LAS file. It must contain a Z0 field (normalized height). 
+    # Read .LAS file.
     entr = laspy.read(filename_las)
     coords = np.vstack((entr.x, entr.y, entr.z, entr[field_name_z0])).transpose()
     
