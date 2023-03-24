@@ -61,7 +61,7 @@ Text files with tabular data:
 •	[original file name]_dbh_and_heights: Text file containing tree height, tree location and DBH of every tree as tabular data.
 •	[original file name]_X_c: Text file containing the (x) coordinate of the centre of every section of every tree as tabular data.
 •	[original file name]_Y_c: Text file containing the (y) coordinate of the centre of every section of every tree as tabular data.
-•	[original file name]_R: Text file containing the radius of every section of every tree as tabular data.
+•	[original file name]_diameters: Text file containing the diameter of every section of every tree as tabular data.
 •	[original file name]_outliers: Text file containing the ‘outlier probability’ of every section of every tree as tabular data.
 •	[original file name]_sector_perct: Text file containing the sector occupancy of every section of every tree as tabular data.
 •	[original file name]_check_circle: Text file containing the ‘check’ status of every section of every tree as tabular data.
@@ -76,6 +76,7 @@ Text files with tabular data:
 
 import os
 import sys
+import subprocess
 import configparser
 import timeit
 import laspy
@@ -109,7 +110,9 @@ def resource_path(relative_path):
 ### -------------------------------- ###
 
 root = Tk()
-root.title("Input parameters")
+root.iconbitmap(default='icon_window.ico')
+root.title("3DFIN")
+root.option_add('Helvetica', '12')
 root.resizable(False, False)
 root.geometry('810x632+0+0')
 root.columnconfigure(0, weight=1)
@@ -139,8 +142,8 @@ lower_limit = StringVar()
 number_of_iterations = StringVar()
  
  ### Advanced parameters ###  
-maximum_radius = StringVar()
-stem_search_radius = StringVar()
+maximum_diameter = StringVar()
+stem_search_diameter = StringVar()
 minimum_height = StringVar()
 maximum_height = StringVar()
 section_len = StringVar()
@@ -169,8 +172,8 @@ maximum_dev = StringVar()
  
  # Extracting sections #
 number_points_section = StringVar()
-radius_proportion = StringVar()
-minimum_radius = StringVar()
+diameter_proportion = StringVar()
+minimum_diameter = StringVar()
 point_threshold = StringVar()
 point_distance = StringVar()
 number_sectors = StringVar()
@@ -205,8 +208,8 @@ except FileNotFoundError:
     number_of_iterations.set("2")
     
     ### Advanced parameters ###  
-    maximum_radius.set("0.5")
-    stem_search_radius.set("0.35")
+    maximum_diameter.set("1.0")
+    stem_search_diameter.set("1.0")
     minimum_height.set("0.3")
     maximum_height.set("25")
     section_len.set("0.2")
@@ -236,8 +239,8 @@ except FileNotFoundError:
     
     # Extracting sections #
     number_points_section.set("80")
-    radius_proportion.set("0.5")
-    minimum_radius.set("0.03")
+    diameter_proportion.set("0.5")
+    minimum_diameter.set("0.06")
     point_threshold.set("5")
     point_distance.set("0.02")
     number_sectors.set("16")
@@ -270,8 +273,8 @@ else:
     number_of_iterations.set(config['basic']['number_of_iterations'])
     
     ### Advanced parameters ###  
-    maximum_radius.set(config['advanced']['maximum_radius'])
-    stem_search_radius.set(config['advanced']['stem_search_radius'])
+    maximum_diameter.set(config['advanced']['maximum_diameter'])
+    stem_search_diameter.set(config['advanced']['stem_search_diameter'])
     minimum_height.set(config['advanced']['minimum_height'])
     maximum_height.set(config['advanced']['maximum_height'])
     section_len.set(config['advanced']['section_len'])
@@ -300,8 +303,8 @@ else:
     
     # Extracting sections #
     number_points_section.set(config['expert']['number_points_section'])
-    radius_proportion.set(config['expert']['radius_proportion'])
-    minimum_radius.set(config['expert']['minimum_radius'])
+    diameter_proportion.set(config['expert']['diameter_proportion'])
+    minimum_diameter.set(config['expert']['minimum_diameter'])
     point_threshold.set(config['expert']['point_threshold'])
     point_distance.set(config['expert']['point_distance'])
     number_sectors.set(config['expert']['number_sectors'])
@@ -335,7 +338,7 @@ ttk.Label(basic_tab, text="Is the point cloud height-normalized?").grid(column=2
 ttk.Label(basic_tab, text="Do you expect noise points below ground-level?").grid(column=2, row=3, columnspan = 3, sticky="W")
 
 
-ttk.Label(basic_tab, text="Do you want the outputs as raw text files?").grid(column=2, row=5, columnspan = 3, sticky="W")
+ttk.Label(basic_tab, text="Format of output tabular data").grid(column=2, row=5, columnspan = 3, sticky="W")
 
 
 # Z0 field name entry #
@@ -374,18 +377,17 @@ insert_text1 = """This program implements an algorithm to detect the trees prese
 3D point cloud from a forest plot, and compute individual tree parameters: tree height,
 tree location, diameters along the stem (including DBH), and stem axis. 
 
-It accepts a .LAS/.LAZ file, which may contain extra fields (.LAS standard or not). Also, 
-the input point cloud can come from terrestrial photogrammetry, TLS or mobile (e.g. 
-hand-held) LS, a combination of those, and/or a combination of those with UAV-(LS 
-or SfM), or ALS. 
+It takes a .LAS/.LAZ file as input, which may contain extra fields (.LAS standard
+or not). Also, the input point cloud can come from terrestrial photogrammetry, 
+TLS or mobile (e.g. hand-held) LS, a combination of those, and/or a combination 
+of those with UAV-(LS or SfM), or ALS. 
 
-The algorithm may be divided in four main steps:
-    0. Height-normalization of the point cloud (pre-requisite).
-    1. Identification of stems in an user-defined horizontal stripe.
-    2. Stem extraction & tree individualization based on point-to-stem-axis distances.
-    3. Robust computation of stem diameter at different section heights.
+After all computations are done, it outputs several .LAS files containing resulting
+point clouds and a XLSX file storing tabular data. Optionally, tabular data may be 
+output as text files instead of the Excel spreadsheet if preferred. 
 
-For further details, please refer to the documentation.
+
+Further details may be found in next tabs and in the documentation.
 """
 ttk.Separator(basic_tab, orient = "vertical").grid(column = 5, row = 1, rowspan = 10, sticky = "NS")
 
@@ -394,7 +396,6 @@ ttk.Label(basic_tab, text = insert_text1).grid(column = 6, row = 3, rowspan = 8,
 #### Adding images ####
 
 img1 = ImageTk.PhotoImage(Image.open(resource_path("stripe.png")))
-
 img2 = ImageTk.PhotoImage(Image.open(resource_path("original_cloud.png")))
 img3 = ImageTk.PhotoImage(Image.open(resource_path("normalized_cloud.png")))
 
@@ -455,13 +456,13 @@ clean_button_2.grid(column=3, row=4, sticky="EW")
 
 
 # Variable to keep track of the option selected in excel_button_1
-excel_var = BooleanVar()
+txt_var = BooleanVar()
 
 # Create the optionmenu widget and passing the options_list and value_inside to it.
-excel_button_1 = ttk.Radiobutton(basic_tab, text="Yes", variable=excel_var, value=True)
-excel_button_1.grid(column=2, row=6, sticky="EW")
-excel_button_1 = ttk.Radiobutton(basic_tab, text="No", variable=excel_var, value=False)
-excel_button_1.grid(column=3, row=6, sticky="EW")
+txt_button_1 = ttk.Radiobutton(basic_tab, text="TXT files", variable=txt_var, value=True)
+txt_button_1.grid(column=2, row=6, sticky="EW")
+txt_button_1 = ttk.Radiobutton(basic_tab, text="XLSX files", variable=txt_var, value=False)
+txt_button_1.grid(column=3, row=6, sticky="EW")
 
 
 #### Adding info buttons ####
@@ -479,10 +480,10 @@ gui.CreateToolTip(is_noisy_info, text = 'If it is expected to be noise below gro
                   'that there is noise), a denoising step will be added before\n'
                   'generating the Digital Terrain Model.')
 
-excel_info = ttk.Label(basic_tab, image = info_icon)
-excel_info.grid(column = 1, row = 5)
-gui.CreateToolTip(excel_info, text = 'Outputs are gathered in a xlsx (Excel) file by default.\n'
-                  'Selecting "No" will make the program output several txt files\n'
+txt_info = ttk.Label(basic_tab, image = info_icon)
+txt_info.grid(column = 1, row = 5)
+gui.CreateToolTip(txt_info, text = 'Outputs are gathered in a xlsx (Excel) file by default.\n'
+                  'Selecting "TXT files" will make the program output several txt files\n'
                   'with the raw data, which may be more convenient for processing\n'
                   'the data via scripting.')
 
@@ -521,13 +522,13 @@ gui.CreateToolTip(number_of_iterations_info, text = 'Number of iterations of "pr
 note.add(advanced_tab, text = "Advanced")
 
 
-# Maximum radius entry #
-maximum_radius_entry = ttk.Entry(advanced_tab, width=7, textvariable=maximum_radius)
-maximum_radius_entry.grid(column=3, row=1, sticky="EW")
+# Maximum diameter entry #
+maximum_diameter_entry = ttk.Entry(advanced_tab, width=7, textvariable=maximum_diameter)
+maximum_diameter_entry.grid(column=3, row=1, sticky="EW")
 
 # Stem search radius entry #
-stem_search_radius_entry = ttk.Entry(advanced_tab, width=7, textvariable=stem_search_radius)
-stem_search_radius_entry.grid(column=3, row=2, sticky="EW")
+stem_search_diameter_entry = ttk.Entry(advanced_tab, width=7, textvariable=stem_search_diameter)
+stem_search_diameter_entry.grid(column=3, row=2, sticky="EW")
 
 # Lowest section #
 minimum_height_entry = ttk.Entry(advanced_tab, width=7, textvariable=minimum_height)
@@ -546,8 +547,8 @@ section_wid_entry = ttk.Entry(advanced_tab, width=7, textvariable=section_wid)
 section_wid_entry.grid(column = 3, row=6, sticky="EW")
 
 
-ttk.Label(advanced_tab, text="Expected maximum radius").grid(column=2, row=1, sticky="W")
-ttk.Label(advanced_tab, text="Steam search radius").grid(column=2, row=2, sticky="W")
+ttk.Label(advanced_tab, text="Expected maximum diameter").grid(column=2, row=1, sticky="W")
+ttk.Label(advanced_tab, text="Stem search diameter").grid(column=2, row=2, sticky="W")
 ttk.Label(advanced_tab, text="Lowest section").grid(column=2, row=3, sticky="W")
 ttk.Label(advanced_tab, text="Highest section").grid(column=2, row=4, sticky="W")
 ttk.Label(advanced_tab, text="Distance between sections").grid(column=2, row=5, sticky="W")
@@ -610,15 +611,15 @@ ttk.Label(advanced_tab, text = sectors_text).grid(column = 1, row = 10, columnsp
 
 #### Adding info buttons ####
 
-maximum_radius_info = ttk.Label(advanced_tab, image = info_icon)
-maximum_radius_info.grid(column = 1, row = 1)
-gui.CreateToolTip(maximum_radius_info, text = 'Maximum radius expected for any stem.\n'
+maximum_diameter_info = ttk.Label(advanced_tab, image = info_icon)
+maximum_diameter_info.grid(column = 1, row = 1)
+gui.CreateToolTip(maximum_diameter_info, text = 'Maximum diameter expected for any stem.\n'
               'Default value: 0.5 meters.')
 
-stem_search_radius_info = ttk.Label(advanced_tab, image = info_icon)
-stem_search_radius_info.grid(column = 1, row = 2)
-gui.CreateToolTip(stem_search_radius_info, text = 'Points within this distance from tree axes will be considered\n'
-              'as potential stem points. Reasonable values are "Maximum radius"-1 meters \n'
+stem_search_diameter_info = ttk.Label(advanced_tab, image = info_icon)
+stem_search_diameter_info.grid(column = 1, row = 2)
+gui.CreateToolTip(stem_search_diameter_info, text = 'Points within this distance from tree axes will be considered\n'
+              'as potential stem points. Reasonable values are "Maximum diameter"-2 meters \n'
               '(exceptionally greater than 1: very large diameters and/or intricate stems).')
 
 minimum_height_info = ttk.Label(advanced_tab, image = info_icon)
@@ -777,12 +778,12 @@ number_points_section_entry = ttk.Entry(expert_tab, width=7, textvariable=number
 number_points_section_entry.grid(column = 8, row=2, sticky="EW")
 
 # Inner/outer circle proportion #
-radius_proportion_entry = ttk.Entry(expert_tab, width=7, textvariable=radius_proportion)
-radius_proportion_entry.grid(column = 8, row=3, sticky="EW")
+diameter_proportion_entry = ttk.Entry(expert_tab, width=7, textvariable=diameter_proportion)
+diameter_proportion_entry.grid(column = 8, row=3, sticky="EW")
 
 # Minimum radius expected #
-minimum_radius_entry = ttk.Entry(expert_tab, width=7, textvariable=minimum_radius)
-minimum_radius_entry.grid(column = 8, row=4, sticky="EW")
+minimum_diameter_entry = ttk.Entry(expert_tab, width=7, textvariable=minimum_diameter)
+minimum_diameter_entry.grid(column = 8, row=4, sticky="EW")
 
 # Number of points inside the inner circle used as threshold #
 point_threshold_entry = ttk.Entry(expert_tab, width=7, textvariable=point_threshold)
@@ -807,7 +808,7 @@ circle_width_entry.grid(column = 8, row=9, sticky="EW")
 
 ttk.Label(expert_tab, text="Points within section").grid(column = 7, row=2, sticky="W")
 ttk.Label(expert_tab, text="Inner/outer circle proportion").grid(column = 7, row=3, sticky="W")
-ttk.Label(expert_tab, text="Minimum expected radius").grid(column = 7, row=4, sticky="W")
+ttk.Label(expert_tab, text="Minimum expected diameter").grid(column = 7, row=4, sticky="W")
 ttk.Label(expert_tab, text="Points within inner circle").grid(column = 7, row=5, sticky="W")
 ttk.Label(expert_tab, text="Maximum point distance").grid(column = 7, row=6, sticky="W")
 ttk.Label(expert_tab, text="Number of sectors").grid(column = 7, row=7, sticky="W")
@@ -975,15 +976,15 @@ gui.CreateToolTip(number_points_section_info, text = 'Minimum number of points i
               'as valid.\n'
               'Default value: 80.')
 
-radius_proportion_info = ttk.Label(expert_tab, image = info_icon)
-radius_proportion_info.grid(column = 6, row = 3)
-gui.CreateToolTip(radius_proportion_info, text = 'Proportion, regarding the circumference fit by fit_circle,\n'
-              'that the inner circumference radius will have as length.\n'
+diameter_proportion_info = ttk.Label(expert_tab, image = info_icon)
+diameter_proportion_info.grid(column = 6, row = 3)
+gui.CreateToolTip(diameter_proportion_info, text = 'Proportion, regarding the circumference fit by fit_circle,\n'
+              'that the inner circumference diameter will have as length.\n'
               'Default value: 0.5 times.')
 
-minimum_radius_info = ttk.Label(expert_tab, image = info_icon)
-minimum_radius_info.grid(column = 6, row = 4)
-gui.CreateToolTip(minimum_radius_info, text = 'Minimum radius expected for any section during circle fitting.\n'
+minimum_diameter_info = ttk.Label(expert_tab, image = info_icon)
+minimum_diameter_info.grid(column = 6, row = 4)
+gui.CreateToolTip(minimum_diameter_info, text = 'Minimum diameter expected for any section during circle fitting.\n'
               'Default value: 0.03 meters.')
 
 point_threshold_info = ttk.Label(expert_tab, image = info_icon)
@@ -1339,9 +1340,12 @@ Button(root, text='Select file & compute', bg = "light green", width = 30, font 
 
 #### Adding a hyperlink to the documentation ####
 
+
+
+
 link1 = ttk.Label(root, text=" Documentation", font = ("Helvetica", 11), foreground = "blue", cursor="hand2")
 link1.grid(sticky = "NW")
-link1.bind("<Button-1>", lambda e: os.system(resource_path("documentation.pdf")))
+link1.bind("<Button-1>", lambda e: subprocess.Popen(resource_path("documentation.pdf"),shell=True))
 
 
 root.mainloop()
@@ -1355,6 +1359,7 @@ root.mainloop()
 
 is_normalized = is_normalized_var.get()
 is_noisy = is_noisy_var.get()
+txt = txt_var.get()
 
 field_name_z0 = z0_name.get() # Name of the Z0 field in the LAS file containing the cloud. 
 # If the normalized heights are stored in the Z coordinate of the .LAS file: field_name_z0 = "z" (lowercase)
@@ -1371,10 +1376,10 @@ n_iter = int(number_of_iterations.get()) # Number of iterations of 'peeling off 
 # They require a deeper knowledge of how the algorithm and the implementation work
 #-------------------------------------------------------------------------------------------------
 
-expected_R = float(stem_search_radius.get()) # Points within this distance from tree axes will be considered as potential stem points. 
+expected_R = float(stem_search_diameter.get()) / 2# Points within this distance from tree axes will be considered as potential stem points. 
 # Values between R_max and 1 (exceptionally greater than 1: very large diameters and/or intricate stems)
 
-R_max = float(maximum_radius.get()) # Maximum radius expected for any section during circle fitting.
+R_max = float(maximum_diameter.get()) / 2 # Maximum radius expected for any section during circle fitting.
 
 min_h = float(minimum_height.get()) # Lowest height
 max_h = float(maximum_height.get()) # highest height
@@ -1433,8 +1438,8 @@ n_points_stems = n_points # DBSCAN minimum number of points during tree individu
 
 section_width = float(section_wid.get()) # sections are this wide
 n_points_section = int(number_points_section.get()) # Minimum number of points in a section to be considered
-times_R = float(radius_proportion.get()) # Proportion, regarding the circumference fit by fit_circle, that the inner circumference radius will have as length
-R_min = float(minimum_radius.get()) # Minimum radius expected for any section circle fitting.
+times_R = float(diameter_proportion.get()) # Proportion, regarding the circumference fit by fit_circle, that the inner circumference radius will have as length
+R_min = float(minimum_diameter.get()) / 2 # Minimum radius expected for any section circle fitting.
 threshold = int(point_threshold.get()) # Number of points inside the inner circle
 max_dist = float(point_distance.get()) # Maximum distance among points to be considered within the same cluster.
 n_sectors = int(number_sectors.get()) # Number of sectors in which the circumference will be divided
@@ -1718,33 +1723,38 @@ dbh_and_heights[:, 3] = tree_locations[:, 1]
 
 
 
-if excel_var:
+if not txt:
     
+    # Generating aggregated quality value for each section
     quality = np.zeros(sector_perct.shape)
+    # Section does not pass quality check if:
     mask = (
-        (sector_perct < min_n_sectors / n_sectors * 100) 
-        | (n_points_in > threshold) | (outliers > 0.3) 
-        | (R < R_min) 
-        | (R > R_max)
+        (sector_perct < min_n_sectors / n_sectors * 100) # Percentange of occupied sectors less than minimum
+        | (n_points_in > threshold) | (outliers > 0.3) # Outlier probability larger than 30 %
+        | (R < R_min) # Radius smaller than the minimum radius
+        | (R > R_max) # Radius larger than the maximum radius
         )       
-    
+    # 0: does not pass quality check - 1: passes quality checks
     quality = np.where(mask, quality, 1)
     
-    
-    def to_pandas(data): 
+    # Function to convert data to pandas DataFrames
+    def to_pandas(data):
+        # Covers np.arrays of shape == 2 (almost every case)
         if len(data.shape) == 2:
             df = pd.DataFrame(data=data,
                               index=['T'+str(i) for i in range(data.shape[0])],
                               columns=['S'+str(i) for i in range(data.shape[1])])
         
+        # Covers np.arrays of shape == 1 (basically, data regarding the normalized height of every section).
         if len(data.shape) == 1:
             df = pd.DataFrame(data=data).transpose()
             df.index = ['Z0']
             df.columns = ['S'+str(i) for i in range(data.shape[0])]
             
         return(df)
-        
-    df_R = to_pandas(R)
+    
+    # Converting data to pandas DataFrames for ease to output them as excel files.    
+    df_diameters = to_pandas(R) * 2
     df_X_c = to_pandas(X_c)
     df_Y_c = to_pandas(Y_c)
     df_sections = to_pandas(sections)   
@@ -1753,24 +1763,104 @@ if excel_var:
     df_sector_perct = to_pandas(sector_perct)
     df_n_points_in = to_pandas(n_points_in)
     
+    # Description to be added to each excel sheet.
+    info_diameters = """Diameter of every section (S) of every tree (T). 
+        Units are meters.
+        """
+    info_X_c = """(x) coordinate of the centre of every section (S) of every tree (T)."""
+    info_Y_c = """(y) coordinate of the centre of every section (S) of every tree (T)."""
+    info_sections = """Normalized height (Z0) of every section (S).
+    Units are meters."""
+    info_quality = """Overal quality of every section (S) of every tree (T).
+    0: Section passes quality checks - 1: Section does not pass quality checks.
+    """
+    info_outliers = """'Outlier probability' of every section (S) of every tree (T).
+    It takes values between 0 and 1.
+    """
+    info_sector_perct = """Percentage of occupied sectors of every section (S) of every tree (T).
+    It takes values between 0 and 100.
+    """
+    info_n_points_in = """Number of points in the inner circle of every section (S) of every tree (T).
+    The lowest, the better.
+    """
+
+    # Converting descriptions to pandas DataFrames for ease to include them in the excel file.
+    df_info_diameters = pd.Series(info_diameters)
+    df_info_X_c = pd.Series(info_X_c)
+    df_info_Y_c = pd.Series(info_Y_c)
+    df_info_sections = pd.Series(info_sections)
+    df_info_quality = pd.Series(info_quality)
+    df_info_outliers = pd.Series(info_outliers)
+    df_info_sector_perct = pd.Series(info_sector_perct)
+    df_info_n_points_in = pd.Series(info_n_points_in)
+        
     
+    # Creating an instance of a excel writer
     writer = pd.ExcelWriter(filename_las[:-4] + ".xlsx", engine='xlsxwriter')
     
-    df_R.to_excel(writer, sheet_name="R")  
-    df_X_c.to_excel(writer, sheet_name="X")
-    df_Y_c.to_excel(writer, sheet_name="Y")
-    df_sections.to_excel(writer, sheet_name="Sections")
-    df_quality.to_excel(writer, sheet_name="Q(Overall Quality 0-1)")
-    df_outliers.to_excel(writer, sheet_name="Q1(Outlier Probability)")
-    df_sector_perct.to_excel(writer, sheet_name="Q2(Sector Occupancy)")
-    df_n_points_in.to_excel(writer, sheet_name="Q3(Points Inner Circle)")
-      
-    writer.close()
+    # Writing the descriptions
+    df_info_diameters.to_excel(writer, 
+                               sheet_name = "Diameters", 
+                               header = False,
+                               index = False,
+                               merge_cells = False)
     
+    df_info_X_c.to_excel(writer, 
+                         sheet_name = "X", 
+                         header = False, 
+                         index = False, 
+                         merge_cells = False)
+    
+    df_info_Y_c.to_excel(writer,
+                         sheet_name = "Y", 
+                         header = False, 
+                         index = False, 
+                         merge_cells = False)
+    
+    df_info_sections.to_excel(writer,
+                              sheet_name = "Sections", 
+                              header = False, 
+                              index = False, 
+                              merge_cells = False)
+    
+    df_info_quality.to_excel(writer,
+                             sheet_name = "Q(Overall Quality 0-1)", 
+                             header = False, 
+                             index = False, 
+                             merge_cells = False)
+    
+    df_info_outliers.to_excel(writer,
+                              sheet_name = "Q1(Outlier Probability)", 
+                              header = False, 
+                              index = False, 
+                              merge_cells = False)
+    
+    df_info_sector_perct.to_excel(writer,
+                                  sheet_name = "Q2(Sector Occupancy)", 
+                                  header = False, 
+                                  index = False, 
+                                  merge_cells = False)
+    
+    df_info_n_points_in.to_excel(writer,
+                                 sheet_name = "Q3(Points Inner Circle)", 
+                                 header = False, 
+                                 index = False, 
+                                 merge_cells = False)
+    # Writing the data
+    df_diameters.to_excel(writer, sheet_name="Diameters", startrow=2, startcol= 1)  
+    df_X_c.to_excel(writer, sheet_name="X", startrow=2, startcol= 1)
+    df_Y_c.to_excel(writer, sheet_name="Y", startrow=2, startcol= 1)
+    df_sections.to_excel(writer, sheet_name="Sections", startrow=2, startcol= 1)
+    df_quality.to_excel(writer, sheet_name="Q(Overall Quality 0-1)", startrow=2, startcol= 1)
+    df_outliers.to_excel(writer, sheet_name="Q1(Outlier Probability)", startrow=2, startcol= 1)
+    df_sector_perct.to_excel(writer, sheet_name="Q2(Sector Occupancy)", startrow=2, startcol= 1)
+    df_n_points_in.to_excel(writer, sheet_name="Q3(Points Inner Circle)", startrow=2, startcol= 1)
+    
+    writer.close()
     
 else:
           
-    np.savetxt(filename_las[:-4]+'_R.txt', R, fmt = ('%.3f'))
+    np.savetxt(filename_las[:-4]+'_diameters.txt', R * 2, fmt = ('%.3f'))
     np.savetxt(filename_las[:-4]+'_X_c.txt', X_c, fmt = ('%.3f'))
     np.savetxt(filename_las[:-4]+'_Y_c.txt', Y_c, fmt = ('%.3f'))
     np.savetxt(filename_las[:-4]+'_check_circle.txt', check_circle, fmt = ('%.3f'))
