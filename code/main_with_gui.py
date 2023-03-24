@@ -110,7 +110,7 @@ def resource_path(relative_path):
 ### -------------------------------- ###
 
 root = Tk()
-root.iconbitmap(default='icon_window.ico')
+root.iconbitmap(default=resource_path('icon_window.ico'))
 root.title("3DFIN")
 root.option_add('Helvetica', '12')
 root.resizable(False, False)
@@ -133,7 +133,6 @@ about_tab = ttk.Frame(note)
 ### --------------------------------- ###
 ### -------- Input parameters ------- ###
 ### --------------------------------- ###
-
 
  ### Basic parameters ###
 z0_name = StringVar()
@@ -565,11 +564,11 @@ ttk.Label(advanced_tab, text="meters").grid(column=4, row=6, sticky="W")
 insert_text2 = """If the results obtained by just tweaking basic parameters do not meet your expectations,
 you might want to modify these. 
 
-You can get a brief description of what they do by hovering the mouse over the info icon 
-right before each parameter. However, keep in mind that a thorough understanding is advi-
-sable before changing these. For that, you can get a better grasp of what the algorithm does 
-in the attached documentation. You can easily access it through the Documentation 
-button in the bottom-left corner.
+You can get a brief description of what they do by hovering the mouse over the info icon
+right before each parameter. However, keep in mind that a thorough understanding is
+advisable before changing these. For that, you can get a better grasp of what the algo-
+rithm does in the attached documentation. You can easily access it through the 
+Documentation button in the bottom-left corner.
 """
 
 ttk.Separator(advanced_tab, orient = "vertical").grid(column = 5, 
@@ -586,27 +585,25 @@ for child in advanced_tab.winfo_children():
     child.grid_configure(padx=5, pady=5)
 
 
-
 #### Adding images ####
 
 sections_img = ImageTk.PhotoImage(Image.open(resource_path("section_details.png")))
-ttk.Label(advanced_tab, image = sections_img).grid(column = 1, row = 9, columnspan=15, sticky = "W", padx = 35, pady = 5)
+ttk.Label(advanced_tab, image = sections_img).grid(column = 1, row = 9, columnspan=15, sticky = "W", padx = 20, pady = 5)
 
 sections_text = """A) Sections along the stem B) Detail of computed sections showing the distance 
 between them and their width C) Circle fitting to the points of a section.
 """
-ttk.Label(advanced_tab, text = sections_text).grid(column = 1, row = 10, columnspan = 15, sticky = "NW", padx = 35, pady = 5)
+ttk.Label(advanced_tab, text = sections_text).grid(column = 1, row = 10, columnspan = 15, sticky = "NW", padx = 20, pady = 5)
 
 
 sectors_img = ImageTk.PhotoImage(Image.open(resource_path("sectors.png")))
-ttk.Label(advanced_tab, image = sectors_img).grid(column = 1, row = 9, columnspan=15, sticky = "E", padx = 35, pady = 5)
+ttk.Label(advanced_tab, image = sectors_img).grid(column = 1, row = 9, columnspan=15, sticky = "E", padx = 20, pady = 5)
 
 sectors_text = """Several quality controls are implemented to
 validate the fitted circles, such as measuring
 the point distribution along the sections."""
 
-ttk.Label(advanced_tab, text = sectors_text).grid(column = 1, row = 10, columnspan = 15, sticky = "NE", padx = 35, pady = 5)
-
+ttk.Label(advanced_tab, text = sectors_text).grid(column = 1, row = 10, columnspan = 15, sticky = "NE", padx = 20, pady = 5)
 
 
 #### Adding info buttons ####
@@ -1064,7 +1061,7 @@ warning_img = ImageTk.PhotoImage(Image.open(resource_path("warning_img_1.png")))
 #### Warning button ####
 def open_warning():
    new = Toplevel(root)
-   new.geometry("670x335")
+   new.geometry("700x380")
    new.title("WARNING")
    ttk.Label(new, image = warning_img).grid(column = 2, row = 1, rowspan = 3, sticky = "E")
    ttk.Label(new, text = "This is the expert parameters tab.", font=("Helvetica", 10)).grid(column = 1, row = 1, sticky = "W")
@@ -1085,6 +1082,10 @@ def open_warning():
              "the automatic parametrization of wood volume equations from Terrestrial Laser Scanning\n"
              "point clouds: application in Pinus pinaster. GIScience and Remote Sensing, 58(7), 1130–1150.\n"
              "https://doi.org/10.1080/15481603.2021.1972712 ", font = ("Helvetica", 10)).grid(column = 1, row = 7, sticky = "W")
+   
+   ttk.Label(new, text = "Zhang, W., Qi, J., Wan, P., Wang, H., Xie, D., Wang, X., & Yan, G. (2016). An\n"
+             "easy-to-use airborne LiDAR data filtering method based on cloth simulation. Remote Sensing, 8(6).\n"
+             "https://doi.org/10.3390/rs8060501", font = ("Helvetica", 10)).grid(column = 1, row = 8, sticky = "W")
    
    for child in new.winfo_children(): 
        child.grid_configure(padx=3, pady=3)
@@ -1502,7 +1503,7 @@ t_t = timeit.default_timer()
 
 if is_normalized:
     
-    # Read .LAS file.
+    # Read .LAS file. 
     entr = laspy.read(filename_las)
     coords = np.vstack((entr.x, entr.y, entr.z, entr[field_name_z0])).transpose()
     
@@ -1721,8 +1722,6 @@ dbh_and_heights[:, 3] = tree_locations[:, 1]
 # Exporting results 
 # -------------------------------------------------------------------------------------------------------------
 
-
-
 if not txt:
     
     # Generating aggregated quality value for each section
@@ -1857,7 +1856,7 @@ if not txt:
     df_n_points_in.to_excel(writer, sheet_name="Q3(Points Inner Circle)", startrow=2, startcol= 1)
     
     writer.close()
-    
+
 else:
           
     np.savetxt(filename_las[:-4]+'_diameters.txt', R * 2, fmt = ('%.3f'))
@@ -1870,7 +1869,6 @@ else:
     np.savetxt(filename_las[:-4]+'_dbh_and_heights.txt', dbh_and_heights, fmt = ('%.3f'))
     np.savetxt(filename_las[:-4]+'_sections.txt', np.column_stack(sections), fmt = ('%.3f'))
 
-   
 elapsed_las2 = timeit.default_timer() - t_las2
 print('Total time:',"   %.2f" % elapsed_las2,'s')
 
