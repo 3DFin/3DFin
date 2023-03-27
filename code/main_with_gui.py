@@ -156,6 +156,7 @@ res_z_stripe = StringVar()
 number_of_points = StringVar()
 verticality_scale_stripe = StringVar()
 verticality_thresh_stripe = StringVar()
+height_range = StringVar()
  
  # Tree individualization #
 res_xy = StringVar()
@@ -163,7 +164,6 @@ res_z = StringVar()
 minimum_points = StringVar()
 verticality_scale_stems = StringVar()
 verticality_thresh_stems = StringVar()
-height_range = StringVar()
 maximum_d = StringVar()
 distance_to_axis = StringVar()
 res_heights = StringVar()
@@ -202,8 +202,8 @@ except FileNotFoundError:
     
     ### Basic parameters ###
     z0_name.set("Z0")
-    upper_limit.set("2.5")
-    lower_limit.set("0.5")
+    upper_limit.set("3.5")
+    lower_limit.set("0.7")
     number_of_iterations.set("2")
     
     ### Advanced parameters ###  
@@ -222,7 +222,7 @@ except FileNotFoundError:
     number_of_points.set("1000")
     verticality_scale_stripe.set("0.1")
     verticality_thresh_stripe.set("0.7")
-
+    height_range.set("0.7")
     
     # Tree individualization #
     res_xy.set("0.035")
@@ -230,7 +230,6 @@ except FileNotFoundError:
     minimum_points.set("20")
     verticality_scale_stems.set("0.1")
     verticality_thresh_stems.set("0.7")
-    height_range.set("1.2")
     maximum_d.set("15")
     distance_to_axis.set("1.5")
     res_heights.set("0.3")
@@ -287,6 +286,7 @@ else:
     number_of_points.set(config['expert']['number_of_points'])
     verticality_scale_stripe.set(config['expert']['verticality_scale_stripe'])
     verticality_thresh_stripe.set(config['expert']['verticality_thresh_stripe'])
+    height_range.set(config['expert']['height_range'])
     
     # Stem extraction and tree individualization #
     res_xy.set(config['expert']['res_xy'])
@@ -294,7 +294,6 @@ else:
     minimum_points.set(config['expert']['minimum_points'])
     verticality_scale_stems.set(config['expert']['verticality_scale_stems'])
     verticality_thresh_stems.set(config['expert']['verticality_thresh_stems'])
-    height_range.set(config['expert']['height_range'])
     maximum_d.set(config['expert']['maximum_d'])
     distance_to_axis.set(config['expert']['distance_to_axis'])
     res_heights.set(config['expert']['res_heights'])
@@ -676,6 +675,9 @@ verticality_scale_stripe_entry.grid(column=3, row=5, sticky="EW")
 verticality_thresh_stripe_entry = ttk.Entry(expert_tab, width=7, textvariable=verticality_thresh_stripe)
 verticality_thresh_stripe_entry.grid(column=3, row=6, sticky="EW")
 
+# Vertical range #
+height_range_entry = ttk.Entry(expert_tab, width=7, textvariable=height_range)
+height_range_entry.grid(column=3, row=7, sticky="EW")
 
 
 ttk.Label(expert_tab, text="(x, y) voxel resolution").grid(column=2, row=2, sticky="w")
@@ -683,43 +685,41 @@ ttk.Label(expert_tab, text="(z) voxel resolution").grid(column=2, row=3, sticky=
 ttk.Label(expert_tab, text="Number of points").grid(column=2, row=4, sticky="W")
 ttk.Label(expert_tab, text="Vicinity radius (verticality computation)").grid(column=2, row=5, sticky="W")
 ttk.Label(expert_tab, text="Verticality threshold").grid(column=2, row=6, sticky="W")
+ttk.Label(expert_tab, text="Vertical range").grid(column=2, row=7, sticky="W")
+
 
 ttk.Label(expert_tab, text="meters").grid(column=4, row=2, sticky="W")
 ttk.Label(expert_tab, text="meters").grid(column=4, row=3, sticky="W")
 ttk.Label(expert_tab, text="meters").grid(column=4, row=5, sticky="W")
 ttk.Label(expert_tab, text="(0, 1)").grid(column=4, row=6, sticky="W")
 
+
 ### Stem extraction and tree individualization ###
-ttk.Label(expert_tab, text="Stem extraction and tree individualization", font = ("Helvetica", 10, "bold")).grid(column=1, row=8, columnspan=4, sticky="N")
+ttk.Label(expert_tab, text="Stem extraction and tree individualization", font = ("Helvetica", 10, "bold")).grid(column=1, row=9, columnspan=4, sticky="N")
 
 # (x, y) voxel resolution 
 res_xy_entry = ttk.Entry(expert_tab, width=7, textvariable=res_xy)
-res_xy_entry.grid(column=3, row=9, sticky="EW")
+res_xy_entry.grid(column=3, row=10, sticky="EW")
 
 
 # (z) voxel resolution #
 res_z_entry = ttk.Entry(expert_tab, width=7, textvariable=res_z)
-res_z_entry.grid(column=3, row=10, sticky="EW")
+res_z_entry.grid(column=3, row=11, sticky="EW")
 
 
 # Minimum points #
 minimum_points_entry = ttk.Entry(expert_tab, width=7, textvariable=minimum_points)
-minimum_points_entry.grid(column=3, row=11, sticky="EW")
+minimum_points_entry.grid(column=3, row=12, sticky="EW")
 
 
 # Vicinity radius for PCA #
 verticality_scale_stems_entry = ttk.Entry(expert_tab, width=7, textvariable=verticality_scale_stems)
-verticality_scale_stems_entry.grid(column=3, row=12, sticky="EW")
+verticality_scale_stems_entry.grid(column=3, row=13, sticky="EW")
 
 
 # Verticality threshold durig tree individualization entry #
 verticality_thresh_stems_entry = ttk.Entry(expert_tab, width=7, textvariable=verticality_thresh_stems)
-verticality_thresh_stems_entry.grid(column=3, row=13, sticky="EW")
-
-
-# Vertical range #
-height_range_entry = ttk.Entry(expert_tab, width=7, textvariable=height_range)
-height_range_entry.grid(column=3, row=14, sticky="EW")
+verticality_thresh_stems_entry.grid(column=3, row=14, sticky="EW")
 
 
 # Maximum distance to axis #
@@ -741,19 +741,18 @@ maximum_dev_entry = ttk.Entry(expert_tab, width=7, textvariable=maximum_dev)
 maximum_dev_entry.grid(column=3, row=18, sticky="EW")
 
 
-ttk.Label(expert_tab, text="(x, y) voxel resolution").grid(column=2, row=9, sticky="W")
-ttk.Label(expert_tab, text="(z) voxel resolution").grid(column=2, row=10, sticky="W")
-ttk.Label(expert_tab, text="Minimum points").grid(column=2, row=11, sticky="W")
-ttk.Label(expert_tab, text="Vicinity radius (verticality computation)").grid(column=2, row=12, sticky="W")
-ttk.Label(expert_tab, text="Verticality threshold").grid(column=2, row=13, sticky="W")
-ttk.Label(expert_tab, text="Vertical range").grid(column=2, row=14, sticky="W")
+ttk.Label(expert_tab, text="(x, y) voxel resolution").grid(column=2, row=10, sticky="W")
+ttk.Label(expert_tab, text="(z) voxel resolution").grid(column=2, row=11, sticky="W")
+ttk.Label(expert_tab, text="Minimum points").grid(column=2, row=12, sticky="W")
+ttk.Label(expert_tab, text="Vicinity radius (verticality computation)").grid(column=2, row=13, sticky="W")
+ttk.Label(expert_tab, text="Verticality threshold").grid(column=2, row=14, sticky="W")
 ttk.Label(expert_tab, text="Maximum distance to tree axis").grid(column=2, row=15, sticky="W")
 ttk.Label(expert_tab, text="Distance from axis").grid(column=2, row=16, sticky="W")
 ttk.Label(expert_tab, text="Voxel resolution for height computation").grid(column=2, row=17, sticky="W")
 ttk.Label(expert_tab, text="Maximum vertical deviation from axis").grid(column=2, row=18, sticky="W")
 
-ttk.Label(expert_tab, text="meters").grid(column=4, row=9, sticky="W")
 ttk.Label(expert_tab, text="meters").grid(column=4, row=10, sticky="W")
+ttk.Label(expert_tab, text="meters").grid(column=4, row=11, sticky="W")
 ttk.Label(expert_tab, text="meters").grid(column=4, row=12, sticky="W")
 ttk.Label(expert_tab, text="(0, 1)").grid(column=4, row=13, sticky="W")
 ttk.Label(expert_tab, text="meters").grid(column=4, row=14, sticky="W")
@@ -906,40 +905,40 @@ gui.CreateToolTip(verticality_thresh_stripe_info, text = 'Verticality threshold 
                   'vector, measured from the horizontal. Note that it does not grow linearly.\n'
                   'Default value: 0.7.')
 
+height_range_info = ttk.Label(expert_tab, image = info_icon)
+height_range_info.grid(column = 1, row = 7)
+gui.CreateToolTip(height_range_info, text = 'Proportion (0: none - 1: all) of the vertical range of the stripe\n'
+              'that points need to extend through to be valid stems.\n'
+              'Default value: 0.7.')
 
 res_xy_info = ttk.Label(expert_tab, image = info_icon)
-res_xy_info.grid(column = 1, row = 9)
+res_xy_info.grid(column = 1, row = 10)
 gui.CreateToolTip(res_xy_info, text = '(x, y) voxel resolution during tree individualization.\n'
               'Default value: 0.035 meters.')
 
 res_z_info = ttk.Label(expert_tab, image = info_icon)
-res_z_info.grid(column = 1, row = 10)
+res_z_info.grid(column = 1, row = 11)
 gui.CreateToolTip(res_z_info, text = '(z) voxel resolution during tree individualization.\n'
               'Default value: 0.035 meters.')
 
 minimum_points_info = ttk.Label(expert_tab, image = info_icon)
-minimum_points_info.grid(column = 1, row = 11)
+minimum_points_info.grid(column = 1, row = 12)
 gui.CreateToolTip(minimum_points_info, text = 'Minimum number of points (voxels) within a stripe to consider it\n'
               'as a potential tree during tree individualization.\n'
               'Default value: 20.')
 
 verticality_scale_stems_info = ttk.Label(expert_tab, image = info_icon)
-verticality_scale_stems_info.grid(column = 1, row = 12)
+verticality_scale_stems_info.grid(column = 1, row = 13)
 gui.CreateToolTip(verticality_scale_stems_info, text = 'Vicinity radius for PCA during tree individualization.\n'
               'Default value: 0.1 meters.')
 
 verticality_thresh_stems_info = ttk.Label(expert_tab, image = info_icon)
-verticality_thresh_stems_info.grid(column = 1, row = 13)
+verticality_thresh_stems_info.grid(column = 1, row = 14)
 gui.CreateToolTip(verticality_thresh_stems_info, text = 'Verticality threshold durig stem extraction.\n'
                   'Verticality is defined as (1 - sin(V)), being V the vertical angle of the normal\n'
                   'vector, measured from the horizontal. Note that it does not grow linearly.\n'
                   'Default value: 0.7.')
 
-height_range_info = ttk.Label(expert_tab, image = info_icon)
-height_range_info.grid(column = 1, row = 14)
-gui.CreateToolTip(height_range_info, text = 'Only stems where points extend vertically throughout\n'
-              'this range are considered.\n'
-              'Default value: 1.2 meters.')
 
 maximum_d_info = ttk.Label(expert_tab, image = info_icon)
 maximum_d_info.grid(column = 1, row = 15)
@@ -1513,9 +1512,10 @@ if is_normalized:
     print('---------------------------------------------')
 
     _, _, voxelated_ground = dm.voxelate(coords[coords[:, 3] < 0.5, 0:3], 1, 2000, n_digits, with_n_points = False, silent = False)
-
-    print('   This cloud has',"{:.2f}".format(coords.shape[0]/1000000),'millions points')
-    print('   Its area is ',voxelated_ground.shape[0],'m^2')
+    cloud_size = coords.shape[0]/1000000
+    cloud_shape = voxelated_ground.shape[0]
+    print('   This cloud has',"{:.2f}".format(cloud_size),'millions points')
+    print('   Its area is ',cloud_shape,'m^2')
     
     print('---------------------------------------------')
     print('Cloud is already normalized...')
@@ -1533,9 +1533,10 @@ else:
     print('---------------------------------------------')
 
     _, _, voxelated_ground = dm.voxelate(coords, 1, 2000, n_digits, with_n_points = False, silent = False)
-
-    print('   This cloud has',"{:.2f}".format(coords.shape[0]/1000000),'millions points')
-    print('   Its area is ',voxelated_ground.shape[0],'m^2')
+    cloud_size = coords.shape[0]/1000000
+    cloud_shape = voxelated_ground.shape[0]
+    print('   This cloud has',"{:.2f}".format(cloud_size),'millions points')
+    print('   Its area is ',cloud_shape,'m^2')
     del voxelated_ground
     
     print('---------------------------------------------')
@@ -1620,7 +1621,7 @@ print('---------------------------------------------')
 print('2.-Computing distances to axes and individualizating trees...')
 print('---------------------------------------------')
                                                                                        
-assigned_cloud, tree_vector, tree_heights = dm.individualize_trees(coords, clust_stripe, resolution_z, resolution_xy, h_range, d_max, min_points, d_heights, max_dev, resolution_heights, n_digits, X_field, Y_field, Z_field, tree_id_field = -1)     
+assigned_cloud, tree_vector, tree_heights = dm.individualize_trees(coords, clust_stripe, resolution_z, resolution_xy, stripe_lower_limit, stripe_upper_limit, h_range, d_max, min_points, d_heights, max_dev, resolution_heights, n_digits, X_field, Y_field, Z_field, tree_id_field = -1)     
 
 print('  ')
 print('---------------------------------------------')
@@ -1712,6 +1713,17 @@ las_tree_locations.write(filename_las[:-4] + "_tree_locator.las")
 # Exporting results 
 # -------------------------------------------------------------------------------------------------------------
 
+    # matrix with tree height, DBH and (x,y) coordinates of each tree
+dbh_and_heights = np.zeros((dbh_values.shape[0], 4))
+
+if tree_heights.shape[0] != dbh_values.shape[0]:
+    tree_heights = tree_heights[0:dbh_values.shape[0], :]
+    
+dbh_and_heights[:, 0] = tree_heights[:, 3]
+dbh_and_heights[:, 1] = dbh_values[:, 0]
+dbh_and_heights[:, 2] = tree_locations[:, 0]
+dbh_and_heights[:, 3] = tree_locations[:, 1]
+
 if not txt:
     
     # Generating aggregated quality value for each section
@@ -1752,17 +1764,9 @@ if not txt:
     df_sector_perct = to_pandas(sector_perct)
     df_n_points_in = to_pandas(n_points_in)
     
-    df_dbh = pd.DataFrame(data=dbh_values[:, 0], 
-                          index=['T'+str(i + 1) for i in range(dbh_values.shape[0])],
-                          columns = ['DBH'])
-    
-    df_heights = pd.DataFrame(data=tree_heights[:, 3], 
-                              index=['T'+str(i + 1) for i in range(tree_heights.shape[0])],
-                              columns = ['TH'])
-    
-    df_locations = pd.DataFrame(data=tree_locations[:, 0:2], 
-                                index=['T'+str(i + 1) for i in range(tree_heights.shape[0])],
-                                columns = ['X', 'Y'])
+    df_dbh_and_heights = pd.DataFrame(data=dbh_and_heights, 
+                                      index=['T'+str(i + 1) for i in range(dbh_values.shape[0])],
+                                      columns = ['TH', 'DBH', 'X', 'Y'])
     
     # Description to be added to each excel sheet.
     info_diameters = """Diameter of every section (S) of every tree (T). 
@@ -1784,13 +1788,11 @@ if not txt:
     info_n_points_in = """Number of points in the inner circle of every section (S) of every tree (T).
     The lowest, the better.
     """
-    info_dbh = """Diameter at breast height (DBH) of each tree (T).
-    Units are meters.
+    info_dbh_and_heights = """Total height (TH) of each tree (T).
+    Diameter at breast height (DBH) of each tree (T).
+    (x, y) coordinates (X and Y) of each tree (T).
     """
-    info_heights = """Total height (TH) of each tree (T).
-    Units are meters.
-    """
-    info_locations = """(x, y) coordinates (X and Y) of each tree (T)."""
+    info_cloud_size = f"This cloud has {cloud_size} millions points and its area is {cloud_shape} km2"
     
     # Converting descriptions to pandas DataFrames for ease to include them in the excel file.
     df_info_diameters = pd.Series(info_diameters)
@@ -1801,15 +1803,28 @@ if not txt:
     df_info_outliers = pd.Series(info_outliers)
     df_info_sector_perct = pd.Series(info_sector_perct)
     df_info_n_points_in = pd.Series(info_n_points_in)
-    df_info_dbh = pd.Series(info_dbh)
-    df_info_heights = pd.Series(info_heights)
-    df_info_locations = pd.Series(info_locations)
-        
+    df_info_dbh_and_heights = pd.Series(info_dbh_and_heights)
+    df_info_cloud_size = pd.Series(info_cloud_size)
+
     
     # Creating an instance of a excel writer
     writer = pd.ExcelWriter(filename_las[:-4] + ".xlsx", engine='xlsxwriter')
     
     # Writing the descriptions
+       
+    df_info_dbh_and_heights.to_excel(writer,
+                         sheet_name = "Plot Metrics", 
+                         header = False, 
+                         index = False, 
+                         merge_cells = False)
+    
+    df_info_cloud_size.to_excel(writer, 
+                                sheet_name="Plot Metrics",
+                                startrow=1,
+                                header = False, 
+                                index = False, 
+                                merge_cells = False)
+    
     df_info_diameters.to_excel(writer, 
                                sheet_name = "Diameters", 
                                header = False,
@@ -1833,24 +1848,6 @@ if not txt:
                               header = False, 
                               index = False, 
                               merge_cells = False)
-   
-    df_info_dbh.to_excel(writer,
-                         sheet_name = "Tree DBH", 
-                         header = False, 
-                         index = False, 
-                         merge_cells = False)
-    
-    df_info_heights.to_excel(writer,
-                             sheet_name = "Tree Total Height", 
-                             header = False, 
-                             index = False, 
-                             merge_cells = False)
-    
-    df_info_locations.to_excel(writer,
-                               sheet_name = "Tree Location", 
-                               header = False, 
-                               index = False, 
-                               merge_cells = False)
     
     df_info_quality.to_excel(writer,
                              sheet_name = "Q(Overall Quality 0-1)", 
@@ -1878,13 +1875,11 @@ if not txt:
     
 
     # Writing the data
+    df_dbh_and_heights.to_excel(writer, sheet_name="Plot Metrics", startrow=2, startcol= 1)
     df_diameters.to_excel(writer, sheet_name="Diameters", startrow=2, startcol= 1)  
     df_X_c.to_excel(writer, sheet_name="X", startrow=2, startcol= 1)
     df_Y_c.to_excel(writer, sheet_name="Y", startrow=2, startcol= 1)
     df_sections.to_excel(writer, sheet_name="Sections", startrow=2, startcol= 1)
-    df_dbh.to_excel(writer, sheet_name="Tree DBH", startrow=2, startcol= 1)
-    df_heights.to_excel(writer, sheet_name="Tree Total Height", startrow=2, startcol= 1)
-    df_locations.to_excel(writer, sheet_name="Tree Location", startrow=2, startcol= 1)
     df_quality.to_excel(writer, sheet_name="Q(Overall Quality 0-1)", startrow=2, startcol= 1)
     df_outliers.to_excel(writer, sheet_name="Q1(Outlier Probability)", startrow=2, startcol= 1)
     df_sector_perct.to_excel(writer, sheet_name="Q2(Sector Occupancy)", startrow=2, startcol= 1)
@@ -1894,16 +1889,6 @@ if not txt:
 
 else:
     
-    # matrix with tree height, DBH and (x,y) coordinates of each tree
-    dbh_and_heights = np.zeros((dbh_values.shape[0], 4))
-    if tree_heights.shape[0] != dbh_values.shape[0]:
-        tree_heights = tree_heights[0:dbh_values.shape[0], :]
-    dbh_and_heights[:, 0] = tree_heights[:, 3]
-    dbh_and_heights[:, 1] = dbh_values[:, 0]
-    dbh_and_heights[:, 2] = tree_locations[:, 0]
-    dbh_and_heights[:, 3] = tree_locations[:, 1]
-
-
     np.savetxt(filename_las[:-4]+'_diameters.txt', R * 2, fmt = ('%.3f'))
     np.savetxt(filename_las[:-4]+'_X_c.txt', X_c, fmt = ('%.3f'))
     np.savetxt(filename_las[:-4]+'_Y_c.txt', Y_c, fmt = ('%.3f'))
