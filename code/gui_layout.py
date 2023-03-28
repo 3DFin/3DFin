@@ -6,7 +6,7 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import ttk
 
-import gui
+from tooltip import ToolTip
 from PIL import Image, ImageTk
 
 
@@ -372,46 +372,46 @@ class Application(tk.Tk):
 
         is_normalized_info = ttk.Label(self.basic_tab, image = info_icon)
         is_normalized_info.grid(column = 1, row = 1)
-        gui.CreateToolTip(is_normalized_info, text = 'If the point cloud is not height-normalized, a Digital Terrain\n'
+        ToolTip.create(is_normalized_info, text = 'If the point cloud is not height-normalized, a Digital Terrain\n'
                         'Model will be generated to compute normalized heights for all points.')
 
         is_noisy_info = ttk.Label(self.basic_tab, image = info_icon)
         is_noisy_info.grid(column = 1, row = 3)
-        gui.CreateToolTip(is_noisy_info, text = 'If it is expected to be noise below ground level (or if you know\n'
+        ToolTip.create(is_noisy_info, text = 'If it is expected to be noise below ground level (or if you know\n'
                         'that there is noise), a denoising step will be added before\n'
                         'generating the Digital Terrain Model.')
 
         txt_info = ttk.Label(self.basic_tab, image = info_icon)
         txt_info.grid(column = 1, row = 5)
-        gui.CreateToolTip(txt_info, text = 'Outputs are gathered in a xlsx (Excel) file by default.\n'
+        ToolTip.create(txt_info, text = 'Outputs are gathered in a xlsx (Excel) file by default.\n'
                         'Selecting "TXT files" will make the program output several txt files\n'
                         'with the raw data, which may be more convenient for processing\n'
                         'the data via scripting.')
 
         z0_info = ttk.Label(self.basic_tab, image = info_icon)
         z0_info .grid(column = 1, row = 7)
-        gui.CreateToolTip(z0_info, text = 'Name of the Z0 field in the LAS file containing the cloud.\n'
+        ToolTip.create(z0_info, text = 'Name of the Z0 field in the LAS file containing the cloud.\n'
                     'If the normalized heights are stored in the Z coordinate\n'
                     'of the .LAS file, then: Z0 field name = "z" (lowercase).\n'
                     'Default is "Z0".')
 
         upper_limit_info = ttk.Label(self.basic_tab, image = info_icon)
         upper_limit_info.grid(column = 1, row = 8)
-        gui.CreateToolTip(upper_limit_info, text = 'Upper (vertical) limit of the stripe where it should be reasonable\n'
+        ToolTip.create(upper_limit_info, text = 'Upper (vertical) limit of the stripe where it should be reasonable\n'
                     'to find stems with minimum presence of shrubs or branches.\n'
                     'Reasonable values are 2-5 meters.\n'
                     'Default value is 2.5 meters.')
 
         lower_limit_info = ttk.Label(self.basic_tab, image = info_icon)
         lower_limit_info.grid(column = 1, row = 9)
-        gui.CreateToolTip(lower_limit_info, text = 'Lower (vertical) limit of the stripe where it should be reasonable\n'
+        ToolTip.create(lower_limit_info, text = 'Lower (vertical) limit of the stripe where it should be reasonable\n'
                     'to find stems with minimum presence of shrubs or branches.\n'
                     'Reasonable values are 0.3-1.3 meters.\n'
                     'Default value is 0.5 meters.')
 
         number_of_iterations_info = ttk.Label(self.basic_tab, image = info_icon)
         number_of_iterations_info.grid(column = 1, row = 10)
-        gui.CreateToolTip(number_of_iterations_info, text = 'Number of iterations of "pruning" during stem identification.\n'
+        ToolTip.create(number_of_iterations_info, text = 'Number of iterations of "pruning" during stem identification.\n'
                     'Values between 1 (slight stem peeling/cleaning)\n'
                     'and 5 (extreme branch peeling/cleaning).\n'
                     'Default value is 2.')
@@ -510,34 +510,34 @@ class Application(tk.Tk):
         #### Adding info buttons
         maximum_diameter_info = ttk.Label(self.advanced_tab, image = self.info_icon)
         maximum_diameter_info.grid(column = 1, row = 1)
-        gui.CreateToolTip(maximum_diameter_info, text = 'Maximum diameter expected for any stem.\n'
+        ToolTip.create(maximum_diameter_info, text = 'Maximum diameter expected for any stem.\n'
                     'Default value: 0.5 meters.')
 
         stem_search_diameter_info = ttk.Label(self.advanced_tab, image = self.info_icon)
         stem_search_diameter_info.grid(column = 1, row = 2)
-        gui.CreateToolTip(stem_search_diameter_info, text = 'Points within this distance from tree axes will be considered\n'
+        ToolTip.create(stem_search_diameter_info, text = 'Points within this distance from tree axes will be considered\n'
                     'as potential stem points. Reasonable values are "Maximum diameter"-2 meters \n'
                     '(exceptionally greater than 2: very large diameters and/or intricate stems).')
 
         minimum_height_info = ttk.Label(self.advanced_tab, image = self.info_icon)
         minimum_height_info.grid(column = 1, row = 3)
-        gui.CreateToolTip(minimum_height_info, text = 'Lowest height at which stem diameter will be computed.\n'
+        ToolTip.create(minimum_height_info, text = 'Lowest height at which stem diameter will be computed.\n'
                     'Default value: 0.2 meters.')
 
         maximum_height_info = ttk.Label(self.advanced_tab, image = self.info_icon)
         maximum_height_info.grid(column = 1, row = 4)
-        gui.CreateToolTip(maximum_height_info, text = 'Highest height at which stem diameter will be computed.\n'
+        ToolTip.create(maximum_height_info, text = 'Highest height at which stem diameter will be computed.\n'
                     'Default value: 25 meters.')
 
         section_len_info = ttk.Label(self.advanced_tab, image = self.info_icon)
         section_len_info.grid(column = 1, row = 5)
-        gui.CreateToolTip(section_len_info, text = 'Height of the sections (z length). Diameters will then be\n'
+        ToolTip.create(section_len_info, text = 'Height of the sections (z length). Diameters will then be\n'
                     'computed for every section.\n'
                     'Default value: 0.2 meters.')
 
         section_wid_info = ttk.Label(self.advanced_tab, image = self.info_icon)
         section_wid_info.grid(column = 1, row = 6)
-        gui.CreateToolTip(section_wid_info, text = 'Sections are this wide. This means that points within this distance\n'
+        ToolTip.create(section_wid_info, text = 'Sections are this wide. This means that points within this distance\n'
                     '(vertical) are considered during circle fitting and diameter computation.\n'
                     'Default value: 0.05 meters.')
 
@@ -781,62 +781,62 @@ class Application(tk.Tk):
 
         res_xy_stripe_info = ttk.Label(self.expert_tab, image = self.info_icon)
         res_xy_stripe_info.grid(column = 1, row = 2)
-        gui.CreateToolTip(res_xy_stripe_info, text = '(x, y) voxel resolution during stem extraction.\n'
+        ToolTip.create(res_xy_stripe_info, text = '(x, y) voxel resolution during stem extraction.\n'
                     'Default value: 0.035 meters.')
 
         res_z_stripe_info = ttk.Label(self.expert_tab, image = self.info_icon)
         res_z_stripe_info.grid(column = 1, row = 3)
-        gui.CreateToolTip(res_z_stripe_info, text = '(z) voxel resolution during stem extraction.\n'
+        ToolTip.create(res_z_stripe_info, text = '(z) voxel resolution during stem extraction.\n'
                     'Default value: 0.035 meters.')
 
         number_of_points_info = ttk.Label(self.expert_tab, image = self.info_icon)
         number_of_points_info.grid(column = 1, row = 4)
-        gui.CreateToolTip(number_of_points_info, text = 'minimum number of points (voxels) per stem within the stripe\n'
+        ToolTip.create(number_of_points_info, text = 'minimum number of points (voxels) per stem within the stripe\n'
                     '(DBSCAN clustering). Reasonable values are between 500 and 3000.\n'
                     'Default value: 1000.')
 
         verticality_scale_stripe_info = ttk.Label(self.expert_tab, image = self.info_icon)
         verticality_scale_stripe_info.grid(column = 1, row = 5)
-        gui.CreateToolTip(verticality_scale_stripe_info, text = 'Vicinity radius for PCA during stem extraction.\n'
+        ToolTip.create(verticality_scale_stripe_info, text = 'Vicinity radius for PCA during stem extraction.\n'
                     'Default value: 0.1 meters.')
 
         verticality_thresh_stripe_info = ttk.Label(self.expert_tab, image = self.info_icon)
         verticality_thresh_stripe_info.grid(column = 1, row = 6)
-        gui.CreateToolTip(verticality_thresh_stripe_info, text = 'Verticality threshold durig stem extraction.\n'
+        ToolTip.create(verticality_thresh_stripe_info, text = 'Verticality threshold durig stem extraction.\n'
                         'Verticality is defined as (1 - sin(V)), being V the vertical angle of the normal\n'
                         'vector, measured from the horizontal. Note that it does not grow linearly.\n'
                         'Default value: 0.7.')
 
         height_range_info = ttk.Label(self.expert_tab, image = self.info_icon)
         height_range_info.grid(column = 1, row = 7)
-        gui.CreateToolTip(height_range_info, text = 'Proportion (0: none - 1: all) of the vertical range of the stripe\n'
+        ToolTip.create(height_range_info, text = 'Proportion (0: none - 1: all) of the vertical range of the stripe\n'
                     'that points need to extend through to be valid stems.\n'
                     'Default value: 0.7.')
 
         res_xy_info = ttk.Label(self.expert_tab, image = self.info_icon)
         res_xy_info.grid(column = 1, row = 10)
-        gui.CreateToolTip(res_xy_info, text = '(x, y) voxel resolution during tree individualization.\n'
+        ToolTip.create(res_xy_info, text = '(x, y) voxel resolution during tree individualization.\n'
                     'Default value: 0.035 meters.')
 
         res_z_info = ttk.Label(self.expert_tab, image = self.info_icon)
         res_z_info.grid(column = 1, row = 11)
-        gui.CreateToolTip(res_z_info, text = '(z) voxel resolution during tree individualization.\n'
+        ToolTip.create(res_z_info, text = '(z) voxel resolution during tree individualization.\n'
                     'Default value: 0.035 meters.')
 
         minimum_points_info = ttk.Label(self.expert_tab, image = self.info_icon)
         minimum_points_info.grid(column = 1, row = 12)
-        gui.CreateToolTip(minimum_points_info, text = 'Minimum number of points (voxels) within a stripe to consider it\n'
+        ToolTip.create(minimum_points_info, text = 'Minimum number of points (voxels) within a stripe to consider it\n'
                     'as a potential tree during tree individualization.\n'
                     'Default value: 20.')
 
         verticality_scale_stems_info = ttk.Label(self.expert_tab, image = self.info_icon)
         verticality_scale_stems_info.grid(column = 1, row = 13)
-        gui.CreateToolTip(verticality_scale_stems_info, text = 'Vicinity radius for PCA during tree individualization.\n'
+        ToolTip.create(verticality_scale_stems_info, text = 'Vicinity radius for PCA during tree individualization.\n'
                     'Default value: 0.1 meters.')
 
         verticality_thresh_stems_info = ttk.Label(self.expert_tab, image = self.info_icon)
         verticality_thresh_stems_info.grid(column = 1, row = 14)
-        gui.CreateToolTip(verticality_thresh_stems_info, text = 'Verticality threshold durig stem extraction.\n'
+        ToolTip.create(verticality_thresh_stems_info, text = 'Verticality threshold durig stem extraction.\n'
                         'Verticality is defined as (1 - sin(V)), being V the vertical angle of the normal\n'
                         'vector, measured from the horizontal. Note that it does not grow linearly.\n'
                         'Default value: 0.7.')
@@ -844,25 +844,25 @@ class Application(tk.Tk):
 
         maximum_d_info = ttk.Label(self.expert_tab, image = self.info_icon)
         maximum_d_info.grid(column = 1, row = 15)
-        gui.CreateToolTip(maximum_d_info, text = 'Points that are closer than this distance to an axis '
+        ToolTip.create(maximum_d_info, text = 'Points that are closer than this distance to an axis '
                     'are assigned to that axis during individualize_trees process.\n'
                     'Default value: 15 meters.')
 
         distance_to_axis_info = ttk.Label(self.expert_tab, image = self.info_icon)
         distance_to_axis_info.grid(column = 1, row = 16)
-        gui.CreateToolTip(distance_to_axis_info, text = 'Maximum distance from tree axis at which points will\n'
+        ToolTip.create(distance_to_axis_info, text = 'Maximum distance from tree axis at which points will\n'
                     'be considered while computing tree height. Points too far away\n'
                     'from the tree axis might not be representative of actual tree height.\n'
                     'Default value: 1.5 meters.')
 
         res_heights_info = ttk.Label(self.expert_tab, image = self.info_icon)
         res_heights_info.grid(column = 1, row = 17)
-        gui.CreateToolTip(res_heights_info, text = '(x, y, z) voxel resolution during tree height computation.\n'
+        ToolTip.create(res_heights_info, text = '(x, y, z) voxel resolution during tree height computation.\n'
                     'Default value: 0.3 meters.')
 
         maximum_dev_info = ttk.Label(self.expert_tab, image = self.info_icon)
         maximum_dev_info.grid(column = 1, row = 18)
-        gui.CreateToolTip(maximum_dev_info, text = 'Maximum degree of vertical deviation from the axis for\n'
+        ToolTip.create(maximum_dev_info, text = 'Maximum degree of vertical deviation from the axis for\n'
                     'a tree height to be considered as valid.\n'
                     'Default value: 25 degrees.')
 
@@ -870,90 +870,90 @@ class Application(tk.Tk):
 
         number_points_section_info = ttk.Label(self.expert_tab, image = self.info_icon)
         number_points_section_info.grid(column = 6, row = 2)
-        gui.CreateToolTip(number_points_section_info, text = 'Minimum number of points in a section to be considered\n'
+        ToolTip.create(number_points_section_info, text = 'Minimum number of points in a section to be considered\n'
                     'as valid.\n'
                     'Default value: 80.')
 
         diameter_proportion_info = ttk.Label(self.expert_tab, image = self.info_icon)
         diameter_proportion_info.grid(column = 6, row = 3)
-        gui.CreateToolTip(diameter_proportion_info, text = 'Proportion, regarding the circumference fit by fit_circle,\n'
+        ToolTip.create(diameter_proportion_info, text = 'Proportion, regarding the circumference fit by fit_circle,\n'
                     'that the inner circumference diameter will have as length.\n'
                     'Default value: 0.5 times.')
 
         minimum_diameter_info = ttk.Label(self.expert_tab, image = self.info_icon)
         minimum_diameter_info.grid(column = 6, row = 4)
-        gui.CreateToolTip(minimum_diameter_info, text = 'Minimum diameter expected for any section during circle fitting.\n'
+        ToolTip.create(minimum_diameter_info, text = 'Minimum diameter expected for any section during circle fitting.\n'
                     'Default value: 0.03 meters.')
 
         point_threshold_info = ttk.Label(self.expert_tab, image = self.info_icon)
         point_threshold_info.grid(column = 6, row = 5)
-        gui.CreateToolTip(point_threshold_info, text = 'Maximum number of points inside the inner circle\n'
+        ToolTip.create(point_threshold_info, text = 'Maximum number of points inside the inner circle\n'
                     'to consider the fitting as OK.\n'
                     'Default value: 5.')
 
         point_distance_info = ttk.Label(self.expert_tab, image = self.info_icon)
         point_distance_info.grid(column = 6, row = 6)
-        gui.CreateToolTip(point_distance_info, text = 'Maximum distance among points to be considered within the\n'
+        ToolTip.create(point_distance_info, text = 'Maximum distance among points to be considered within the\n'
                     'same cluster during circle fitting.\n'
                     'Default value: 0.02 meters.')
 
         number_sectors_info = ttk.Label(self.expert_tab, image = self.info_icon)
         number_sectors_info.grid(column = 6, row = 7)
-        gui.CreateToolTip(number_sectors_info, text = 'Number of sectors in which the circumference will be divided\n'
+        ToolTip.create(number_sectors_info, text = 'Number of sectors in which the circumference will be divided\n'
                     'Default value: 16.')
 
         m_number_sectors_info = ttk.Label(self.expert_tab, image = self.info_icon)
         m_number_sectors_info.grid(column = 6, row = 8)
-        gui.CreateToolTip(m_number_sectors_info, text = 'Minimum number of sectors that must be occupied.\n'
+        ToolTip.create(m_number_sectors_info, text = 'Minimum number of sectors that must be occupied.\n'
                     'Default value: 9.')
 
         circle_width_info = ttk.Label(self.expert_tab, image = self.info_icon)
         circle_width_info.grid(column = 6, row = 9)
-        gui.CreateToolTip(circle_width_info, text = 'Width, in meters, around the circumference to look\n'
+        ToolTip.create(circle_width_info, text = 'Width, in meters, around the circumference to look\n'
                     'for points.\n'
                     'Defaul value: 0.02 meters.')
 
         circa_info = ttk.Label(self.expert_tab, image = self.info_icon)
         circa_info.grid(column = 6, row = 11)
-        gui.CreateToolTip(circa_info, text = 'Number of points that will be used to draw the circles\n '
+        ToolTip.create(circa_info, text = 'Number of points that will be used to draw the circles\n '
                     'in the LAS files.\n'
                     'Default value: 200.')
 
         p_interval_info = ttk.Label(self.expert_tab, image = self.info_icon)
         p_interval_info.grid(column = 6, row = 12)
-        gui.CreateToolTip(p_interval_info, text = 'Distance at which points will be placed from one to another\n'
+        ToolTip.create(p_interval_info, text = 'Distance at which points will be placed from one to another\n'
                     'while drawing the axes in the LAS files.\n'
                     'Default value: 0.01 meters.')
 
         axis_downstep_info = ttk.Label(self.expert_tab, image = self.info_icon)
         axis_downstep_info.grid(column = 6, row = 13)
-        gui.CreateToolTip(axis_downstep_info, text = 'From the stripe centroid, how much (downwards direction)\n'
+        ToolTip.create(axis_downstep_info, text = 'From the stripe centroid, how much (downwards direction)\n'
                     'will the drawn axes extend. Basically, this parameter controls\n'
                     'from where will the axes be drawn.\n'
                     'Default value: 0.5 meters.')
 
         axis_upstep_info = ttk.Label(self.expert_tab, image = self.info_icon)
         axis_upstep_info.grid(column = 6, row = 14)
-        gui.CreateToolTip(axis_upstep_info, text = 'From the stripe centroid, how much (upwards direction)\n'
+        ToolTip.create(axis_upstep_info, text = 'From the stripe centroid, how much (upwards direction)\n'
                     'will the drawn axes extend. Basically, this parameter controls\n'
                     'how long will the drawn axes be.\n'
                     'Default value: 10 meters.')
 
         res_ground_info = ttk.Label(self.expert_tab, image = self.info_icon)
         res_ground_info.grid(column = 6, row = 16)
-        gui.CreateToolTip(res_ground_info, text = '(x, y, z) voxel resolution during denoising.|n'
+        ToolTip.create(res_ground_info, text = '(x, y, z) voxel resolution during denoising.|n'
                         ' Note that the whole point cloud is voxelated.\n'
                         'Default value: 0.15.')
 
         min_points_ground_info = ttk.Label(self.expert_tab, image = self.info_icon)
         min_points_ground_info.grid(column = 6, row = 17)
-        gui.CreateToolTip(min_points_ground_info, text = 'Clusters with size smaller than this value will be\n'
+        ToolTip.create(min_points_ground_info, text = 'Clusters with size smaller than this value will be\n'
                         'regarded as noise and thus eliminated.\n'
                         'Default value: 2.')
 
         res_cloth_info = ttk.Label(self.expert_tab, image = self.info_icon)
         res_cloth_info.grid(column = 6, row = 18)
-        gui.CreateToolTip(res_cloth_info, text = 'Initial cloth grid resolution to generate the DTM that\n'
+        ToolTip.create(res_cloth_info, text = 'Initial cloth grid resolution to generate the DTM that\n'
                         'be used to compute normalized heights.\n'
                         'Default value: 0.5.')
 
