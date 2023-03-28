@@ -30,7 +30,7 @@ The algorithm may be divided in three main steps:
     coordinates and preserves them in the outputs, as additional information
     Then, the input point cloud might include just just Z0, or both Z and Z0. 
     
-    Before running script, it should be checked where the normalized heights are stored in the input file: 'z' or another field. 
+    Before running script, it should be checked where are the normalized heights stored in the input file: 'z' or another field. 
     The name of that field is one of the basic input parameters:
         - field_name_z0: Name of the field containing the height normalized data in the .LAS file. 
     If the normalized heights are stored in the z coordinate of the .LAS file, the value of field_name_z0 will be ‘z’ (lowercase).
@@ -61,7 +61,7 @@ Text files with tabular data:
 •	[original file name]_dbh_and_heights: Text file containing tree height, tree location and DBH of every tree as tabular data.
 •	[original file name]_X_c: Text file containing the (x) coordinate of the centre of every section of every tree as tabular data.
 •	[original file name]_Y_c: Text file containing the (y) coordinate of the centre of every section of every tree as tabular data.
-•	[original file name]_R: Text file containing the radius of every section of every tree as tabular data.
+•	[original file name]_diameters: Text file containing the diameter of every section of every tree as tabular data.
 •	[original file name]_outliers: Text file containing the ‘outlier probability’ of every section of every tree as tabular data.
 •	[original file name]_sector_perct: Text file containing the sector occupancy of every section of every tree as tabular data.
 •	[original file name]_check_circle: Text file containing the ‘check’ status of every section of every tree as tabular data.
@@ -76,10 +76,12 @@ Text files with tabular data:
 
 import os
 import sys
+import subprocess
 import configparser
 import timeit
 import laspy
 import numpy as np
+import pandas as pd
 from pathlib import Path
 from tkinter import *
 from tkinter import ttk
@@ -108,7 +110,9 @@ def resource_path(relative_path):
 ### -------------------------------- ###
 
 root = Tk()
-root.title("Input parameters")
+root.iconbitmap(default=resource_path('icon_window.ico'))
+root.title("3DFIN")
+root.option_add('Helvetica', '12')
 root.resizable(False, False)
 root.geometry('810x632+0+0')
 root.columnconfigure(0, weight=1)
@@ -130,7 +134,6 @@ about_tab = ttk.Frame(note)
 ### -------- Input parameters ------- ###
 ### --------------------------------- ###
 
-
  ### Basic parameters ###
 z0_name = StringVar()
 upper_limit = StringVar()
@@ -138,13 +141,12 @@ lower_limit = StringVar()
 number_of_iterations = StringVar()
  
  ### Advanced parameters ###  
-maximum_radius = StringVar()
-stem_search_radius = StringVar()
+maximum_diameter = StringVar()
+stem_search_diameter = StringVar()
 minimum_height = StringVar()
 maximum_height = StringVar()
 section_len = StringVar()
-distance_to_axis = StringVar()
-axis_upstep = StringVar()
+section_wid = StringVar()
  
  ### Expert parameters ###
  
@@ -154,7 +156,7 @@ res_z_stripe = StringVar()
 number_of_points = StringVar()
 verticality_scale_stripe = StringVar()
 verticality_thresh_stripe = StringVar()
-epsilon_stripe = StringVar()
+height_range = StringVar()
  
  # Tree individualization #
 res_xy = StringVar()
@@ -162,17 +164,15 @@ res_z = StringVar()
 minimum_points = StringVar()
 verticality_scale_stems = StringVar()
 verticality_thresh_stems = StringVar()
-epsilon_stems = StringVar()
-height_range = StringVar()
 maximum_d = StringVar()
+distance_to_axis = StringVar()
 res_heights = StringVar()
 maximum_dev = StringVar()
  
  # Extracting sections #
-section_wid = StringVar()
 number_points_section = StringVar()
-radius_proportion = StringVar()
-minimum_radius = StringVar()
+diameter_proportion = StringVar()
+minimum_diameter = StringVar()
 point_threshold = StringVar()
 point_distance = StringVar()
 number_sectors = StringVar()
@@ -183,11 +183,12 @@ circle_width = StringVar()
 circa = StringVar()
 p_interval = StringVar()
 axis_downstep = StringVar()
- 
+axis_upstep = StringVar()
+
  # Other parameters #
-X_column = StringVar()
-Y_column = StringVar()
-Z_column = StringVar()
+res_ground = StringVar()
+min_points_ground = StringVar()
+res_cloth = StringVar()
 
 
 ### Reading config file only if it is available under name '3DFINconfig.ini' ###
@@ -201,18 +202,17 @@ except FileNotFoundError:
     
     ### Basic parameters ###
     z0_name.set("Z0")
-    upper_limit.set("2.5")
-    lower_limit.set("0.5")
+    upper_limit.set("3.5")
+    lower_limit.set("0.7")
     number_of_iterations.set("2")
     
     ### Advanced parameters ###  
-    maximum_radius.set("0.5")
-    stem_search_radius.set("0.35")
+    maximum_diameter.set("1.0")
+    stem_search_diameter.set("2.0")
     minimum_height.set("0.3")
     maximum_height.set("25")
     section_len.set("0.2")
-    distance_to_axis.set("1.5")
-    axis_upstep.set("10")
+    section_wid.set("0.05")
     
     ### Expert parameters ###
     
@@ -222,7 +222,7 @@ except FileNotFoundError:
     number_of_points.set("1000")
     verticality_scale_stripe.set("0.1")
     verticality_thresh_stripe.set("0.7")
-    epsilon_stripe.set("0.037")
+    height_range.set("0.7")
     
     # Tree individualization #
     res_xy.set("0.035")
@@ -230,32 +230,31 @@ except FileNotFoundError:
     minimum_points.set("20")
     verticality_scale_stems.set("0.1")
     verticality_thresh_stems.set("0.7")
-    epsilon_stems.set("0.08")
-    height_range.set("1.2")
     maximum_d.set("15")
+    distance_to_axis.set("1.5")
     res_heights.set("0.3")
     maximum_dev.set("25")
     
     # Extracting sections #
-    section_wid.set("0.05")
     number_points_section.set("80")
-    radius_proportion.set("0.5")
-    minimum_radius.set("0.03")
+    diameter_proportion.set("0.5")
+    minimum_diameter.set("0.06")
     point_threshold.set("5")
     point_distance.set("0.02")
     number_sectors.set("16")
     m_number_sectors.set("9")
-    circle_width.set("2")
+    circle_width.set("0.02")
     
     # Drawing circles and axes #
     circa.set("200")
     p_interval.set("0.01")
     axis_downstep.set("0.5")
-    
+    axis_upstep.set("10")
+
     # Other parameters #
-    X_column.set("0")
-    Y_column.set("1")
-    Z_column.set("2")
+    res_ground.set("0.15")
+    min_points_ground.set("2")
+    res_cloth.set("2")
 
 else:
     
@@ -272,41 +271,38 @@ else:
     number_of_iterations.set(config['basic']['number_of_iterations'])
     
     ### Advanced parameters ###  
-    maximum_radius.set(config['advanced']['maximum_radius'])
-    stem_search_radius.set(config['advanced']['stem_search_radius'])
+    maximum_diameter.set(config['advanced']['maximum_diameter'])
+    stem_search_diameter.set(config['advanced']['stem_search_diameter'])
     minimum_height.set(config['advanced']['minimum_height'])
     maximum_height.set(config['advanced']['maximum_height'])
     section_len.set(config['advanced']['section_len'])
-    distance_to_axis.set(config['advanced']['distance_to_axis'])
-    axis_upstep.set(config['advanced']['axis_upstep'])
+    section_wid.set(config['advanced']['section_wid'])
     
     ### Expert parameters ###
     
-    # Stem extraction #
+    # Stem identification whithin the stripe #
     res_xy_stripe.set(config['expert']['res_xy_stripe'])
     res_z_stripe.set(config['expert']['res_z_stripe'])
     number_of_points.set(config['expert']['number_of_points'])
     verticality_scale_stripe.set(config['expert']['verticality_scale_stripe'])
     verticality_thresh_stripe.set(config['expert']['verticality_thresh_stripe'])
-    epsilon_stripe.set(config['expert']['epsilon_stripe'])
+    height_range.set(config['expert']['height_range'])
     
-    # Tree individualization #
+    # Stem extraction and tree individualization #
     res_xy.set(config['expert']['res_xy'])
     res_z.set(config['expert']['res_z'])
     minimum_points.set(config['expert']['minimum_points'])
     verticality_scale_stems.set(config['expert']['verticality_scale_stems'])
     verticality_thresh_stems.set(config['expert']['verticality_thresh_stems'])
-    epsilon_stems.set(config['expert']['epsilon_stems'])
-    height_range.set(config['expert']['height_range'])
     maximum_d.set(config['expert']['maximum_d'])
+    distance_to_axis.set(config['expert']['distance_to_axis'])
     res_heights.set(config['expert']['res_heights'])
     maximum_dev.set(config['expert']['maximum_dev'])
     
     # Extracting sections #
-    section_wid.set(config['expert']['section_wid'])
     number_points_section.set(config['expert']['number_points_section'])
-    radius_proportion.set(config['expert']['radius_proportion'])
-    minimum_radius.set(config['expert']['minimum_radius'])
+    diameter_proportion.set(config['expert']['diameter_proportion'])
+    minimum_diameter.set(config['expert']['minimum_diameter'])
     point_threshold.set(config['expert']['point_threshold'])
     point_distance.set(config['expert']['point_distance'])
     number_sectors.set(config['expert']['number_sectors'])
@@ -317,11 +313,12 @@ else:
     circa.set(config['expert']['circa'])
     p_interval.set(config['expert']['p_interval'])
     axis_downstep.set(config['expert']['axis_downstep'])
-    
+    axis_upstep.set(config['expert']['axis_upstep'])
+
     # Other parameters #
-    X_column.set(config['expert']['X_column'])
-    Y_column.set(config['expert']['Y_column'])
-    Z_column.set(config['expert']['Z_column'])
+    res_ground.set(config['expert']['res_ground'])
+    min_points_ground.set(config['expert']['min_points_ground'])
+    res_cloth.set(config['expert']['res_cloth'])
 
 
 ### ----------------------------- ###
@@ -332,57 +329,44 @@ note.add(basic_tab, text = "Basic")
 
 ### This pair of functions allow to enable/disable cloud normalization options
 
-def enable_denoising():
-    z0_entry.configure(state="normal")
-    z0_entry.update()
-    clean_button_1.configure(state="disabled")
-    clean_button_1.update()
-    clean_button_2.configure(state="disabled")
-    clean_button_2.update()
-
-def disable_denoising():
-    z0_entry.configure(state="disabled")
-    z0_entry.update()
-    clean_button_1.configure(state="normal")
-    clean_button_1.update()
-    clean_button_2.configure(state="normal")
-    clean_button_2.update()
-
   
-ttk.Label(basic_tab, text="Is the point cloud height-normalized?").grid(column=2, row=1, columnspan = 2, sticky="EW")
+ttk.Label(basic_tab, text="Is the point cloud height-normalized?").grid(column=2, row=1, columnspan = 3, sticky="EW")
 
 
-ttk.Label(basic_tab, text="Are there noise points below ground-level?").grid(column=2, row=3, columnspan = 2, sticky="W")
+ttk.Label(basic_tab, text="Do you expect noise points below ground-level?").grid(column=2, row=3, columnspan = 3, sticky="W")
+
+
+ttk.Label(basic_tab, text="Format of output tabular data").grid(column=2, row=5, columnspan = 3, sticky="W")
 
 
 # Z0 field name entry #
 z0_entry = ttk.Entry(basic_tab, width=7, textvariable=z0_name)
-z0_entry.grid(column=3, row=5, sticky="EW")
+z0_entry.grid(column=3, row=7, sticky="EW")
 z0_entry.configure(state = "disabled")
 
 # Stripe upper limit entry #
 upper_limit_entry = ttk.Entry(basic_tab, width=7, textvariable=upper_limit)
-upper_limit_entry.grid(column=3, row=6, sticky="EW")
+upper_limit_entry.grid(column=3, row=8, sticky="EW")
 
 # Stripe lower limit entry #
 lower_limit_entry = ttk.Entry(basic_tab, width=7, textvariable=lower_limit)
-lower_limit_entry.grid(column=3, row=7, sticky="EW")
+lower_limit_entry.grid(column=3, row=9, sticky="EW")
 
 # Number of iterations entry #
 number_of_iterations_entry = ttk.Entry(basic_tab, width=7, textvariable=number_of_iterations)
-number_of_iterations_entry.grid(column=3, row=8, sticky="EW")
+number_of_iterations_entry.grid(column=3, row=10, sticky="EW")
 
-ttk.Label(basic_tab, text="Normalized height field name").grid(column=2, row=5, sticky="W")
-ttk.Label(basic_tab, text="Stripe upper limit").grid(column=2, row=6, sticky="W")
-ttk.Label(basic_tab, text="Stripe lower limit").grid(column=2, row=7, sticky="W")
-ttk.Label(basic_tab, text="Pruning intensity").grid(column=2, row=8, sticky="W")
+ttk.Label(basic_tab, text="Normalized height field name").grid(column=2, row=7, sticky="W")
+ttk.Label(basic_tab, text="Stripe upper limit").grid(column=2, row=8, sticky="W")
+ttk.Label(basic_tab, text="Stripe lower limit").grid(column=2, row=9, sticky="W")
+ttk.Label(basic_tab, text="Pruning intensity").grid(column=2, row=10, sticky="W")
 
-ttk.Label(basic_tab, text="meters").grid(column=4, row=6, sticky="W")
-ttk.Label(basic_tab, text="meters").grid(column=4, row=7, sticky="W")
-ttk.Label(basic_tab, text="1 - 5").grid(column=4, row=8, sticky="W")
+ttk.Label(basic_tab, text="meters").grid(column=4, row=8, sticky="W")
+ttk.Label(basic_tab, text="meters").grid(column=4, row=9, sticky="W")
+ttk.Label(basic_tab, text="0 - 5").grid(column=4, row=10, sticky="W")
 
 #### Adding logo ####
-logo_png = ImageTk.PhotoImage(Image.open(resource_path("3dfin_png.png")))
+logo_png = ImageTk.PhotoImage(Image.open(resource_path("3dfin_logo.png")))
 ttk.Label(basic_tab, image = logo_png).grid(column = 6, row = 1, rowspan = 2, columnspan = 2, sticky = "NS")
 
 
@@ -391,28 +375,27 @@ insert_text1 = """This program implements an algorithm to detect the trees prese
 3D point cloud from a forest plot, and compute individual tree parameters: tree height,
 tree location, diameters along the stem (including DBH), and stem axis. 
 
-It accepts a .LAS/.LAZ file, which may contain extra fields (.LAS standard or not). Also, 
-the input point cloud can come from terrestrial photogrammetry, TLS or mobile (e.g. 
-hand-held) LS, a combination of those, and/or a combination of those with UAV-(LS 
-or SfM), or ALS. 
+It takes a .LAS/.LAZ file as input, which may contain extra fields (.LAS standard
+or not). Also, the input point cloud can come from terrestrial photogrammetry, 
+TLS or mobile (e.g. hand-held) LS, a combination of those, and/or a combination 
+of those with UAV-(LS or SfM), or ALS. 
 
-The algorithm may be divided in three main steps:
-    1. Identification of stems in an user-defined horizontal stripe.
-    2. Tree individualization based on point-to-stem-axis distances.
-    3. Robust computation of stem diameter at different section heights.
+After all computations are done, it outputs several .LAS files containing resulting
+point clouds and a XLSX file storing tabular data. Optionally, tabular data may be 
+output as text files instead of the Excel spreadsheet if preferred. 
 
-For further details, please refer to the documentation.
+
+Further details may be found in next tabs and in the documentation.
 """
-ttk.Separator(basic_tab, orient = "vertical").grid(column = 5, row = 1, rowspan = 9, sticky = "NS")
+ttk.Separator(basic_tab, orient = "vertical").grid(column = 5, row = 1, rowspan = 10, sticky = "NS")
 
-ttk.Label(basic_tab, text = insert_text1).grid(column = 6, row = 3, rowspan = 7, columnspan = 2, sticky = "NW")
+ttk.Label(basic_tab, text = insert_text1).grid(column = 6, row = 3, rowspan = 8, columnspan = 2, sticky = "NW")
 
 #### Adding images ####
 
-img1 = ImageTk.PhotoImage(Image.open(resource_path("stripe.jpg")))
-
-img2 = ImageTk.PhotoImage(Image.open(resource_path("original_cloud.jpg")))
-img3 = ImageTk.PhotoImage(Image.open(resource_path("normalized_cloud.jpg")))
+img1 = ImageTk.PhotoImage(Image.open(resource_path("stripe.png")))
+img2 = ImageTk.PhotoImage(Image.open(resource_path("original_cloud.png")))
+img3 = ImageTk.PhotoImage(Image.open(resource_path("normalized_cloud.png")))
 
 
 ttk.Label(basic_tab, text = "Stripe", font = ("Helvetica", 10, "bold")).grid(column = 1, row = 11, columnspan = 4, sticky = "N")
@@ -434,7 +417,24 @@ for child in basic_tab.winfo_children():
 
 #### Adding radio buttons ####
 
-# Variable to keep track of the option selected in OptionMenu
+def enable_denoising():
+    z0_entry.configure(state="normal")
+    z0_entry.update()
+    clean_button_1.configure(state="disabled")
+    clean_button_1.update()
+    clean_button_2.configure(state="disabled")
+    clean_button_2.update()
+
+def disable_denoising():
+    z0_entry.configure(state="disabled")
+    z0_entry.update()
+    clean_button_1.configure(state="normal")
+    clean_button_1.update()
+    clean_button_2.configure(state="normal")
+    clean_button_2.update()
+
+
+# Variable to keep track of the option selected in normalized_button_1
 is_normalized_var = BooleanVar()
 
 normalized_button_1 = ttk.Radiobutton(basic_tab, text="Yes", variable=is_normalized_var, value=True, command = enable_denoising)
@@ -443,7 +443,7 @@ normalized_button_2 = ttk.Radiobutton(basic_tab, text="No", variable=is_normaliz
 normalized_button_2.grid(column=3, row=2, sticky="EW")
 
  
-# Variable to keep track of the option selected in OptionMenu
+# Variable to keep track of the option selected in clean_button_1
 is_noisy_var = BooleanVar()
 
 # Create the optionmenu widget and passing the options_list and value_inside to it.
@@ -451,6 +451,17 @@ clean_button_1 = ttk.Radiobutton(basic_tab, text="Yes", variable=is_noisy_var, v
 clean_button_1.grid(column=2, row=4, sticky="EW")
 clean_button_2 = ttk.Radiobutton(basic_tab, text="No", variable=is_noisy_var, value=False)
 clean_button_2.grid(column=3, row=4, sticky="EW")
+
+
+# Variable to keep track of the option selected in excel_button_1
+txt_var = BooleanVar()
+
+# Create the optionmenu widget and passing the options_list and value_inside to it.
+txt_button_1 = ttk.Radiobutton(basic_tab, text="TXT files", variable=txt_var, value=True)
+txt_button_1.grid(column=2, row=6, sticky="EW")
+txt_button_1 = ttk.Radiobutton(basic_tab, text="XLSX files", variable=txt_var, value=False)
+txt_button_1.grid(column=3, row=6, sticky="EW")
+
 
 #### Adding info buttons ####
 
@@ -467,29 +478,36 @@ gui.CreateToolTip(is_noisy_info, text = 'If it is expected to be noise below gro
                   'that there is noise), a denoising step will be added before\n'
                   'generating the Digital Terrain Model.')
 
+txt_info = ttk.Label(basic_tab, image = info_icon)
+txt_info.grid(column = 1, row = 5)
+gui.CreateToolTip(txt_info, text = 'Outputs are gathered in a xlsx (Excel) file by default.\n'
+                  'Selecting "TXT files" will make the program output several txt files\n'
+                  'with the raw data, which may be more convenient for processing\n'
+                  'the data via scripting.')
+
 z0_info = ttk.Label(basic_tab, image = info_icon)
-z0_info .grid(column = 1, row = 5)
+z0_info .grid(column = 1, row = 7)
 gui.CreateToolTip(z0_info, text = 'Name of the Z0 field in the LAS file containing the cloud.\n'
               'If the normalized heights are stored in the Z coordinate\n'
               'of the .LAS file, then: Z0 field name = "z" (lowercase).\n'
               'Default is "Z0".')
 
 upper_limit_info = ttk.Label(basic_tab, image = info_icon)
-upper_limit_info.grid(column = 1, row = 6)
+upper_limit_info.grid(column = 1, row = 8)
 gui.CreateToolTip(upper_limit_info, text = 'Upper (vertical) limit of the stripe where it should be reasonable\n'
               'to find stems with minimum presence of shrubs or branches.\n'
               'Reasonable values are 2-5 meters.\n'
               'Default value is 2.5 meters.')
 
 lower_limit_info = ttk.Label(basic_tab, image = info_icon)
-lower_limit_info.grid(column = 1, row = 7)
+lower_limit_info.grid(column = 1, row = 9)
 gui.CreateToolTip(lower_limit_info, text = 'Lower (vertical) limit of the stripe where it should be reasonable\n'
               'to find stems with minimum presence of shrubs or branches.\n'
               'Reasonable values are 0.3-1.3 meters.\n'
               'Default value is 0.5 meters.')
 
 number_of_iterations_info = ttk.Label(basic_tab, image = info_icon)
-number_of_iterations_info.grid(column = 1, row = 8)
+number_of_iterations_info.grid(column = 1, row = 10)
 gui.CreateToolTip(number_of_iterations_info, text = 'Number of iterations of "pruning" during stem identification.\n'
               'Values between 1 (slight stem peeling/cleaning)\n'
               'and 5 (extreme branch peeling/cleaning).\n'
@@ -502,13 +520,13 @@ gui.CreateToolTip(number_of_iterations_info, text = 'Number of iterations of "pr
 note.add(advanced_tab, text = "Advanced")
 
 
-# Maximum radius entry #
-maximum_radius_entry = ttk.Entry(advanced_tab, width=7, textvariable=maximum_radius)
-maximum_radius_entry.grid(column=3, row=1, sticky="EW")
+# Maximum diameter entry #
+maximum_diameter_entry = ttk.Entry(advanced_tab, width=7, textvariable=maximum_diameter)
+maximum_diameter_entry.grid(column=3, row=1, sticky="EW")
 
 # Stem search radius entry #
-stem_search_radius_entry = ttk.Entry(advanced_tab, width=7, textvariable=stem_search_radius)
-stem_search_radius_entry.grid(column=3, row=2, sticky="EW")
+stem_search_diameter_entry = ttk.Entry(advanced_tab, width=7, textvariable=stem_search_diameter)
+stem_search_diameter_entry.grid(column=3, row=2, sticky="EW")
 
 # Lowest section #
 minimum_height_entry = ttk.Entry(advanced_tab, width=7, textvariable=minimum_height)
@@ -522,21 +540,17 @@ maximum_height_entry.grid(column=3, row=4, sticky="EW")
 section_len_entry = ttk.Entry(advanced_tab, width=7, textvariable=section_len)
 section_len_entry.grid(column=3, row=5, sticky="EW")
 
-# Section height #
-distance_to_axis_entry = ttk.Entry(advanced_tab, width=7, textvariable=distance_to_axis)
-distance_to_axis_entry.grid(column=3, row=6, sticky="EW")
+# Section width #
+section_wid_entry = ttk.Entry(advanced_tab, width=7, textvariable=section_wid)
+section_wid_entry.grid(column = 3, row=6, sticky="EW")
 
-# Axis highest point #
-axis_upstep_entry = ttk.Entry(advanced_tab, width=7, textvariable=axis_upstep)
-axis_upstep_entry.grid(column=3, row=7, sticky="EW")
 
-ttk.Label(advanced_tab, text="Maximum radius").grid(column=2, row=1, sticky="W")
-ttk.Label(advanced_tab, text="Steam search radius").grid(column=2, row=2, sticky="W")
+ttk.Label(advanced_tab, text="Expected maximum diameter").grid(column=2, row=1, sticky="W")
+ttk.Label(advanced_tab, text="Stem search diameter").grid(column=2, row=2, sticky="W")
 ttk.Label(advanced_tab, text="Lowest section").grid(column=2, row=3, sticky="W")
 ttk.Label(advanced_tab, text="Highest section").grid(column=2, row=4, sticky="W")
 ttk.Label(advanced_tab, text="Distance between sections").grid(column=2, row=5, sticky="W")
-ttk.Label(advanced_tab, text="Distance from axis").grid(column=2, row=6, sticky="W")
-ttk.Label(advanced_tab, text="Axis upstep from stripe center").grid(column=2, row=7, sticky="W")
+ttk.Label(advanced_tab, text="Section width").grid(column = 2, row=6, sticky="W")
 
 ttk.Label(advanced_tab, text="meters").grid(column=4, row=1, sticky="W")
 ttk.Label(advanced_tab, text="meters").grid(column=4, row=2, sticky="W")
@@ -544,47 +558,65 @@ ttk.Label(advanced_tab, text="meters").grid(column=4, row=3, sticky="W")
 ttk.Label(advanced_tab, text="meters").grid(column=4, row=4, sticky="W")
 ttk.Label(advanced_tab, text="meters").grid(column=4, row=5, sticky="W")
 ttk.Label(advanced_tab, text="meters").grid(column=4, row=6, sticky="W")
-ttk.Label(advanced_tab, text="meters").grid(column=4, row=7, sticky="W")
 
 #### Text displaying info ###
-insert_text2 = """If the results obtained by just tweaking basic parameters do not 
-meet your expectations, you might want to modify these. 
+insert_text2 = """If the results obtained by just tweaking basic parameters do not meet your expectations,
+you might want to modify these. 
 
-You can get a brief description of what they do by hovering the
-mouse over the info icon right before each parameter. However, 
-keep in mind that a thorough understanding is advisable before
-changing these. For that, you can get a better grasp of what does 
-the algorithm do in the attached documentation. You can easily 
-access it through the Documentation button in the bottom-left 
-corner.
+You can get a brief description of what they do by hovering the mouse over the info icon
+right before each parameter. However, keep in mind that a thorough understanding is
+advisable before changing these. For that, you can get a better grasp of what the algo-
+rithm does in the attached documentation. You can easily access it through the 
+Documentation button in the bottom-left corner.
 """
+
 ttk.Separator(advanced_tab, orient = "vertical").grid(column = 5, 
                                                       row = 1, 
-                                                      rowspan = 7, 
+                                                      rowspan = 6, 
                                                       sticky = "NS",
                                                       )
 
-ttk.Label(advanced_tab, text = "Advanced parameters", font = ("Helvetica", 10, "bold")).grid(column = 6, row = 1)
-ttk.Label(advanced_tab, text = insert_text2).grid(column = 6, row = 2, rowspan = 6, sticky = "NW")
-
+ttk.Label(advanced_tab, text = "Advanced parameters", font = ("Helvetica", 10, "bold")).grid(column = 6, row = 1, rowspan = 8, sticky = "N")
+ttk.Label(advanced_tab, text = insert_text2).grid(column = 6, row = 2, rowspan = 8, sticky = "NW")
 
 
 for child in advanced_tab.winfo_children(): 
     child.grid_configure(padx=5, pady=5)
 
 
+#### Adding images ####
+
+sections_img = ImageTk.PhotoImage(Image.open(resource_path("section_details.png")))
+ttk.Label(advanced_tab, image = sections_img).grid(column = 1, row = 9, columnspan=15, sticky = "W", padx = 20, pady = 5)
+
+sections_text = """A) Sections along the stem B) Detail of computed sections showing the distance 
+between them and their width C) Circle fitting to the points of a section.
+"""
+ttk.Label(advanced_tab, text = sections_text).grid(column = 1, row = 10, columnspan = 15, sticky = "NW", padx = 20, pady = 5)
+
+
+sectors_img = ImageTk.PhotoImage(Image.open(resource_path("sectors.png")))
+ttk.Label(advanced_tab, image = sectors_img).grid(column = 1, row = 9, columnspan=15, sticky = "E", padx = 20, pady = 5)
+
+sectors_text = """Several quality controls are implemented to
+validate the fitted circles, such as measuring
+the point distribution along the sections."""
+
+ttk.Label(advanced_tab, text = sectors_text).grid(column = 1, row = 10, columnspan = 15, sticky = "NE", padx = 20, pady = 5)
+
+
 #### Adding info buttons ####
 
-maximum_radius_info = ttk.Label(advanced_tab, image = info_icon)
-maximum_radius_info.grid(column = 1, row = 1)
-gui.CreateToolTip(maximum_radius_info, text = 'Maximum radius expected for any stem.\n'
+maximum_diameter_info = ttk.Label(advanced_tab, image = info_icon)
+maximum_diameter_info.grid(column = 1, row = 1)
+gui.CreateToolTip(maximum_diameter_info, text = 'Maximum diameter expected for any stem.\n'
               'Default value: 0.5 meters.')
 
-stem_search_radius_info = ttk.Label(advanced_tab, image = info_icon)
-stem_search_radius_info.grid(column = 1, row = 2)
-gui.CreateToolTip(stem_search_radius_info, text = 'Points within this distance from tree axes will be considered\n'
-              'as potential stem points. Reasonable values are "Maximum radius"-1 meters \n'
-              '(exceptionally greater than 1: very large diameters and/or intricate stems).')
+stem_search_diameter_info = ttk.Label(advanced_tab, image = info_icon)
+stem_search_diameter_info.grid(column = 1, row = 2)
+gui.CreateToolTip(stem_search_diameter_info, text = 'Points within this distance from tree axes will be considered\n'
+              'as potential stem points. Reasonable values are "Maximum diameter"-2 meters \n'
+              '(exceptionally greater than 2: very large diameters and/or intricate stems).')
 
 minimum_height_info = ttk.Label(advanced_tab, image = info_icon)
 minimum_height_info.grid(column = 1, row = 3)
@@ -602,44 +634,11 @@ gui.CreateToolTip(section_len_info, text = 'Height of the sections (z length). D
               'computed for every section.\n'
               'Default value: 0.2 meters.')
 
-distance_to_axis_info = ttk.Label(advanced_tab, image = info_icon)
-distance_to_axis_info.grid(column = 1, row = 6)
-gui.CreateToolTip(distance_to_axis_info, text = 'Maximum distance from tree axis at which points will\n'
-              'be considered while computing tree height. Points too far away\n'
-              'from the tree axis might not be representative of actual tree height.\n'
-              'Default value: 1.5 meters.')
-
-axis_upstep_info = ttk.Label(advanced_tab, image = info_icon)
-axis_upstep_info.grid(column = 1, row = 7)
-gui.CreateToolTip(axis_upstep_info, text = 'From the stripe centroid, how much (upwards direction)\n'
-              'will the drawn axes extend. Basically, this parameter controls\n'
-              'how long will the drawn axes be.\n'
-              'Default value: 10 meters.')
-
-
-#### Adding images ####
-
-individual_trees_img = ImageTk.PhotoImage(Image.open(resource_path("individual_trees.jpg")))
-tree_axes_img = ImageTk.PhotoImage(Image.open(resource_path("tree_axes.jpg")))
-sections_img = ImageTk.PhotoImage(Image.open(resource_path("sections.jpg")))
-
-
-ttk.Label(advanced_tab, text = "Individual trees", font = ("Helvetica", 10, "bold")).grid(column = 1, row = 8, columnspan = 2, sticky = "S")
-ttk.Label(advanced_tab, image = individual_trees_img).grid(column = 1, row = 9, columnspan = 2, sticky = "S")
-
-ttk.Label(advanced_tab, text = "Tree axes", font = ("Helvetica", 10, "bold")).grid(column = 3, row = 8, columnspan = 3, sticky = "S")
-ttk.Label(advanced_tab, image = tree_axes_img).grid(column = 3, row = 9, columnspan = 3, sticky = "S")
-
-ttk.Label(advanced_tab, text = "Sections", font = ("Helvetica", 10, "bold")).grid(column = 6, row = 8, sticky = "S")
-ttk.Label(advanced_tab, image = sections_img).grid(column = 6, row = 9, sticky = "S")
-
-advanced_tab_text = """The algorithm outputs several .LAS files so the user can explore the results and these will be subject to the parameter configuration. 
-The quality of the tree identification step will somehow depend on the 'Stem search radius' and the 'Maximum radius'. The length
-of the drawn axes can be changed by modifying 'Axis upstep from stripe center'. 'Lowest section', 'Highest section' and 'Distance
-between sections' will directly impact diameter computations and how the sections display in the output .LAS file dedicated to them.
-"""
-ttk.Label(advanced_tab, text = advanced_tab_text).grid(column = 2, row = 10, columnspan = 5, sticky = NW)
-
+section_wid_info = ttk.Label(advanced_tab, image = info_icon)
+section_wid_info.grid(column = 1, row = 6)
+gui.CreateToolTip(section_wid_info, text = 'Sections are this wide. This means that points within this distance\n'
+              '(vertical) are considered during circle fitting and diameter computation.\n'
+              'Default value: 0.05 meters.')
 
 
 ### ----------------------------- ###
@@ -649,8 +648,8 @@ ttk.Label(advanced_tab, text = advanced_tab_text).grid(column = 2, row = 10, col
 note.add(expert_tab, text = "Expert")
 
 
-### Stem extraction ###
-ttk.Label(expert_tab, text="Stem extraction", font = ("Helvetica", 10, "bold")).grid(column=2, row=1, sticky="E")
+### Stem identification from stripe ###
+ttk.Label(expert_tab, text="Stem identification whithin the stripe", font = ("Helvetica", 10, "bold")).grid(column=1, row=1, columnspan=4, sticky="N")
 
 # (x, y) voxel resolution 
 res_xy_stripe_entry = ttk.Entry(expert_tab, width=7, textvariable=res_xy_stripe)
@@ -676,67 +675,61 @@ verticality_scale_stripe_entry.grid(column=3, row=5, sticky="EW")
 verticality_thresh_stripe_entry = ttk.Entry(expert_tab, width=7, textvariable=verticality_thresh_stripe)
 verticality_thresh_stripe_entry.grid(column=3, row=6, sticky="EW")
 
-
-# epsilon durig stem extraction entry # Should be 0.037 at least
-epsilon_stripe_entry = ttk.Entry(expert_tab, width=7, textvariable=epsilon_stripe)
-epsilon_stripe_entry.grid(column=3, row=7, sticky="EW")
+# Vertical range #
+height_range_entry = ttk.Entry(expert_tab, width=7, textvariable=height_range)
+height_range_entry.grid(column=3, row=7, sticky="EW")
 
 
 ttk.Label(expert_tab, text="(x, y) voxel resolution").grid(column=2, row=2, sticky="w")
 ttk.Label(expert_tab, text="(z) voxel resolution").grid(column=2, row=3, sticky="W")
 ttk.Label(expert_tab, text="Number of points").grid(column=2, row=4, sticky="W")
-ttk.Label(expert_tab, text="Vicinity radius").grid(column=2, row=5, sticky="W")
+ttk.Label(expert_tab, text="Vicinity radius (verticality computation)").grid(column=2, row=5, sticky="W")
 ttk.Label(expert_tab, text="Verticality threshold").grid(column=2, row=6, sticky="W")
-ttk.Label(expert_tab, text="DBSCAN eps").grid(column=2, row=7, sticky="W")
+ttk.Label(expert_tab, text="Vertical range").grid(column=2, row=7, sticky="W")
+
 
 ttk.Label(expert_tab, text="meters").grid(column=4, row=2, sticky="W")
 ttk.Label(expert_tab, text="meters").grid(column=4, row=3, sticky="W")
 ttk.Label(expert_tab, text="meters").grid(column=4, row=5, sticky="W")
 ttk.Label(expert_tab, text="(0, 1)").grid(column=4, row=6, sticky="W")
-ttk.Label(expert_tab, text="meters").grid(column=4, row=7, sticky="W")
 
-### Tree individualization ###
-ttk.Label(expert_tab, text="Tree individualization", font = ("Helvetica", 10, "bold")).grid(column=2, row=8, sticky="E")
+
+### Stem extraction and tree individualization ###
+ttk.Label(expert_tab, text="Stem extraction and tree individualization", font = ("Helvetica", 10, "bold")).grid(column=1, row=9, columnspan=4, sticky="N")
 
 # (x, y) voxel resolution 
 res_xy_entry = ttk.Entry(expert_tab, width=7, textvariable=res_xy)
-res_xy_entry.grid(column=3, row=9, sticky="EW")
+res_xy_entry.grid(column=3, row=10, sticky="EW")
 
 
 # (z) voxel resolution #
 res_z_entry = ttk.Entry(expert_tab, width=7, textvariable=res_z)
-res_z_entry.grid(column=3, row=10, sticky="EW")
+res_z_entry.grid(column=3, row=11, sticky="EW")
 
 
 # Minimum points #
 minimum_points_entry = ttk.Entry(expert_tab, width=7, textvariable=minimum_points)
-minimum_points_entry.grid(column=3, row=11, sticky="EW")
+minimum_points_entry.grid(column=3, row=12, sticky="EW")
 
 
 # Vicinity radius for PCA #
 verticality_scale_stems_entry = ttk.Entry(expert_tab, width=7, textvariable=verticality_scale_stems)
-verticality_scale_stems_entry.grid(column=3, row=12, sticky="EW")
+verticality_scale_stems_entry.grid(column=3, row=13, sticky="EW")
 
 
 # Verticality threshold durig tree individualization entry #
 verticality_thresh_stems_entry = ttk.Entry(expert_tab, width=7, textvariable=verticality_thresh_stems)
-verticality_thresh_stems_entry.grid(column=3, row=13, sticky="EW")
-
-
-# epsilon durig tree individualization entry #
-epsilon_stems_entry = ttk.Entry(expert_tab, width=7, textvariable=epsilon_stems)
-epsilon_stems_entry.grid(column=3, row=14, sticky="EW")
-
-
-# Vertical range #
-height_range_entry = ttk.Entry(expert_tab, width=7, textvariable=height_range)
-height_range_entry.grid(column=3, row=15, sticky="EW")
+verticality_thresh_stems_entry.grid(column=3, row=14, sticky="EW")
 
 
 # Maximum distance to axis #
 maximum_d_entry = ttk.Entry(expert_tab, width=7, textvariable=maximum_d)
-maximum_d_entry.grid(column=3, row=16, sticky="EW")
+maximum_d_entry.grid(column=3, row=15, sticky="EW")
 
+
+# Distance to axis during height computation #
+distance_to_axis_entry = ttk.Entry(expert_tab, width=7, textvariable=distance_to_axis)
+distance_to_axis_entry.grid(column=3, row=16, sticky="EW")
 
 # Voxel resolution during height computation #
 res_heights_entry = ttk.Entry(expert_tab, width=7, textvariable=res_heights)
@@ -748,19 +741,18 @@ maximum_dev_entry = ttk.Entry(expert_tab, width=7, textvariable=maximum_dev)
 maximum_dev_entry.grid(column=3, row=18, sticky="EW")
 
 
-ttk.Label(expert_tab, text="(x, y) voxel resolution").grid(column=2, row=9, sticky="W")
-ttk.Label(expert_tab, text="(z) voxel resolution").grid(column=2, row=10, sticky="W")
-ttk.Label(expert_tab, text="Minimum points").grid(column=2, row=11, sticky="W")
-ttk.Label(expert_tab, text="Vicinity radius").grid(column=2, row=12, sticky="W")
-ttk.Label(expert_tab, text="Verticality threshold").grid(column=2, row=13, sticky="W")
-ttk.Label(expert_tab, text="DBSCAN eps").grid(column=2, row=14, sticky="W")
-ttk.Label(expert_tab, text="Vertical range").grid(column=2, row=15, sticky="W")
-ttk.Label(expert_tab, text="Maximum distance to tree axis").grid(column=2, row=16, sticky="W")
+ttk.Label(expert_tab, text="(x, y) voxel resolution").grid(column=2, row=10, sticky="W")
+ttk.Label(expert_tab, text="(z) voxel resolution").grid(column=2, row=11, sticky="W")
+ttk.Label(expert_tab, text="Minimum points").grid(column=2, row=12, sticky="W")
+ttk.Label(expert_tab, text="Vicinity radius (verticality computation)").grid(column=2, row=13, sticky="W")
+ttk.Label(expert_tab, text="Verticality threshold").grid(column=2, row=14, sticky="W")
+ttk.Label(expert_tab, text="Maximum distance to tree axis").grid(column=2, row=15, sticky="W")
+ttk.Label(expert_tab, text="Distance from axis").grid(column=2, row=16, sticky="W")
 ttk.Label(expert_tab, text="Voxel resolution for height computation").grid(column=2, row=17, sticky="W")
 ttk.Label(expert_tab, text="Maximum vertical deviation from axis").grid(column=2, row=18, sticky="W")
 
-ttk.Label(expert_tab, text="meters").grid(column=4, row=9, sticky="W")
 ttk.Label(expert_tab, text="meters").grid(column=4, row=10, sticky="W")
+ttk.Label(expert_tab, text="meters").grid(column=4, row=11, sticky="W")
 ttk.Label(expert_tab, text="meters").grid(column=4, row=12, sticky="W")
 ttk.Label(expert_tab, text="(0, 1)").grid(column=4, row=13, sticky="W")
 ttk.Label(expert_tab, text="meters").grid(column=4, row=14, sticky="W")
@@ -769,118 +761,121 @@ ttk.Label(expert_tab, text="meters").grid(column=4, row=16, sticky="W")
 ttk.Label(expert_tab, text="meters").grid(column=4, row=17, sticky="W")
 ttk.Label(expert_tab, text="degrees").grid(column=4, row=18, sticky="W")
 
-### Extracting sections ###
-ttk.Label(expert_tab, text="Extracting sections", font = ("Helvetica", 10, "bold")).grid(column = 7, row=1, sticky="E")
+
+### Computing sections ###
+ttk.Label(expert_tab, text="Computing sections", font = ("Helvetica", 10, "bold")).grid(column = 7, row=1, sticky="E")
 
 ### Vertical separator
 
 ttk.Separator(expert_tab, orient = "vertical").grid(column = 5, row = 1, rowspan = 18, sticky = "NS")
 
-# Section width #
-section_wid_entry = ttk.Entry(expert_tab, width=7, textvariable=section_wid)
-section_wid_entry.grid(column = 8, row=2, sticky="EW")
-
-
 # Minimum number of points in a section #
 number_points_section_entry = ttk.Entry(expert_tab, width=7, textvariable=number_points_section)
-number_points_section_entry.grid(column = 8, row=3, sticky="EW")
-
+number_points_section_entry.grid(column = 8, row=2, sticky="EW")
 
 # Inner/outer circle proportion #
-radius_proportion_entry = ttk.Entry(expert_tab, width=7, textvariable=radius_proportion)
-radius_proportion_entry.grid(column = 8, row=4, sticky="EW")
+diameter_proportion_entry = ttk.Entry(expert_tab, width=7, textvariable=diameter_proportion)
+diameter_proportion_entry.grid(column = 8, row=3, sticky="EW")
 
 # Minimum radius expected #
-minimum_radius_entry = ttk.Entry(expert_tab, width=7, textvariable=minimum_radius)
-minimum_radius_entry.grid(column = 8, row=5, sticky="EW")
+minimum_diameter_entry = ttk.Entry(expert_tab, width=7, textvariable=minimum_diameter)
+minimum_diameter_entry.grid(column = 8, row=4, sticky="EW")
 
 # Number of points inside the inner circle used as threshold #
 point_threshold_entry = ttk.Entry(expert_tab, width=7, textvariable=point_threshold)
-point_threshold_entry.grid(column = 8, row=6, sticky="EW")
+point_threshold_entry.grid(column = 8, row=5, sticky="EW")
 
 # Maximum point distance #
 point_distance_entry = ttk.Entry(expert_tab, width=7, textvariable=point_distance)
-point_distance_entry.grid(column = 8, row=7, sticky="EW")
+point_distance_entry.grid(column = 8, row=6, sticky="EW")
 
 # Number of sectors #
 number_sectors_entry = ttk.Entry(expert_tab, width=7, textvariable=number_sectors)
-number_sectors_entry.grid(column = 8, row=8, sticky="EW")
+number_sectors_entry.grid(column = 8, row=7, sticky="EW")
 
 # Mnimum number of occupied sectors #
 m_number_sectors_entry = ttk.Entry(expert_tab, width=7, textvariable=m_number_sectors)
-m_number_sectors_entry.grid(column = 8, row=9, sticky="EW")
+m_number_sectors_entry.grid(column = 8, row=8, sticky="EW")
 
 # Width #
 circle_width_entry = ttk.Entry(expert_tab, width=7, textvariable=circle_width)
-circle_width_entry.grid(column = 8, row=10, sticky="EW")
+circle_width_entry.grid(column = 8, row=9, sticky="EW")
 
 
-ttk.Label(expert_tab, text="Section width").grid(column = 7, row=2, sticky="W")
-ttk.Label(expert_tab, text="Points within section").grid(column = 7, row=3, sticky="W")
-ttk.Label(expert_tab, text="Inner/outer circle proportion").grid(column = 7, row=4, sticky="W")
-ttk.Label(expert_tab, text="Minimum expected radius").grid(column = 7, row=5, sticky="W")
-ttk.Label(expert_tab, text="Points within inner circle").grid(column = 7, row=6, sticky="W")
-ttk.Label(expert_tab, text="Maximum point distance").grid(column = 7, row=7, sticky="W")
-ttk.Label(expert_tab, text="Number of sectors").grid(column = 7, row=8, sticky="W")
-ttk.Label(expert_tab, text="Number of occupied sectors").grid(column = 7, row=9, sticky="W")
-ttk.Label(expert_tab, text="Circle width").grid(column = 7, row=10, sticky="W")
+ttk.Label(expert_tab, text="Points within section").grid(column = 7, row=2, sticky="W")
+ttk.Label(expert_tab, text="Inner/outer circle proportion").grid(column = 7, row=3, sticky="W")
+ttk.Label(expert_tab, text="Minimum expected diameter").grid(column = 7, row=4, sticky="W")
+ttk.Label(expert_tab, text="Points within inner circle").grid(column = 7, row=5, sticky="W")
+ttk.Label(expert_tab, text="Maximum point distance").grid(column = 7, row=6, sticky="W")
+ttk.Label(expert_tab, text="Number of sectors").grid(column = 7, row=7, sticky="W")
+ttk.Label(expert_tab, text="Number of occupied sectors").grid(column = 7, row=8, sticky="W")
+ttk.Label(expert_tab, text="Circle width").grid(column = 7, row=9, sticky="W")
 
-ttk.Label(expert_tab, text="meters").grid(column = 9, row=2, sticky="W")
-ttk.Label(expert_tab, text="> 0").grid(column = 9, row=4, sticky="W")
-ttk.Label(expert_tab, text="meters").grid(column = 9, row=5, sticky="W")
-ttk.Label(expert_tab, text="meters").grid(column = 9, row=7, sticky="W")
-ttk.Label(expert_tab, text="centimeters").grid(column = 9, row=10, sticky="W")
+ttk.Label(expert_tab, text="[0, 1]").grid(column = 9, row=3, sticky="W")
+ttk.Label(expert_tab, text="meters").grid(column = 9, row=4, sticky="W")
+ttk.Label(expert_tab, text="meters").grid(column = 9, row=6, sticky="W")
+ttk.Label(expert_tab, text="centimeters").grid(column = 9, row=9, sticky="W")
 
 
 ### Drawing circles and axes ###
-ttk.Label(expert_tab, text="Drawing circles and axes", font = ("Helvetica", 10, "bold")).grid(column = 7, row=11, sticky="E")
+ttk.Label(expert_tab, text="Drawing circles and axes", font = ("Helvetica", 10, "bold")).grid(column = 7, row=10, sticky="E")
 
 # Circa points #
 circa_entry = ttk.Entry(expert_tab, width=7, textvariable=circa)
-circa_entry.grid(column = 8, row=12, sticky="EW")
+circa_entry.grid(column = 8, row=11, sticky="EW")
 
 
 # Point interval #
 p_interval_entry = ttk.Entry(expert_tab, width=7, textvariable=p_interval)
-p_interval_entry.grid(column = 8, row=13, sticky="EW")
+p_interval_entry.grid(column = 8, row=12, sticky="EW")
 
 
 # Axis lowest point #
 axis_downstep_entry = ttk.Entry(expert_tab, width=7, textvariable=axis_downstep)
-axis_downstep_entry.grid(column = 8, row=14, sticky="EW")
+axis_downstep_entry.grid(column = 8, row=13, sticky="EW")
 
 
-ttk.Label(expert_tab, text="N of points to draw each circle").grid(column = 7, row=12, sticky="W")
-ttk.Label(expert_tab, text="Interval at which points are drawn").grid(column = 7, row=13, sticky="W")
-ttk.Label(expert_tab, text="Axis upstep from stripe center").grid(column = 7, row=14, sticky="W")
+# Axis highest point #
+axis_upstep_entry = ttk.Entry(expert_tab, width=7, textvariable=axis_upstep)
+axis_upstep_entry.grid(column=8, row=14, sticky="EW")
+
+
+ttk.Label(expert_tab, text="N of points to draw each circle").grid(column = 7, row=11, sticky="W")
+ttk.Label(expert_tab, text="Interval at which points are drawn").grid(column = 7, row=12, sticky="W")
+ttk.Label(expert_tab, text="Axis downstep from stripe center").grid(column = 7, row=13, sticky="W")
+ttk.Label(expert_tab, text="Axis upstep from stripe center").grid(column=7, row=14, sticky="W")
+
+ttk.Label(expert_tab, text="meters").grid(column=9, row=12, sticky="W")
+ttk.Label(expert_tab, text="meters").grid(column=9, row=13, sticky="W")
+ttk.Label(expert_tab, text="meters").grid(column=9, row=14, sticky="W")
 
     
-### Other parameters ###
-ttk.Label(expert_tab, text="Other parameters", font = ("Helvetica", 10, "bold")).grid(column = 7, row=15, sticky="E")
-
-# Which column contains X field #
-X_column_entry = ttk.Entry(expert_tab, width=7, textvariable=X_column)
-X_column_entry.grid(column = 8, row=16, sticky="EW")
+### Height normalization ###
+ttk.Label(expert_tab, text="Height normalization", font = ("Helvetica", 10, "bold")).grid(column = 7, row=15, sticky="E")
 
 
-# Which column contains Y field #
-Y_column_entry = ttk.Entry(expert_tab, width=7, textvariable=Y_column)
-Y_column_entry.grid(column = 8, row=17, sticky="EW")
+# (x, y) voxel resolution during denoising
+res_ground_entry = ttk.Entry(expert_tab, width=7, textvariable=res_ground)
+res_ground_entry.grid(column=8, row=16, sticky="EW")
+
+min_points_ground_entry = ttk.Entry(expert_tab, width=7, textvariable=min_points_ground)
+min_points_ground_entry.grid(column = 8, row=17, sticky="EW")
+
+res_cloth_entry = ttk.Entry(expert_tab, width=7, textvariable=res_cloth)
+res_cloth_entry.grid(column = 8, row=18, sticky="EW")
+
+ttk.Label(expert_tab, text="(x, y) voxel resolution").grid(column = 7, row=16, sticky="W")
+ttk.Label(expert_tab, text="Minimum number of points").grid(column = 7, row=17, sticky="W")
+ttk.Label(expert_tab, text="Cloth resolution").grid(column = 7, row=18, sticky="W")
 
 
-# Which column contains Z field #
-Z_column_entry = ttk.Entry(expert_tab, width=7, textvariable=Z_column)
-Z_column_entry.grid(column = 8, row=18, sticky="EW")
-
-
-ttk.Label(expert_tab, text="X field").grid(column = 7, row=16, sticky="W")
-ttk.Label(expert_tab, text="Y field").grid(column = 7, row=17, sticky="W")
-ttk.Label(expert_tab, text="Z field").grid(column = 7, row=18, sticky="W")
+ttk.Label(expert_tab, text="meters").grid(column=9, row=16, sticky="W")
+ttk.Label(expert_tab, text="meters").grid(column=9, row=18, sticky="W")
 
 for child in expert_tab.winfo_children(): 
     child.grid_configure(padx=5, pady=5)
     
-#### Adding an info buttons ####
+#### Adding info buttons ####
 
 res_xy_stripe_info = ttk.Label(expert_tab, image = info_icon)
 res_xy_stripe_info.grid(column = 1, row = 2)
@@ -894,7 +889,7 @@ gui.CreateToolTip(res_z_stripe_info, text = '(z) voxel resolution during stem ex
 
 number_of_points_info = ttk.Label(expert_tab, image = info_icon)
 number_of_points_info.grid(column = 1, row = 4)
-gui.CreateToolTip(number_of_points_info, text = 'minimum number of points per stem within the stripe\n'
+gui.CreateToolTip(number_of_points_info, text = 'minimum number of points (voxels) per stem within the stripe\n'
               '(DBSCAN clustering). Reasonable values are between 500 and 3000.\n'
               'Default value: 1000.')
 
@@ -906,55 +901,57 @@ gui.CreateToolTip(verticality_scale_stripe_info, text = 'Vicinity radius for PCA
 verticality_thresh_stripe_info = ttk.Label(expert_tab, image = info_icon)
 verticality_thresh_stripe_info.grid(column = 1, row = 6)
 gui.CreateToolTip(verticality_thresh_stripe_info, text = 'Verticality threshold durig stem extraction.\n'
+                  'Verticality is defined as (1 - sin(V)), being V the vertical angle of the normal\n'
+                  'vector, measured from the horizontal. Note that it does not grow linearly.\n'
+                  'Default value: 0.7.')
+
+height_range_info = ttk.Label(expert_tab, image = info_icon)
+height_range_info.grid(column = 1, row = 7)
+gui.CreateToolTip(height_range_info, text = 'Proportion (0: none - 1: all) of the vertical range of the stripe\n'
+              'that points need to extend through to be valid stems.\n'
               'Default value: 0.7.')
 
-epsilon_stripe_info = ttk.Label(expert_tab, image = info_icon)
-epsilon_stripe_info.grid(column = 1, row = 7)
-gui.CreateToolTip(epsilon_stripe_info, text = 'DBSCAN radius during stem extraction.\n'
-              'Default value: 0.037 meters.')
-
 res_xy_info = ttk.Label(expert_tab, image = info_icon)
-res_xy_info.grid(column = 1, row = 9)
+res_xy_info.grid(column = 1, row = 10)
 gui.CreateToolTip(res_xy_info, text = '(x, y) voxel resolution during tree individualization.\n'
               'Default value: 0.035 meters.')
 
 res_z_info = ttk.Label(expert_tab, image = info_icon)
-res_z_info.grid(column = 1, row = 10)
+res_z_info.grid(column = 1, row = 11)
 gui.CreateToolTip(res_z_info, text = '(z) voxel resolution during tree individualization.\n'
               'Default value: 0.035 meters.')
 
 minimum_points_info = ttk.Label(expert_tab, image = info_icon)
-minimum_points_info.grid(column = 1, row = 11)
-gui.CreateToolTip(minimum_points_info, text = 'Minimum number of points within a stripe to consider it\n'
+minimum_points_info.grid(column = 1, row = 12)
+gui.CreateToolTip(minimum_points_info, text = 'Minimum number of points (voxels) within a stripe to consider it\n'
               'as a potential tree during tree individualization.\n'
               'Default value: 20.')
 
 verticality_scale_stems_info = ttk.Label(expert_tab, image = info_icon)
-verticality_scale_stems_info.grid(column = 1, row = 12)
+verticality_scale_stems_info.grid(column = 1, row = 13)
 gui.CreateToolTip(verticality_scale_stems_info, text = 'Vicinity radius for PCA during tree individualization.\n'
               'Default value: 0.1 meters.')
 
 verticality_thresh_stems_info = ttk.Label(expert_tab, image = info_icon)
-verticality_thresh_stems_info.grid(column = 1, row = 13)
-gui.CreateToolTip(verticality_thresh_stems_info, text = 'Verticality threshold durig tree individualization.\n'
-              'Default value: 0.7.')
+verticality_thresh_stems_info.grid(column = 1, row = 14)
+gui.CreateToolTip(verticality_thresh_stems_info, text = 'Verticality threshold durig stem extraction.\n'
+                  'Verticality is defined as (1 - sin(V)), being V the vertical angle of the normal\n'
+                  'vector, measured from the horizontal. Note that it does not grow linearly.\n'
+                  'Default value: 0.7.')
 
-epsilon_stems_info = ttk.Label(expert_tab, image = info_icon)
-epsilon_stems_info.grid(column = 1, row = 14)
-gui.CreateToolTip(epsilon_stems_info, text = 'DBSCAN radius during tree individualization.\n'
-              'Default value: 0.08 meters.')
-
-height_range_info = ttk.Label(expert_tab, image = info_icon)
-height_range_info.grid(column = 1, row = 15)
-gui.CreateToolTip(height_range_info, text = 'Only stems where points extend vertically throughout\n'
-              'this range are considered.\n'
-              'Default value: 1.2 meters.')
 
 maximum_d_info = ttk.Label(expert_tab, image = info_icon)
-maximum_d_info.grid(column = 1, row = 16)
+maximum_d_info.grid(column = 1, row = 15)
 gui.CreateToolTip(maximum_d_info, text = 'Points that are closer than this distance to an axis '
               'are assigned to that axis during individualize_trees process.\n'
               'Default value: 15 meters.')
+
+distance_to_axis_info = ttk.Label(expert_tab, image = info_icon)
+distance_to_axis_info.grid(column = 1, row = 16)
+gui.CreateToolTip(distance_to_axis_info, text = 'Maximum distance from tree axis at which points will\n'
+              'be considered while computing tree height. Points too far away\n'
+              'from the tree axis might not be representative of actual tree height.\n'
+              'Default value: 1.5 meters.')
 
 res_heights_info = ttk.Label(expert_tab, image = info_icon)
 res_heights_info.grid(column = 1, row = 17)
@@ -967,97 +964,103 @@ gui.CreateToolTip(maximum_dev_info, text = 'Maximum degree of vertical deviation
               'a tree height to be considered as valid.\n'
               'Default value: 25 degrees.')
 
-section_wid_info = ttk.Label(expert_tab, image = info_icon)
-section_wid_info.grid(column = 6, row = 2)
-gui.CreateToolTip(section_wid_info, text = 'Sections are this wide. This means that points within this distance\n'
-              '(vertical) are considered during circle fitting and diameter computation.\n'
-              'Default value: 0.05 meters.')
+
 
 number_points_section_info = ttk.Label(expert_tab, image = info_icon)
-number_points_section_info.grid(column = 6, row = 3)
+number_points_section_info.grid(column = 6, row = 2)
 gui.CreateToolTip(number_points_section_info, text = 'Minimum number of points in a section to be considered\n'
               'as valid.\n'
               'Default value: 80.')
 
-radius_proportion_info = ttk.Label(expert_tab, image = info_icon)
-radius_proportion_info.grid(column = 6, row = 4)
-gui.CreateToolTip(radius_proportion_info, text = 'Proportion, regarding the circumference fit by fit_circle,\n'
-              'that the inner circumference radius will have as length.\n'
+diameter_proportion_info = ttk.Label(expert_tab, image = info_icon)
+diameter_proportion_info.grid(column = 6, row = 3)
+gui.CreateToolTip(diameter_proportion_info, text = 'Proportion, regarding the circumference fit by fit_circle,\n'
+              'that the inner circumference diameter will have as length.\n'
               'Default value: 0.5 times.')
 
-minimum_radius_info = ttk.Label(expert_tab, image = info_icon)
-minimum_radius_info.grid(column = 6, row = 5)
-gui.CreateToolTip(minimum_radius_info, text = 'Minimum radius expected for any section during circle fitting.\n'
+minimum_diameter_info = ttk.Label(expert_tab, image = info_icon)
+minimum_diameter_info.grid(column = 6, row = 4)
+gui.CreateToolTip(minimum_diameter_info, text = 'Minimum diameter expected for any section during circle fitting.\n'
               'Default value: 0.03 meters.')
 
 point_threshold_info = ttk.Label(expert_tab, image = info_icon)
-point_threshold_info.grid(column = 6, row = 6)
-gui.CreateToolTip(point_threshold_info, text = 'Minimum number of points inside the inner circle\n'
+point_threshold_info.grid(column = 6, row = 5)
+gui.CreateToolTip(point_threshold_info, text = 'Maximum number of points inside the inner circle\n'
               'to consider the fitting as OK.\n'
               'Default value: 5.')
 
 point_distance_info = ttk.Label(expert_tab, image = info_icon)
-point_distance_info.grid(column = 6, row = 7)
+point_distance_info.grid(column = 6, row = 6)
 gui.CreateToolTip(point_distance_info, text = 'Maximum distance among points to be considered within the\n'
               'same cluster during circle fitting.\n'
               'Default value: 0.02 meters.')
 
 number_sectors_info = ttk.Label(expert_tab, image = info_icon)
-number_sectors_info.grid(column = 6, row = 8)
+number_sectors_info.grid(column = 6, row = 7)
 gui.CreateToolTip(number_sectors_info, text = 'Number of sectors in which the circumference will be divided\n'
               'Default value: 16.')
 
 m_number_sectors_info = ttk.Label(expert_tab, image = info_icon)
-m_number_sectors_info.grid(column = 6, row = 9)
+m_number_sectors_info.grid(column = 6, row = 8)
 gui.CreateToolTip(m_number_sectors_info, text = 'Minimum number of sectors that must be occupied.\n'
               'Default value: 9.')
 
 circle_width_info = ttk.Label(expert_tab, image = info_icon)
-circle_width_info.grid(column = 6, row = 10)
-gui.CreateToolTip(circle_width_info, text = 'Width, in centimeters, around the circumference to look\n'
+circle_width_info.grid(column = 6, row = 9)
+gui.CreateToolTip(circle_width_info, text = 'Width, in meters, around the circumference to look\n'
               'for points.\n'
-              'Defaul value: 2 centimeters.')
+              'Defaul value: 0.02 meters.')
 
 circa_info = ttk.Label(expert_tab, image = info_icon)
-circa_info.grid(column = 6, row = 12)
+circa_info.grid(column = 6, row = 11)
 gui.CreateToolTip(circa_info, text = 'Number of points that will be used to draw the circles\n '
               'in the LAS files.\n'
               'Default value: 200.')
 
 p_interval_info = ttk.Label(expert_tab, image = info_icon)
-p_interval_info.grid(column = 6, row = 13)
+p_interval_info.grid(column = 6, row = 12)
 gui.CreateToolTip(p_interval_info, text = 'Distance at which points will be placed from one to another\n'
               'while drawing the axes in the LAS files.\n'
               'Default value: 0.01 meters.')
 
 axis_downstep_info = ttk.Label(expert_tab, image = info_icon)
-axis_downstep_info.grid(column = 6, row = 14)
+axis_downstep_info.grid(column = 6, row = 13)
 gui.CreateToolTip(axis_downstep_info, text = 'From the stripe centroid, how much (downwards direction)\n'
               'will the drawn axes extend. Basically, this parameter controls\n'
               'from where will the axes be drawn.\n'
               'Default value: 0.5 meters.')
 
-X_column_info = ttk.Label(expert_tab, image = info_icon)
-X_column_info.grid(column = 6, row = 16)
-gui.CreateToolTip(X_column_info, text = 'Which column contains X field.\n'
-              'Default value: 0.')
+axis_upstep_info = ttk.Label(expert_tab, image = info_icon)
+axis_upstep_info.grid(column = 6, row = 14)
+gui.CreateToolTip(axis_upstep_info, text = 'From the stripe centroid, how much (upwards direction)\n'
+              'will the drawn axes extend. Basically, this parameter controls\n'
+              'how long will the drawn axes be.\n'
+              'Default value: 10 meters.')
 
-Y_column_info = ttk.Label(expert_tab, image = info_icon)
-Y_column_info.grid(column = 6, row = 17)
-gui.CreateToolTip(Y_column_info, text = 'Which column contains Y field.\n'
-              'Default value: 1.')
+res_ground_info = ttk.Label(expert_tab, image = info_icon)
+res_ground_info.grid(column = 6, row = 16)
+gui.CreateToolTip(res_ground_info, text = '(x, y, z) voxel resolution during denoising.|n'
+                  ' Note that the whole point cloud is voxelated.\n'
+                  'Default value: 0.15.')
 
-Z_column_info = ttk.Label(expert_tab, image = info_icon)
-Z_column_info.grid(column = 6, row = 18)
-gui.CreateToolTip(Z_column_info, text = 'Which column contains Z field.\n'
-              'Default value: 2.')
+min_points_ground_info = ttk.Label(expert_tab, image = info_icon)
+min_points_ground_info.grid(column = 6, row = 17)
+gui.CreateToolTip(min_points_ground_info, text = 'Clusters with size smaller than this value will be\n'
+                  'regarded as noise and thus eliminated.\n'
+                  'Default value: 2.')
+
+res_cloth_info = ttk.Label(expert_tab, image = info_icon)
+res_cloth_info.grid(column = 6, row = 18)
+gui.CreateToolTip(res_cloth_info, text = 'Initial cloth grid resolution to generate the DTM that\n'
+                  'be used to compute normalized heights.\n'
+                  'Default value: 0.5.')
 
 warning_img = ImageTk.PhotoImage(Image.open(resource_path("warning_img_1.png")))
 
 #### Warning button ####
 def open_warning():
    new = Toplevel(root)
-   new.geometry("670x335")
+   new.geometry("700x380")
    new.title("WARNING")
    ttk.Label(new, image = warning_img).grid(column = 2, row = 1, rowspan = 3, sticky = "E")
    ttk.Label(new, text = "This is the expert parameters tab.", font=("Helvetica", 10)).grid(column = 1, row = 1, sticky = "W")
@@ -1078,6 +1081,10 @@ def open_warning():
              "the automatic parametrization of wood volume equations from Terrestrial Laser Scanning\n"
              "point clouds: application in Pinus pinaster. GIScience and Remote Sensing, 58(7), 1130–1150.\n"
              "https://doi.org/10.1080/15481603.2021.1972712 ", font = ("Helvetica", 10)).grid(column = 1, row = 7, sticky = "W")
+   
+   ttk.Label(new, text = "Zhang, W., Qi, J., Wan, P., Wang, H., Xie, D., Wang, X., & Yan, G. (2016). An\n"
+             "easy-to-use airborne LiDAR data filtering method based on cloth simulation. Remote Sensing, 8(6).\n"
+             "https://doi.org/10.3390/rs8060501", font = ("Helvetica", 10)).grid(column = 1, row = 8, sticky = "W")
    
    for child in new.winfo_children(): 
        child.grid_configure(padx=3, pady=3)
@@ -1123,10 +1130,18 @@ copyright_info_3 = """See LICENSE at the botton of this tab for further details.
 
 ### ABOUT THE PROJECT ###
 
-about = """This software has been developed by the Centre of Wildfire Research at the Faculty of Science & Engineering, Swansea University in collaboration 
-with the Department of Mining Exploitation of University of Oviedo, under the UK NERC funded project (NERC reference: NE/T001194/1):"""
+about_1 = """This software has been developed at the Centre of Wildfire Research of Swansea University (UK) in collaboration with the Research Institute of 
+Biodiversity (CSIC, Spain) and the Department of Mining Exploitation of the University of Oviedo (Spain). Funding provided by the UK NERC 
+project (NE/T001194/1):"""
 
-nerc_project = """'Advancing 3D Fuel Mapping for Wildfire Behaviour and Risk Mitigation Modelling'."""
+about_2 = """and by the Spanish Knowledge Generation project (PID2021-126790NB-I00):"""
+
+nerc_project = """'Advancing 3D Fuel Mapping for Wildfire Behaviour and Risk Mitigation Modelling' """
+
+csic_project = """‘Advancing carbon emission estimations from wildfires applying artificial intelligence to 3D terrestrial point clouds’""" 
+
+
+
 
 ### TEAM MEMBERS ###
 
@@ -1171,67 +1186,82 @@ copyright_3_lab = ttk.Label(scrollable, text = copyright_info_3)
 copyright_3_lab.grid(row = 3, column = 1, columnspan = 3)
 
 # About the project #
-about_lab = ttk.Label(scrollable, text = about)
-about_lab.grid(row = 4, column = 1, columnspan = 3)
+about_1_lab = ttk.Label(scrollable, text = about_1)
+about_1_lab.grid(row = 4, column = 1, columnspan = 3, sticky="W")
 
 nerc_project_lab = ttk.Label(scrollable, text = nerc_project, font = ("Helvetica", 10, "italic"))
 nerc_project_lab.grid(row = 5, column = 1, columnspan = 3)
 
+about_2_lab = ttk.Label(scrollable, text = about_2)
+about_2_lab.grid(row = 6, column = 1, columnspan = 3, sticky="W")
+
+csic_project_lab = ttk.Label(scrollable, text = csic_project, font = ("Helvetica", 10, "italic"))
+csic_project_lab.grid(row = 7, column = 1, columnspan = 3)
+
+
 nerc_logo_img = ImageTk.PhotoImage(Image.open(resource_path("nerc_logo_1.png")))
-ttk.Label(scrollable, image = nerc_logo_img).grid(row = 6, column = 1, columnspan = 3, sticky = "W")
+ttk.Label(scrollable, image = nerc_logo_img).grid(row = 8, column = 1, columnspan = 3, sticky="W")
 
 swansea_logo_img = ImageTk.PhotoImage(Image.open(resource_path("swansea_logo_1.png")))
-ttk.Label(scrollable, image = swansea_logo_img).grid(row = 6, column = 1, columnspan = 3, sticky = "E")
+ttk.Label(scrollable, image = swansea_logo_img).grid(row = 8, column = 1, columnspan = 3, sticky="E")
+
+spain_logo_img = ImageTk.PhotoImage(Image.open(resource_path("spain_logo_1.png")))
+ttk.Label(scrollable, image = spain_logo_img).grid(row = 9, column = 1, columnspan = 3, sticky="W")
+
+csic_logo_img = ImageTk.PhotoImage(Image.open(resource_path("csic_logo_1.png")))
+ttk.Label(scrollable, image = csic_logo_img).grid(row = 9, column = 1, columnspan = 3)
 
 uniovi_logo_img = ImageTk.PhotoImage(Image.open(resource_path("uniovi_logo_1.png")))
-ttk.Label(scrollable, image = uniovi_logo_img).grid(row = 6, column = 1, columnspan = 3)
+ttk.Label(scrollable, image = uniovi_logo_img).grid(row = 9, column = 1, columnspan = 3, sticky="E")
 
-ttk.Separator(scrollable, orient = "horizontal").grid(row = 7, column = 1, columnspan = 3, sticky = "EW")
+
+ttk.Separator(scrollable, orient = "horizontal").grid(row = 10, column = 1, columnspan = 3, sticky = "EW")
+
 
 team_lab = ttk.Label(scrollable, text = 'Team', font = ("Helvetica", 12, "bold"))
-team_lab.grid(row = 8, column = 1, columnspan = 3)
+team_lab.grid(row = 11, column = 1, columnspan = 3)
 
 carloscabo_lab = ttk.Label(scrollable, text = carloscabo)
-carloscabo_lab.grid(row = 9, column = 2, columnspan = 2, sticky="W")
+carloscabo_lab.grid(row = 11, column = 2, columnspan = 2, sticky="W")
 
 diegolaino_lab = ttk.Label(scrollable, text = diegolaino)
-diegolaino_lab.grid(row = 10, column = 2, columnspan = 2, sticky="W")
+diegolaino_lab.grid(row = 12, column = 2, columnspan = 2, sticky="W")
 
 crissantin_lab = ttk.Label(scrollable, text = crissantin)
-crissantin_lab.grid(row = 11, column = 2, columnspan = 2, sticky="W")
+crissantin_lab.grid(row = 13, column = 2, columnspan = 2, sticky="W")
 
 stefandoerr_lab = ttk.Label(scrollable, text = stefandoerr)
-stefandoerr_lab.grid(row = 12, column = 2, columnspan = 2, sticky="W")
+stefandoerr_lab.grid(row = 14, column = 2, columnspan = 2, sticky="W")
 
 celestinoordonez_lab = ttk.Label(scrollable, text = celestinoordonez)
-celestinoordonez_lab.grid(row = 13, column = 2, columnspan = 2, sticky="W")
+celestinoordonez_lab.grid(row = 15, column = 2, columnspan = 2, sticky="W")
 
 tadasnikonovas_lab = ttk.Label(scrollable, text = tadasnikonovas)
-tadasnikonovas_lab.grid(row = 14, column = 2, columnspan = 2, sticky="W")
+tadasnikonovas_lab.grid(row = 16, column = 2, columnspan = 2, sticky="W")
 
 covadongaprendes_lab = ttk.Label(scrollable, text = covadongaprendes)
-covadongaprendes_lab.grid(row = 15, column = 2, columnspan = 2, sticky = "W")
+covadongaprendes_lab.grid(row = 17, column = 2, columnspan = 2, sticky = "W")
 
 carlos_img = ImageTk.PhotoImage(Image.open(resource_path("carlos_pic_1.jpg")))
-ttk.Label(scrollable, image = carlos_img).grid(row = 9, column = 1)
+ttk.Label(scrollable, image = carlos_img).grid(row = 11, column = 1)
 
 diego_img = ImageTk.PhotoImage(Image.open(resource_path("diego_pic_1.jpg")))
-ttk.Label(scrollable, image = diego_img).grid(row = 10, column = 1)
+ttk.Label(scrollable, image = diego_img).grid(row = 12, column = 1)
 
 cris_img = ImageTk.PhotoImage(Image.open(resource_path("cris_pic_1.jpg")))
-ttk.Label(scrollable, image = cris_img).grid(row = 11, column = 1)
+ttk.Label(scrollable, image = cris_img).grid(row = 13, column = 1)
 
 stefan_img = ImageTk.PhotoImage(Image.open(resource_path("stefan_pic_1.jpg")))
-ttk.Label(scrollable, image = stefan_img).grid(row = 12, column = 1)
+ttk.Label(scrollable, image = stefan_img).grid(row = 14, column = 1)
 
 celestino_img = ImageTk.PhotoImage(Image.open(resource_path("celestino_pic_1.jpg")))
-ttk.Label(scrollable, image = celestino_img).grid(row = 13, column = 1)
+ttk.Label(scrollable, image = celestino_img).grid(row = 15, column = 1)
 
 tadas_img = ImageTk.PhotoImage(Image.open(resource_path("tadas_pic_1.jpg")))
-ttk.Label(scrollable, image = tadas_img).grid(row = 14, column = 1)
+ttk.Label(scrollable, image = tadas_img).grid(row = 16, column = 1)
 
 covadonga_img = ImageTk.PhotoImage(Image.open(resource_path("covadonga_pic_1.jpg")))
-ttk.Label(scrollable, image = covadonga_img).grid(row = 15, column = 1)
+ttk.Label(scrollable, image = covadonga_img).grid(row = 17, column = 1)
 
 f = open(resource_path("License.txt"),"r")
 gnu_license = f.read()
@@ -1263,9 +1293,9 @@ def open_license():
    
    new.geometry("620x400")
    new.title("LICENSE")
-   ttk.Label(license_scrollable, text = "GNU GENERAL PUBLIC LICENSE", font = ("Helvetica", 10, "bold"), anchor = "E", justify="LEFT").grid(row = 1, column = 1)
+   ttk.Label(license_scrollable, text = "GNU GENERAL PUBLIC LICENSE", font = ("Helvetica", 10, "bold")).grid(row = 1, column = 1)
    
-   ttk.Label(license_scrollable, text = gnu_license, font = ("Helvetica", 10)).grid(row = 2, column = 1)
+   ttk.Label(license_scrollable, text = gnu_license, font = ("Helvetica", 10)).grid(row = 2, column = 1, sticky="W")
    
    # Create canvas window to hold the buttons_frame.
    license_canvas.create_window((0, 0), window=license_scrollable, anchor='nw')
@@ -1282,9 +1312,9 @@ def open_license():
    for child in license_scrollable.winfo_children(): 
        child.grid_configure(padx=5, pady=5)
 
-ttk.Separator(scrollable, orient = "horizontal").grid(row = 16, column = 1, columnspan = 3, sticky = "EW")
+ttk.Separator(scrollable, orient = "horizontal").grid(row = 18, column = 1, columnspan = 3, sticky = "EW")
 
-Button(scrollable, text='License', width = 8, font = ("Helvetica", 10, "bold"), cursor="hand2", command=open_license).grid(row = 17, column = 1, columnspan = 3)
+Button(scrollable, text='License', width = 8, font = ("Helvetica", 10, "bold"), cursor="hand2", command=open_license).grid(row = 19, column = 1, columnspan = 3)
 
 
 for child in scrollable.winfo_children(): 
@@ -1310,9 +1340,12 @@ Button(root, text='Select file & compute', bg = "light green", width = 30, font 
 
 #### Adding a hyperlink to the documentation ####
 
+
+
+
 link1 = ttk.Label(root, text=" Documentation", font = ("Helvetica", 11), foreground = "blue", cursor="hand2")
 link1.grid(sticky = "NW")
-link1.bind("<Button-1>", lambda e: os.system(resource_path("documentation.pdf")))
+link1.bind("<Button-1>", lambda e: subprocess.Popen(resource_path("documentation.pdf"),shell=True))
 
 
 root.mainloop()
@@ -1326,6 +1359,7 @@ root.mainloop()
 
 is_normalized = is_normalized_var.get()
 is_noisy = is_noisy_var.get()
+txt = txt_var.get()
 
 field_name_z0 = z0_name.get() # Name of the Z0 field in the LAS file containing the cloud. 
 # If the normalized heights are stored in the Z coordinate of the .LAS file: field_name_z0 = "z" (lowercase)
@@ -1342,19 +1376,15 @@ n_iter = int(number_of_iterations.get()) # Number of iterations of 'peeling off 
 # They require a deeper knowledge of how the algorithm and the implementation work
 #-------------------------------------------------------------------------------------------------
 
-expected_R = float(stem_search_radius.get()) # Points within this distance from tree axes will be considered as potential stem points. 
+expected_R = float(stem_search_diameter.get()) / 2# Points within this distance from tree axes will be considered as potential stem points. 
 # Values between R_max and 1 (exceptionally greater than 1: very large diameters and/or intricate stems)
 
-R_max = float(maximum_radius.get()) # Maximum radius expected for any section during circle fitting.
+R_max = float(maximum_diameter.get()) / 2 # Maximum radius expected for any section during circle fitting.
 
 min_h = float(minimum_height.get()) # Lowest height
 max_h = float(maximum_height.get()) # highest height
 
 section_length = float(section_len.get()) # sections are this long (z length)
-
-d_heights = float(distance_to_axis.get()) # Points within this distance from tree axes will be used to find tree height
-
-line_upstep = float(axis_upstep.get()) # From the stripe centroid, how much (upwards direction) will the drawn axes extend.
 
 
 #-------------------------------------------------------------------------------------------------
@@ -1374,7 +1404,6 @@ n_points = int(number_of_points.get()) # minimum number of points per stem withi
 # Values, normally between 500 and 3000 
 
 n_points_stripe = int(number_of_points.get())  # DBSCAN minimum number of points during stem extraction
-eps_stripe = float(epsilon_stripe.get()) # DBSCAN radius during stem extraction
 
 vert_scale_stripe = float(verticality_scale_stripe.get()) # Vicinity radius for PCA during stem extraction
 vert_threshold_stripe = float(verticality_thresh_stripe.get())  # Verticality threshold durig stem extraction
@@ -1388,15 +1417,14 @@ resolution_xy = float(res_xy.get())  # (x, y) voxel resolution during tree indiv
 resolution_z = float(res_z.get())  # (z) voxel resolution during tree individualization
 
 min_points = int(minimum_points.get()) # Minimum number of points within a stripe to consider it as a potential tree during tree individualization
-eps_stems = float(epsilon_stems.get()) # DBSCAN radius during tree individualization
 
 vert_scale_stems = float(verticality_scale_stems.get()) # Vicinity radius for PCA  during tree individualization
 vert_threshold_stems = float(verticality_thresh_stems.get()) # Verticality threshold  during tree individualization
 
 h_range = float(height_range.get())  # only stems where points extend vertically throughout this range are considered. 
-
 d_max = float(maximum_d.get()) # Points that are closer than d_max to an axis are assigned to that axis during individualize_trees process.
 
+d_heights = float(distance_to_axis.get()) # Points within this distance from tree axes will be used to find tree height
 resolution_heights = float(res_heights.get()) # Resolution for the voxelization while computing tree heights 
 max_dev = float(maximum_dev.get()) # Maximum degree of vertical deviation from the axis
 
@@ -1410,8 +1438,8 @@ n_points_stems = n_points # DBSCAN minimum number of points during tree individu
 
 section_width = float(section_wid.get()) # sections are this wide
 n_points_section = int(number_points_section.get()) # Minimum number of points in a section to be considered
-times_R = float(radius_proportion.get()) # Proportion, regarding the circumference fit by fit_circle, that the inner circumference radius will have as length
-R_min = float(minimum_radius.get()) # Minimum radius expected for any section circle fitting.
+times_R = float(diameter_proportion.get()) # Proportion, regarding the circumference fit by fit_circle, that the inner circumference radius will have as length
+R_min = float(minimum_diameter.get()) / 2 # Minimum radius expected for any section circle fitting.
 threshold = int(point_threshold.get()) # Number of points inside the inner circle
 max_dist = float(point_distance.get()) # Maximum distance among points to be considered within the same cluster.
 n_sectors = int(number_sectors.get()) # Number of sectors in which the circumference will be divided
@@ -1428,14 +1456,23 @@ circa_points = int(circa.get())
 #-------------------------------------------------------------------------------------------------
 point_interval = float(p_interval.get())
 line_downstep = float(axis_downstep.get())
+line_upstep = float(axis_upstep.get()) # From the stripe centroid, how much (upwards direction) will the drawn axes extend.
+
+#-------------------------------------------------------------------------------------------------
+# Height normalization
+#-------------------------------------------------------------------------------------------------
+
+ground_res = float(res_ground.get())
+points_ground = int(min_points_ground.get())
+cloth_res = float(res_cloth.get())
 
 #-------------------------------------------------------------------------------------------------
 # NON MODIFIABLE. These parameters should never be modified by the user.
 #-------------------------------------------------------------------------------------------------
 
-X_field = int(X_column.get()) # Which column contains X field  - NON MODIFIABLE
-Y_field = int(Y_column.get()) # Which column contains Y field  - NON MODIFIABLE
-Z_field = int(Z_column.get()) # Which column contains Z field  - NON MODIFIABLE
+X_field = 0 # Which column contains X field  - NON MODIFIABLE
+Y_field = 1 # Which column contains Y field  - NON MODIFIABLE
+Z_field = 2 # Which column contains Z field  - NON MODIFIABLE
 
 Z0_field = 3 # Which column contains Z0 field  - NON MODIFIABLE
 tree_id_field = 4 # Which column contains tree ID field  - NON MODIFIABLE
@@ -1465,7 +1502,7 @@ t_t = timeit.default_timer()
 
 if is_normalized:
     
-    # Read .LAS file. It must contain a Z0 field (normalized height). 
+    # Read .LAS file. 
     entr = laspy.read(filename_las)
     coords = np.vstack((entr.x, entr.y, entr.z, entr[field_name_z0])).transpose()
     
@@ -1475,9 +1512,10 @@ if is_normalized:
     print('---------------------------------------------')
 
     _, _, voxelated_ground = dm.voxelate(coords[coords[:, 3] < 0.5, 0:3], 1, 2000, n_digits, with_n_points = False, silent = False)
-
-    print('   This cloud has',"{:.2f}".format(coords.shape[0]/1000000),'millions points')
-    print('   Its area is ',voxelated_ground.shape[0],'m^2')
+    cloud_size = coords.shape[0]/1000000
+    cloud_shape = voxelated_ground.shape[0]
+    print('   This cloud has',"{:.2f}".format(cloud_size),'millions points')
+    print('   Its area is ',cloud_shape,'m^2')
     
     print('---------------------------------------------')
     print('Cloud is already normalized...')
@@ -1495,9 +1533,10 @@ else:
     print('---------------------------------------------')
 
     _, _, voxelated_ground = dm.voxelate(coords, 1, 2000, n_digits, with_n_points = False, silent = False)
-
-    print('   This cloud has',"{:.2f}".format(coords.shape[0]/1000000),'millions points')
-    print('   Its area is ',voxelated_ground.shape[0],'m^2')
+    cloud_size = coords.shape[0]/1000000
+    cloud_shape = voxelated_ground.shape[0]
+    print('   This cloud has',"{:.2f}".format(cloud_size),'millions points')
+    print('   Its area is ',cloud_shape,'m^2')
     del voxelated_ground
     
     print('---------------------------------------------')
@@ -1511,7 +1550,7 @@ else:
         print('---------------------------------------------')
         t = timeit.default_timer()
         # Noise elimination
-        clean_points = dm.clean_ground(coords)
+        clean_points = dm.clean_ground(coords, ground_res, points_ground)
         
         elapsed = timeit.default_timer() - t
         print('        ',"%.2f" % elapsed,'s: denoising')
@@ -1533,7 +1572,7 @@ else:
         print('---------------------------------------------')
         t = timeit.default_timer()
         # Extracting ground points and DTM
-        cloth_nodes = dm.generate_dtm(coords)
+        cloth_nodes = dm.generate_dtm(coords, cloth_resolution=cloth_res)
         
         elapsed = timeit.default_timer() - t
         print('        ',"%.2f" % elapsed,'s: generating the DTM')
@@ -1576,13 +1615,13 @@ print('1.-Extracting the stripe and peeling the stems...')
 print('---------------------------------------------')
 
 stripe = coords[(coords[:, 3] > stripe_lower_limit) & (coords[:, 3] < stripe_upper_limit), 0:4]
-clust_stripe = dm.verticality_clustering(stripe, vert_scale_stripe, vert_threshold_stripe, eps_stripe, n_points_stripe, n_iter_stripe, resolution_xy_stripe, resolution_z_stripe, n_digits)
+clust_stripe = dm.verticality_clustering(stripe, vert_scale_stripe, vert_threshold_stripe, n_points_stripe, n_iter_stripe, resolution_xy_stripe, resolution_z_stripe, n_digits)
 
 print('---------------------------------------------')
 print('2.-Computing distances to axes and individualizating trees...')
 print('---------------------------------------------')
                                                                                        
-assigned_cloud, tree_vector, tree_heights = dm.individualize_trees(coords, clust_stripe, resolution_z, resolution_xy, h_range, d_max, min_points, d_heights, max_dev, resolution_heights, n_digits, X_field, Y_field, Z_field, tree_id_field = -1)     
+assigned_cloud, tree_vector, tree_heights = dm.individualize_trees(coords, clust_stripe, resolution_z, resolution_xy, stripe_lower_limit, stripe_upper_limit, h_range, d_max, min_points, d_heights, max_dev, resolution_heights, n_digits, X_field, Y_field, Z_field, tree_id_field = -1)     
 
 print('  ')
 print('---------------------------------------------')
@@ -1631,7 +1670,7 @@ print('4.-Extracting and curating stems...')
 print('---------------------------------------------')
 
 xyz0_coords = assigned_cloud[(assigned_cloud[:, 5] < expected_R) & (assigned_cloud[:, 3] > min_h) & (assigned_cloud[:,3] < max_h + section_width),:]
-stems = dm.verticality_clustering(xyz0_coords, vert_scale_stems, vert_threshold_stems, eps_stems, n_points_stems, n_iter_stems, resolution_xy_stripe, resolution_z_stripe, n_digits)[:, 0:6]
+stems = dm.verticality_clustering(xyz0_coords, vert_scale_stems, vert_threshold_stems, n_points_stems, n_iter_stems, resolution_xy_stripe, resolution_z_stripe, n_digits)[:, 0:6]
 
 
 # Computing circles 
@@ -1670,35 +1709,201 @@ las_tree_locations.z = tree_locations[:, 2]
 las_tree_locations.write(filename_las[:-4] + "_tree_locator.las")
 
 
-# matrix with tree height, DBH and (x,y) coordinates of each tree
+# -------------------------------------------------------------------------------------------------------------
+# Exporting results 
+# -------------------------------------------------------------------------------------------------------------
+
+    # matrix with tree height, DBH and (x,y) coordinates of each tree
 dbh_and_heights = np.zeros((dbh_values.shape[0], 4))
+
 if tree_heights.shape[0] != dbh_values.shape[0]:
     tree_heights = tree_heights[0:dbh_values.shape[0], :]
+    
 dbh_and_heights[:, 0] = tree_heights[:, 3]
 dbh_and_heights[:, 1] = dbh_values[:, 0]
 dbh_and_heights[:, 2] = tree_locations[:, 0]
 dbh_and_heights[:, 3] = tree_locations[:, 1]
 
+if not txt:
+    
+    # Generating aggregated quality value for each section
+    quality = np.zeros(sector_perct.shape)
+    # Section does not pass quality check if:
+    mask = (
+        (sector_perct < min_n_sectors / n_sectors * 100) # Percentange of occupied sectors less than minimum
+        | (n_points_in > threshold) | (outliers > 0.3) # Outlier probability larger than 30 %
+        | (R < R_min) # Radius smaller than the minimum radius
+        | (R > R_max) # Radius larger than the maximum radius
+        )       
+    # 0: does not pass quality check - 1: passes quality checks
+    quality = np.where(mask, quality, 1)
+    
+    # Function to convert data to pandas DataFrames
+    def to_pandas(data):
+        # Covers np.arrays of shape == 2 (almost every case)
+        if len(data.shape) == 2:
+            df = pd.DataFrame(data=data,
+                              index=['T'+str(i + 1) for i in range(data.shape[0])],
+                              columns=['S'+str(i + 1) for i in range(data.shape[1])])
+        
+        # Covers np.arrays of shape == 1 (basically, data regarding the normalized height of every section).
+        if len(data.shape) == 1:
+            df = pd.DataFrame(data=data).transpose()
+            df.index = ['Z0']
+            df.columns = ['S'+str(i + 1) for i in range(data.shape[0])]
+            
+        return(df)
+    
+    # Converting data to pandas DataFrames for ease to output them as excel files.    
+    df_diameters = to_pandas(R) * 2
+    df_X_c = to_pandas(X_c)
+    df_Y_c = to_pandas(Y_c)
+    df_sections = to_pandas(sections)   
+    df_quality = to_pandas(quality)
+    df_outliers = to_pandas(outliers)
+    df_sector_perct = to_pandas(sector_perct)
+    df_n_points_in = to_pandas(n_points_in)
+    
+    df_dbh_and_heights = pd.DataFrame(data=dbh_and_heights, 
+                                      index=['T'+str(i + 1) for i in range(dbh_values.shape[0])],
+                                      columns = ['TH', 'DBH', 'X', 'Y'])
+    
+    # Description to be added to each excel sheet.
+    info_diameters = """Diameter of every section (S) of every tree (T). 
+        Units are meters.
+        """
+    info_X_c = """(x) coordinate of the centre of every section (S) of every tree (T)."""
+    info_Y_c = """(y) coordinate of the centre of every section (S) of every tree (T)."""
+    info_sections = """Normalized height (Z0) of every section (S).
+    Units are meters."""
+    info_quality = """Overal quality of every section (S) of every tree (T).
+    0: Section does not pass quality checks - 1: Section passes quality checks.
+    """
+    info_outliers = """'Outlier probability' of every section (S) of every tree (T).
+    It takes values between 0 and 1.
+    """
+    info_sector_perct = """Percentage of occupied sectors of every section (S) of every tree (T).
+    It takes values between 0 and 100.
+    """
+    info_n_points_in = """Number of points in the inner circle of every section (S) of every tree (T).
+    The lowest, the better.
+    """
+    info_dbh_and_heights = """Total height (TH) of each tree (T).
+    Diameter at breast height (DBH) of each tree (T).
+    (x, y) coordinates (X and Y) of each tree (T).
+    """
+    info_cloud_size = f"This cloud has {cloud_size} millions points and its area is {cloud_shape} km2"
+    
+    # Converting descriptions to pandas DataFrames for ease to include them in the excel file.
+    df_info_diameters = pd.Series(info_diameters)
+    df_info_X_c = pd.Series(info_X_c)
+    df_info_Y_c = pd.Series(info_Y_c)
+    df_info_sections = pd.Series(info_sections)
+    df_info_quality = pd.Series(info_quality)
+    df_info_outliers = pd.Series(info_outliers)
+    df_info_sector_perct = pd.Series(info_sector_perct)
+    df_info_n_points_in = pd.Series(info_n_points_in)
+    df_info_dbh_and_heights = pd.Series(info_dbh_and_heights)
+    df_info_cloud_size = pd.Series(info_cloud_size)
 
-# -------------------------------------------------------------------------------------------------------------
-# Exporting results in .txt file 
-# -------------------------------------------------------------------------------------------------------------
+    
+    # Creating an instance of a excel writer
+    writer = pd.ExcelWriter(filename_las[:-4] + ".xlsx", engine='xlsxwriter')
+    
+    # Writing the descriptions
+       
+    df_info_dbh_and_heights.to_excel(writer,
+                         sheet_name = "Plot Metrics", 
+                         header = False, 
+                         index = False, 
+                         merge_cells = False)
+    
+    df_info_cloud_size.to_excel(writer, 
+                                sheet_name="Plot Metrics",
+                                startrow=1,
+                                header = False, 
+                                index = False, 
+                                merge_cells = False)
+    
+    df_info_diameters.to_excel(writer, 
+                               sheet_name = "Diameters", 
+                               header = False,
+                               index = False,
+                               merge_cells = False)
+    
+    df_info_X_c.to_excel(writer, 
+                         sheet_name = "X", 
+                         header = False, 
+                         index = False, 
+                         merge_cells = False)
+    
+    df_info_Y_c.to_excel(writer,
+                         sheet_name = "Y", 
+                         header = False, 
+                         index = False, 
+                         merge_cells = False)
+    
+    df_info_sections.to_excel(writer,
+                              sheet_name = "Sections", 
+                              header = False, 
+                              index = False, 
+                              merge_cells = False)
+    
+    df_info_quality.to_excel(writer,
+                             sheet_name = "Q(Overall Quality 0-1)", 
+                             header = False, 
+                             index = False, 
+                             merge_cells = False)
+    
+    df_info_outliers.to_excel(writer,
+                              sheet_name = "Q1(Outlier Probability)", 
+                              header = False, 
+                              index = False, 
+                              merge_cells = False)
+    
+    df_info_sector_perct.to_excel(writer,
+                                  sheet_name = "Q2(Sector Occupancy)", 
+                                  header = False, 
+                                  index = False, 
+                                  merge_cells = False)
+    
+    df_info_n_points_in.to_excel(writer,
+                                 sheet_name = "Q3(Points Inner Circle)", 
+                                 header = False, 
+                                 index = False, 
+                                 merge_cells = False)
+    
 
-np.savetxt(filename_las[:-4]+'_R.txt', R, fmt = ('%.3f'))
-np.savetxt(filename_las[:-4]+'_X_c.txt', X_c, fmt = ('%.3f'))
-np.savetxt(filename_las[:-4]+'_Y_c.txt', Y_c, fmt = ('%.3f'))
-np.savetxt(filename_las[:-4]+'_check_circle.txt', check_circle, fmt = ('%.3f'))
+    # Writing the data
+    df_dbh_and_heights.to_excel(writer, sheet_name="Plot Metrics", startrow=2, startcol= 1)
+    df_diameters.to_excel(writer, sheet_name="Diameters", startrow=2, startcol= 1)  
+    df_X_c.to_excel(writer, sheet_name="X", startrow=2, startcol= 1)
+    df_Y_c.to_excel(writer, sheet_name="Y", startrow=2, startcol= 1)
+    df_sections.to_excel(writer, sheet_name="Sections", startrow=2, startcol= 1)
+    df_quality.to_excel(writer, sheet_name="Q(Overall Quality 0-1)", startrow=2, startcol= 1)
+    df_outliers.to_excel(writer, sheet_name="Q1(Outlier Probability)", startrow=2, startcol= 1)
+    df_sector_perct.to_excel(writer, sheet_name="Q2(Sector Occupancy)", startrow=2, startcol= 1)
+    df_n_points_in.to_excel(writer, sheet_name="Q3(Points Inner Circle)", startrow=2, startcol= 1)
+    
+    writer.close()
 
-np.savetxt(filename_las[:-4]+'_n_points_in.txt', n_points_in, fmt = ('%.3f'))
-np.savetxt(filename_las[:-4]+'_sector_perct.txt', sector_perct, fmt = ('%.3f'))
-np.savetxt(filename_las[:-4]+'_outliers.txt', outliers, fmt = ('%.3f'))
-np.savetxt(filename_las[:-4]+'_dbh_and_heights.txt', dbh_and_heights, fmt = ('%.3f'))
-np.savetxt(filename_las[:-4]+'_sections.txt', np.column_stack(sections), fmt = ('%.3f'))
+else:
+    
+    np.savetxt(filename_las[:-4]+'_diameters.txt', R * 2, fmt = ('%.3f'))
+    np.savetxt(filename_las[:-4]+'_X_c.txt', X_c, fmt = ('%.3f'))
+    np.savetxt(filename_las[:-4]+'_Y_c.txt', Y_c, fmt = ('%.3f'))
+    np.savetxt(filename_las[:-4]+'_check_circle.txt', check_circle, fmt = ('%.3f'))
+    np.savetxt(filename_las[:-4]+'_n_points_in.txt', n_points_in, fmt = ('%.3f'))
+    np.savetxt(filename_las[:-4]+'_sector_perct.txt', sector_perct, fmt = ('%.3f'))
+    np.savetxt(filename_las[:-4]+'_outliers.txt', outliers, fmt = ('%.3f'))
+    np.savetxt(filename_las[:-4]+'_dbh_and_heights.txt', dbh_and_heights, fmt = ('%.3f'))
+    np.savetxt(filename_las[:-4]+'_sections.txt', np.column_stack(sections), fmt = ('%.3f'))
 
 elapsed_las2 = timeit.default_timer() - t_las2
 print('Total time:',"   %.2f" % elapsed_las2,'s')
 
 elapsed_t = timeit.default_timer() - t_t
+
 # -------------------------------------------------------------------------------------------------------------
 print('---------------------------------------------') 
 print('End of process!')

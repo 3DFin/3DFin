@@ -1,1 +1,0 @@
-pyinstaller -c -F --onefile --hidden-import=jakteristics.utils --add-data "stripe.jpg;." --add-data "original_cloud.jpg;." --add-data "normalized_cloud.jpg;." --add-data "info_icon.png;." --add-data "individual_trees.jpg;." --add-data "tree_axes.jpg;." --add-data "sections.jpg;." --add-data "documentation.pdf;." --icon icon.ico main.py
