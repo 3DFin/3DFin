@@ -15,20 +15,27 @@ class Application(tk.Tk):
         tk.Tk.__init__(self)
         self._bootstrap()
 
-    def _get_resource_path(self, relative_path):
+    def _get_resource_path(self, relative_path: str) -> str:
         """
         This method allows to retrieve the path of the data used to generate the images and
         the documentation, so they can be included in the executable
+
+            Parameters:
+                relatvie_path (str): the current relative path to the ressource
+            
+            Return:
+                str: the full path to the ressource
         """
         try:
             base_path = sys._MEIPASS
         except Exception:
-            base_path = os.path.abspath(".")
-        return os.path.join(base_path, relative_path)
+            base_path = Path(__file__).absolute().parents[1] / "files"
+        return str(base_path / Path(relative_path))
 
     def _preload_images(self):
         """
-        Centralise assets loading
+        Centralise image loading
+        TODO(RJ): Add license loading too
         """
         self.warning_img = ImageTk.PhotoImage(Image.open(self._get_resource_path("warning_img_1.png")))
         self.nerc_logo_img = ImageTk.PhotoImage(Image.open(self._get_resource_path("nerc_logo_1.png")))
@@ -43,6 +50,7 @@ class Application(tk.Tk):
         self.celestino_img = ImageTk.PhotoImage(Image.open(self._get_resource_path("celestino_pic_1.jpg")))
         self.tadas_img = ImageTk.PhotoImage(Image.open(self._get_resource_path("tadas_pic_1.jpg")))
         self.covadonga_img = ImageTk.PhotoImage(Image.open(self._get_resource_path("covadonga_pic_1.jpg")))
+        self.info_icon = ImageTk.PhotoImage(Image.open(self._get_resource_path("info_icon.png")))
         self.img_stripe = ImageTk.PhotoImage(Image.open(self._get_resource_path("stripe.png")))
         self.img_cloud = ImageTk.PhotoImage(Image.open(self._get_resource_path("original_cloud.png")))
         self.img_normalized_cloud = ImageTk.PhotoImage(Image.open(self._get_resource_path("normalized_cloud.png")))
@@ -50,8 +58,8 @@ class Application(tk.Tk):
     def _generate_parameters(self):
         """
         Generate dendromatics mandatory parameters
-        The methods tries to load the config file in the root of the source code if it fails,
-        it fallback to default parameters
+        The methods tries to load a config file in the root of the source code and if it fails,
+        it fallback to default parameters hardcoded here.
         """
         ### Basic parameters
         self.z0_name = tk.StringVar()
@@ -108,6 +116,12 @@ class Application(tk.Tk):
         self.min_points_ground = tk.StringVar()
         self.res_cloth = tk.StringVar()
 
+        # Variable to keep track of the option selected in normalized_button_1
+        self.is_normalized_var = tk.BooleanVar()
+        # Variable to keep track of the option selected in clean_button_1
+        self.is_noisy_var = tk.BooleanVar()
+        # Variable to keep track of the option selected in excel_button_1
+        self.txt_var = tk.BooleanVar()
 
         ### Reading config file only if it is available under name '3DFINconfig.ini'
         my_file = Path("3DFINconfig.ini")
@@ -238,9 +252,7 @@ class Application(tk.Tk):
             self.res_cloth.set(config['expert']['res_cloth'])
 
     def _create_basic_tab(self):
-        """
-        Create the basic parameters tab
-        """
+        """Create the basic parameters tab (1)"""
         self.basic_tab = ttk.Frame(self.note)
         self.note.add(self.basic_tab, text = "Basic")
 
@@ -338,78 +350,66 @@ class Application(tk.Tk):
             clean_button_2.update()
 
 
-        # Variable to keep track of the option selected in normalized_button_1
-        is_normalized_var = tk.BooleanVar()
-
-        normalized_button_1 = ttk.Radiobutton(self.basic_tab, text="Yes", variable=is_normalized_var, value=True, command = enable_denoising)
+        normalized_button_1 = ttk.Radiobutton(self.basic_tab, text="Yes", variable=self.is_normalized_var, value=True, command = enable_denoising)
         normalized_button_1.grid(column=2, row=2, sticky="EW")
-        normalized_button_2 = ttk.Radiobutton(self.basic_tab, text="No", variable=is_normalized_var, value=False, command = disable_denoising)
+        normalized_button_2 = ttk.Radiobutton(self.basic_tab, text="No", variable=self.is_normalized_var, value=False, command = disable_denoising)
         normalized_button_2.grid(column=3, row=2, sticky="EW")
         
-        # Variable to keep track of the option selected in clean_button_1
-        is_noisy_var = tk.BooleanVar()
-
         # Create the optionmenu widget and passing the options_list and value_inside to it.
-        clean_button_1 = ttk.Radiobutton(self.basic_tab, text="Yes", variable=is_noisy_var, value=True)
+        clean_button_1 = ttk.Radiobutton(self.basic_tab, text="Yes", variable=self.is_noisy_var, value=True)
         clean_button_1.grid(column=2, row=4, sticky="EW")
-        clean_button_2 = ttk.Radiobutton(self.basic_tab, text="No", variable=is_noisy_var, value=False)
+        clean_button_2 = ttk.Radiobutton(self.basic_tab, text="No", variable=self.is_noisy_var, value=False)
         clean_button_2.grid(column=3, row=4, sticky="EW")
 
-
-        # Variable to keep track of the option selected in excel_button_1
-        txt_var = tk.BooleanVar()
-
         # Create the optionmenu widget and passing the options_list and value_inside to it.
-        txt_button_1 = ttk.Radiobutton(self.basic_tab, text="TXT files", variable=txt_var, value=True)
+        txt_button_1 = ttk.Radiobutton(self.basic_tab, text="TXT files", variable=self.txt_var, value=True)
         txt_button_1.grid(column=2, row=6, sticky="EW")
-        txt_button_1 = ttk.Radiobutton(self.basic_tab, text="XLSX files", variable=txt_var, value=False)
+        txt_button_1 = ttk.Radiobutton(self.basic_tab, text="XLSX files", variable=self.txt_var, value=False)
         txt_button_1.grid(column=3, row=6, sticky="EW")
 
 
         #### Adding info buttons ####
 
-        info_icon = ImageTk.PhotoImage(Image.open(self._get_resource_path("info_icon.png")))
-
-        is_normalized_info = ttk.Label(self.basic_tab, image = info_icon)
+        is_normalized_info = ttk.Label(self.basic_tab, image = self.info_icon)
         is_normalized_info.grid(column = 1, row = 1)
         ToolTip.create(is_normalized_info, text = 'If the point cloud is not height-normalized, a Digital Terrain\n'
                         'Model will be generated to compute normalized heights for all points.')
 
-        is_noisy_info = ttk.Label(self.basic_tab, image = info_icon)
+        is_noisy_info = ttk.Label(self.basic_tab, image = self.info_icon)
         is_noisy_info.grid(column = 1, row = 3)
         ToolTip.create(is_noisy_info, text = 'If it is expected to be noise below ground level (or if you know\n'
                         'that there is noise), a denoising step will be added before\n'
                         'generating the Digital Terrain Model.')
 
-        txt_info = ttk.Label(self.basic_tab, image = info_icon)
+        txt_info = ttk.Label(self.basic_tab, image = self.info_icon)
         txt_info.grid(column = 1, row = 5)
         ToolTip.create(txt_info, text = 'Outputs are gathered in a xlsx (Excel) file by default.\n'
                         'Selecting "TXT files" will make the program output several txt files\n'
                         'with the raw data, which may be more convenient for processing\n'
                         'the data via scripting.')
 
-        z0_info = ttk.Label(self.basic_tab, image = info_icon)
+        z0_info = ttk.Label(self.basic_tab, image = self.info_icon)
         z0_info .grid(column = 1, row = 7)
         ToolTip.create(z0_info, text = 'Name of the Z0 field in the LAS file containing the cloud.\n'
                     'If the normalized heights are stored in the Z coordinate\n'
                     'of the .LAS file, then: Z0 field name = "z" (lowercase).\n'
                     'Default is "Z0".')
 
-        upper_limit_info = ttk.Label(self.basic_tab, image = info_icon)
+        upper_limit_info = ttk.Label(self.basic_tab, image = self.info_icon)
         upper_limit_info.grid(column = 1, row = 8)
         ToolTip.create(upper_limit_info, text = 'Upper (vertical) limit of the stripe where it should be reasonable\n'
                     'to find stems with minimum presence of shrubs or branches.\n'
                     'Reasonable values are 2-5 meters.\n'
                     'Default value is 2.5 meters.')
 
-        lower_limit_info = ttk.Label(self.basic_tab, image = info_icon)
+        lower_limit_info = ttk.Label(self.basic_tab, image = self.info_icon)
         lower_limit_info.grid(column = 1, row = 9)
         ToolTip.create(lower_limit_info, text = 'Lower (vertical) limit of the stripe where it should be reasonable\n'
                     'to find stems with minimum presence of shrubs or branches.\n'
                     'Reasonable values are 0.3-1.3 meters.\n'
                     'Default value is 0.5 meters.')
 
-        number_of_iterations_info = ttk.Label(self.basic_tab, image = info_icon)
+        number_of_iterations_info = ttk.Label(self.basic_tab, image = self.info_icon)
         number_of_iterations_info.grid(column = 1, row = 10)
         ToolTip.create(number_of_iterations_info, text = 'Number of iterations of "pruning" during stem identification.\n'
                     'Values between 1 (slight stem peeling/cleaning)\n'
@@ -417,9 +417,7 @@ class Application(tk.Tk):
                     'Default value is 2.')
 
     def _create_advanced_tab(self):
-        """
-        Create the advanced parameters tab
-        """
+        """Create the advanced parameters tab (2)"""
         self.advanced_tab = ttk.Frame(self.note)
         self.note.add(self.advanced_tab, text = "Advanced")
 
@@ -542,9 +540,7 @@ class Application(tk.Tk):
                     'Default value: 0.05 meters.')
 
     def _create_expert_tab(self):
-        """
-        Create the expert parameters tab
-        """
+        """Create the expert parameters tab (3)"""
         self.expert_tab = ttk.Frame(self.note)
 
         self.note.add(self.expert_tab, text = "Expert")
@@ -569,7 +565,7 @@ class Application(tk.Tk):
 
 
         # Vicinity radius for PCA during stem extraction entry #
-        verticality_scale_stripe_entry = ttk.Entry(self.sexpert_tab, width=7, textvariable=self.verticality_scale_stripe)
+        verticality_scale_stripe_entry = ttk.Entry(self.expert_tab, width=7, textvariable=self.verticality_scale_stripe)
         verticality_scale_stripe_entry.grid(column=3, row=5, sticky="EW")
 
 
@@ -995,9 +991,7 @@ class Application(tk.Tk):
         tk.Button(self.expert_tab, text='What is this?', bg = "IndianRed1", width = 12, font = ("Helvetica", 10, "bold"), cursor="hand2", command=open_warning).grid(column = 9, row = 1, columnspan = 2, sticky = "E")
 
     def _create_about_tab(self):
-        """
-        Create the about tab
-        """
+        """Create the about tab (4)"""
         self.about_tab = ttk.Frame(self.note)
         self.note.add(self.about_tab, text = "About")
 
@@ -1195,27 +1189,27 @@ class Application(tk.Tk):
             for child in license_scrollable.scrollable_info.winfo_children(): 
                 child.grid_configure(padx=5, pady=5)
 
-            ttk.Separator(self.scrollable_info, orient = "horizontal").grid(row = 18, column = 1, columnspan = 3, sticky = "EW")
+        ttk.Separator(self.scrollable_info, orient = "horizontal").grid(row = 18, column = 1, columnspan = 3, sticky = "EW")
 
-            tk.Button(self.scrollable_info, text='License', width = 8, font = ("Helvetica", 10, "bold"), cursor="hand2", command=open_license).grid(row = 19, column = 1, columnspan = 3)
+        tk.Button(self.scrollable_info, text='License', width = 8, font = ("Helvetica", 10, "bold"), cursor="hand2", command=open_license).grid(row = 19, column = 1, columnspan = 3)
 
 
-            for child in self.scrollable_info.winfo_children(): 
-                child.grid_configure(padx=5, pady=5)
+        for child in self.scrollable_info.winfo_children(): 
+            child.grid_configure(padx=5, pady=5)
 
-            # Create canvas window to hold the buttons_frame.
-            canvas.create_window((0, 0), window=self.scrollable_info, anchor='nw')
+        # Create canvas window to hold the buttons_frame.
+        canvas.create_window((0, 0), window=self.scrollable_info, anchor='nw')
 
-            # Update buttons frames idle tasks to let tkinter calculate buttons sizes
-            self.scrollable_info.update_idletasks()
+        # Update buttons frames idle tasks to let tkinter calculate buttons sizes
+        self.scrollable_info.update_idletasks()
 
-            frame_canvas.config(width=810,
+        frame_canvas.config(width=810,
                                 height=540)
 
-            # Set the canvas scrolling region
-            canvas.config(scrollregion=canvas.bbox("all"))
+        # Set the canvas scrolling region
+        canvas.config(scrollregion=canvas.bbox("all"))
 
-    def _boostrap(self):
+    def _bootstrap(self):
         """
         Create the GUI
         """
