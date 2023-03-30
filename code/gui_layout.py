@@ -10,8 +10,9 @@ from PIL import Image, ImageTk
 
 
 class Application(tk.Tk):
-    def __init__(self):
+    def __init__(self, processing_callback: callable):
         tk.Tk.__init__(self)
+        self.processing_callback = processing_callback
         self._bootstrap()
 
     def _get_resource_path(self, relative_path: str) -> str:
@@ -294,32 +295,36 @@ class Application(tk.Tk):
 
     def get_parameters(self) -> dict:
         """Returns parameters as a dictionary"""
-        options = {}
+        params = {}
+        params["misc"] = {}
+        params["basic"] = {}
+        params["expert"] = {}
+        params["advanced"] = {}
 
         # misc parameters see TODO section in the _generate_parameters method
-        options.misc.is_normalized = self.is_normalized_var.get()
-        options.misc.is_noisy = self.is_noisy_var.get()
-        options.misc.txt = self.txt_var.get()
+        params["misc"]["is_normalized"] = self.is_normalized_var.get()
+        params["misc"]["is_noisy"] = self.is_noisy_var.get()
+        params["misc"]["txt"] = self.txt_var.get()
 
         # -------------------------------------------------------------------------------------------------
         # BASIC PARAMETERS. These are the parameters to be checked (and changed if needed) for each dataset/plot
         # All parameters are in m or points
         # -------------------------------------------------------------------------------------------------
 
-        options.basic.z0_name = (
+        params["basic"]["z0_name"] = (
             self.z0_name.get()
         )  # Name of the Z0 field in the LAS file containing the cloud.
         # If the normalized heights are stored in the Z coordinate of the .LAS file: field_name_z0 = "z" (lowercase)
 
         # Upper and lower limits (vertical) of the stripe where it should be reasonable to find stems with minimum presence of shrubs or branches.
-        options.basic.upper_limit = float(
+        params["basic"]["upper_limit"] = float(
             self.upper_limit.get()
         )  # Values, normally between 2 and 5
-        options.basic.lower_limit = float(
+        params["basic"]["lower_limit"] = float(
             self.lower_limit.get()
         )  # Values, normally between 0.3 and 1.3
 
-        options.basic.number_of_iterations = int(
+        params["basic"]["number_of_iterations"] = int(
             self.number_of_iterations.get()
         )  # Number of iterations of 'peeling off branches'.
         # Values between 0 (no branch peeling/cleaning) and 5 (very extreme branch peeling/cleaning)
@@ -329,26 +334,26 @@ class Application(tk.Tk):
         # They require a deeper knowledge of how the algorithm and the implementation work
         # -------------------------------------------------------------------------------------------------
 
-        options.advanced.stem_search_diameter = (
+        params["advanced"]["stem_search_diameter"] = (
             float(self.stem_search_diameter.get()) / 2
         )  # Points within this distance from tree axes will be considered as potential stem points.
         # Values between maximum diameter and 1 (exceptionally greater than 1: very large diameters and/or intricate stems)
 
-        options.advanced.maximum_diameter = (
+        params["advanced"]["maximum_diameter"] = (
             float(self.maximum_diameter.get()) / 2
         )  # Maximum radius expected for any section during circle fitting.
 
-        options.advanced.minimum_height = float(
+        params["advanced"]["minimum_height"] = float(
             self.minimum_height.get()
         )  # Lowest height
-        options.advanced.maximum_height = float(
+        params["advanced"]["maximum_height"] = float(
             self.maximum_height.get()
         )  # highest height
 
-        options.advanced.section_len = float(
+        params["advanced"]["section_len"] = float(
             self.section_len.get()
         )  # sections are this long (z length)
-        options.advanced.section_wid = float(
+        params["advanced"]["section_wid"] = float(
             self.section_wid.get()
         )  # sections are this wide
 
@@ -361,113 +366,113 @@ class Application(tk.Tk):
         # -------------------------------------------------------------------------------------------------
         # Stem extraction
         # -------------------------------------------------------------------------------------------------
-        options.expert.res_xy_stripe = float(
+        params["expert"]["res_xy_stripe"] = float(
             self.res_xy_stripe.get()
         )  # (x, y) voxel resolution during stem extraction
-        options.expert.res_z_stripe = float(
+        params["expert"]["res_z_stripe"] = float(
             self.res_z_stripe.get()
         )  # (z) voxel resolution during stem extraction
 
-        options.expert.number_of_points = int(
+        params["expert"]["number_of_points"] = int(
             self.number_of_points.get()
         )  # minimum number of points per stem within the stripe (DBSCAN clustering).
         # Values, normally between 500 and 3000
 
-        options.expert.verticality_scale_stripe = float(
+        params["expert"]["verticality_scale_stripe"] = float(
             self.verticality_scale_stripe.get()
         )  # Vicinity radius for PCA during stem extraction
-        options.expert.verticality_thresh_stripe = float(
+        params["expert"]["verticality_thresh_stripe"] = float(
             self.verticality_thresh_stripe.get()
         )  # Verticality threshold durig stem extraction
 
         # -------------------------------------------------------------------------------------------------
         # Tree individualization.
         # -------------------------------------------------------------------------------------------------
-        options.expert.res_xy = float(
+        params["expert"]["res_xy"] = float(
             self.res_xy.get()
         )  # (x, y) voxel resolution during tree individualization
-        options.expert.res_z = float(
+        params["expert"]["res_z"] = float(
             self.res_z.get()
         )  # (z) voxel resolution during tree individualization
 
-        options.expert.minimum_points = int(
+        params["expert"]["minimum_points"] = int(
             self.minimum_points.get()
         )  # Minimum number of points within a stripe to consider it as a potential tree during tree individualization
 
-        options.expert.verticality_scale_stems = float(
+        params["expert"]["verticality_scale_stems"] = float(
             self.verticality_scale_stems.get()
         )  # Vicinity radius for PCA  during tree individualization
-        options.expert.verticality_thresh_stems = float(
+        params["expert"]["verticality_thresh_stems"] = float(
             self.verticality_thresh_stems.get()
         )  # Verticality threshold  during tree individualization
 
-        options.expert.height_range = float(
+        params["expert"]["height_range"] = float(
             self.height_range.get()
         )  # only stems where points extend vertically throughout this range are considered.
-        options.expert.maximum_d = float(
+        params["expert"]["maximum_d"] = float(
             self.maximum_d.get()
         )  # Points that are closer than d_max to an axis are assigned to that axis during individualize_trees process.
 
-        options.expert.distance_to_axis = float(
+        params["expert"]["distance_to_axis"] = float(
             self.distance_to_axis.get()
         )  # Points within this distance from tree axes will be used to find tree height
-        options.expert.res_heights = float(
+        params["expert"]["res_heights"] = float(
             self.res_heights.get()
         )  # Resolution for the voxelization while computing tree heights
-        options.expert.maximum_dev = float(
+        params["expert"]["maximum_dev"] = float(
             self.maximum_dev.get()
         )  # Maximum degree of vertical deviation from the axis
 
         # -------------------------------------------------------------------------------------------------
         # Extracting sections.
         # -------------------------------------------------------------------------------------------------
-        options.expert.number_points_section = int(
+        params["expert"]["number_points_section"] = int(
             self.number_points_section.get()
         )  # Minimum number of points in a section to be considered
-        options.expert.diameter_proportion = float(
+        params["expert"]["diameter_proportion"] = float(
             self.diameter_proportion.get()
         )  # Proportion, regarding the circumference fit by fit_circle, that the inner circumference radius will have as length
-        options.expert.minimum_diameter = (
+        params["expert"]["minimum_diameter"] = (
             float(self.minimum_diameter.get()) / 2
         )  # Minimum radius expected for any section circle fitting.
-        options.expert.point_threshold = int(
+        params["expert"]["point_threshold"] = int(
             self.point_threshold.get()
         )  # Number of points inside the inner circle
-        options.expert.point_distance = float(
+        params["expert"]["point_distance"] = float(
             self.point_distance.get()
         )  # Maximum distance among points to be considered within the same cluster.
-        options.expert.number_sectors = int(
+        params["expert"]["number_sectors"] = int(
             self.number_sectors.get()
         )  # Number of sectors in which the circumference will be divided
-        options.expert.m_number_sectors = int(
+        params["expert"]["m_number_sectors"] = int(
             self.m_number_sectors.get()
         )  # Minimum number of sectors that must be occupied.
-        options.expert.circle_width = float(
+        params["expert"]["circle_width"] = float(
             self.circle_width.get()
         )  # Width, in centimeters, around the circumference to look for points
 
         # -------------------------------------------------------------------------------------------------
         # Drawing circles.
         # -------------------------------------------------------------------------------------------------
-        options.expert.circa_points = int(self.circa.get())
+        params["expert"]["circa_points"] = int(self.circa.get())
 
         # -------------------------------------------------------------------------------------------------
         # Drawing axes.
         # -------------------------------------------------------------------------------------------------
-        options.expert.p_interval = float(self.p_interval.get())
-        options.expert.axis_downstep = float(self.axis_downstep.get())
-        options.expert.axis_upstep = float(
+        params["expert"]["p_interval"] = float(self.p_interval.get())
+        params["expert"]["axis_downstep"] = float(self.axis_downstep.get())
+        params["expert"]["axis_upstep"] = float(
             self.axis_upstep.get()
         )  # From the stripe centroid, how much (upwards direction) will the drawn axes extend.
 
         # -------------------------------------------------------------------------------------------------
         # Height normalization
         # -------------------------------------------------------------------------------------------------
-        options.expert.res_ground = float(self.res_ground.get())
-        options.expert.min_points_ground = int(self.min_points_ground.get())
-        options.expert.res_cloth = float(self.res_cloth.get())
+        params["expert"]["res_ground"] = float(self.res_ground.get())
+        params["expert"]["min_points_ground"] = int(self.min_points_ground.get())
+        params["expert"]["res_cloth"] = float(self.res_cloth.get())
 
-        return options
+        return params
 
     def _create_basic_tab(self):
         """Create the basic parameters tab (1)"""
@@ -1586,31 +1591,11 @@ class Application(tk.Tk):
         self.about_tab = ttk.Frame(self.note)
         self.note.add(self.about_tab, text="About")
 
-        ### COPYRIGHT ###
-        copyright_info_1 = (
-            """ 3DFIN: Forest Inventory Copyright (C) 2023 Carlos Cabo & Diego Laino."""
-        )
-
-        copyright_info_2 = """This program comes with ABSOLUTELY NO WARRANTY. This is a free software, and you are welcome to redistribute it under certain conditions."""
-
-        copyright_info_3 = (
-            """See LICENSE at the botton of this tab for further details."""
-        )
-
-        ### ABOUT THE PROJECT ###
-
-        about_1 = """This software has been developed at the Centre of Wildfire Research of Swansea University (UK) in collaboration with the Research Institute of 
-        Biodiversity (CSIC, Spain) and the Department of Mining Exploitation of the University of Oviedo (Spain). Funding provided by the UK NERC 
-        project (NE/T001194/1):"""
-
-        about_2 = """and by the Spanish Knowledge Generation project (PID2021-126790NB-I00):"""
-
         nerc_project = """'Advancing 3D Fuel Mapping for Wildfire Behaviour and Risk Mitigation Modelling' """
 
         csic_project = """‘Advancing carbon emission estimations from wildfires applying artificial intelligence to 3D terrestrial point clouds’"""
 
         ### TEAM MEMBERS ###
-
         carloscabo = """Carlos Cabo (carloscabo.uniovi@gmail.com). PhD in Geomatics. 'Maria Zambrano' Research Fellow at Department of 
         Mining Exploitation, University of Oviedo and Honorary Appointment at Science and Engineering Faculty, Swansea 
         University. Research fields: Spatial analysis, cartography, geomatics."""
@@ -1663,18 +1648,18 @@ class Application(tk.Tk):
 
         # Copyright notice #
         copyright_1_lab = ttk.Label(
-            self.scrollable_info, text=copyright_info_1, font=("Helvetica", 10, "bold")
+            self.scrollable_info, text=self.copyright_info_1, font=("Helvetica", 10, "bold")
         )
         copyright_1_lab.grid(row=1, column=1, columnspan=3)
 
-        copyright_2_lab = ttk.Label(self.scrollable_info, text=copyright_info_2)
+        copyright_2_lab = ttk.Label(self.scrollable_info, text=self.copyright_info_2)
         copyright_2_lab.grid(row=2, column=1, columnspan=3)
 
-        copyright_3_lab = ttk.Label(self.scrollable_info, text=copyright_info_3)
+        copyright_3_lab = ttk.Label(self.scrollable_info, text=self.copyright_info_3)
         copyright_3_lab.grid(row=3, column=1, columnspan=3)
 
         # About the project #
-        about_1_lab = ttk.Label(self.scrollable_info, text=about_1)
+        about_1_lab = ttk.Label(self.scrollable_info, text=self.about_1)
         about_1_lab.grid(row=4, column=1, columnspan=3, sticky="W")
 
         nerc_project_lab = ttk.Label(
@@ -1682,7 +1667,7 @@ class Application(tk.Tk):
         )
         nerc_project_lab.grid(row=5, column=1, columnspan=3)
 
-        about_2_lab = ttk.Label(self.scrollable_info, text=about_2)
+        about_2_lab = ttk.Label(self.scrollable_info, text=self.about_2)
         about_2_lab.grid(row=6, column=1, columnspan=3, sticky="W")
 
         csic_project_lab = ttk.Label(
@@ -1849,6 +1834,13 @@ class Application(tk.Tk):
         """
         self.mainloop()
         return self.get_parameters()
+    
+    def run_callback_and_destroy(self):
+        """
+        This method runs the processing callback and eventually destroys the GUI application
+        """
+        self.processing_callback(self, self.get_parameters())
+        self.destroy()
 
     def _bootstrap(self):
         """Create the GUI"""
@@ -1862,6 +1854,22 @@ class Application(tk.Tk):
         self.geometry("810x632+0+0")
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
+
+        ### Define here some infos and copyrights
+        # Copyrights
+        self.copyright_info_1 = (
+            """ 3DFIN: Forest Inventory Copyright (C) 2023 Carlos Cabo & Diego Laino."""
+        )
+        self.copyright_info_2 = """This program comes with ABSOLUTELY NO WARRANTY. This is a free software, and you are welcome to redistribute it under certain conditions."""
+        self.copyright_info_3 = (
+            """See LICENSE at the botton of this tab for further details."""
+        )
+
+        # about the project
+        self.about_1 = """This software has been developed at the Centre of Wildfire Research of Swansea University (UK) in collaboration with the Research Institute of 
+        Biodiversity (CSIC, Spain) and the Department of Mining Exploitation of the University of Oviedo (Spain). Funding provided by the UK NERC 
+        project (NE/T001194/1):"""
+        self.about_2 = """and by the Spanish Knowledge Generation project (PID2021-126790NB-I00):"""
 
         ### Creating the tabs
         self.note = tk.ttk.Notebook(self)
@@ -1878,7 +1886,7 @@ class Application(tk.Tk):
             width=30,
             font=("Helvetica", 10, "bold"),
             cursor="hand2",
-            command=self.destroy,
+            command=self.run_callback_and_destroy,
         ).grid(sticky="S")
 
         ### Adding a hyperlink to the documentation
