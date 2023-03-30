@@ -1,6 +1,6 @@
 import timeit
 from tkinter import filedialog
-from gui_layout import Application
+from gui.gui_layout import Application
 
 import dendromatics as dm
 import laspy
@@ -15,14 +15,14 @@ def fin_processing(fin_app: Application, params: dict):
     -----------------------------------------------------------------------------
 
     This  Python script implements an algorithm to detect the trees present
-    in a ground-based 3D point cloud from a forest plot, 
-    and compute individual tree parameters: tree height, tree location, 
-    diameters along the stem (including DBH), and stem axis. 
+    in a ground-based 3D point cloud from a forest plot,
+    and compute individual tree parameters: tree height, tree location,
+    diameters along the stem (including DBH), and stem axis.
 
-    The input point cloud will be in .LAS/.LAZ format and can contain extra fields (.LAS standard or not) 
+    The input point cloud will be in .LAS/.LAZ format and can contain extra fields (.LAS standard or not)
     This algorithm is mainly based on rules, although it uses clusterization in some stages.
     Also, the input point cloud can come from terrestrail photogrammetry, TLS or mobile (e.g. hand-held) LS,
-    a combination of those, and/or a combination of those with UAV-(LS or SfM), or ALS. 
+    a combination of those, and/or a combination of those with UAV-(LS or SfM), or ALS.
 
     The algorithm may be divided in three main steps:
 
@@ -33,29 +33,29 @@ def fin_processing(fin_app: Application, params: dict):
     -----------------------------------------------------------------------------
     ------------------   Heights in the input .LAS file    ----------------------
     -----------------------------------------------------------------------------
-        
-        This script uses Z and Z0 to describe coordinates referring to 'heights'. 
+
+        This script uses Z and Z0 to describe coordinates referring to 'heights'.
             - Z refers to the originally captured elevation in the point cloud
-            - Z0 refers to a normalized height (elevation from the ground). 
-        This script needs normalized heights to work, but also admits elevation 
+            - Z0 refers to a normalized height (elevation from the ground).
+        This script needs normalized heights to work, but also admits elevation
         coordinates and preserves them in the outputs, as additional information
-        Then, the input point cloud might include just just Z0, or both Z and Z0. 
-        
-        Before running script, it should be checked where are the normalized heights stored in the input file: 'z' or another field. 
+        Then, the input point cloud might include just just Z0, or both Z and Z0.
+
+        Before running script, it should be checked where are the normalized heights stored in the input file: 'z' or another field.
         The name of that field is one of the basic input parameters:
-            - field_name_z0: Name of the field containing the height normalized data in the .LAS file. 
+            - field_name_z0: Name of the field containing the height normalized data in the .LAS file.
         If the normalized heights are stored in the z coordinate of the .LAS file, the value of field_name_z0 will be ‘z’ (lowercase).
 
 
     -----------------------------------------------------------------------------
     ------------------                Outputs              ----------------------
-    -----------------------------------------------------------------------------    
+    -----------------------------------------------------------------------------
 
     After all computations are complete, the following files are output:
     Filenames are: [original file name] + [specific suffix] + [.txt or .las]
 
-    LAS files (mainly for checking visually the outputs). 
-    They can be open straightaway in CloudCompare, where 'colour visualization' of fields with additional information is straightforward 
+    LAS files (mainly for checking visually the outputs).
+    They can be open straightaway in CloudCompare, where 'colour visualization' of fields with additional information is straightforward
 
     •	[original file name]_tree_ID_dist_axes: LAS file containing the original point cloud and a scalar field that contains tree IDs.
     •	[original file name]_axes: LAS file containing stem axes coordinates.
@@ -66,7 +66,7 @@ def fin_processing(fin_app: Application, params: dict):
 
     Text files with tabular data:
         Files contain TAB-separated information with as many rows as trees detected in the plot and as many columns as stem sections considered
-        All units are m or points. 
+        All units are m or points.
         _outliers and _check_circle have no units
 
     •	[original file name]_dbh_and_heights: Text file containing tree height, tree location and DBH of every tree as tabular data.
@@ -77,7 +77,7 @@ def fin_processing(fin_app: Application, params: dict):
     •	[original file name]_sector_perct: Text file containing the sector occupancy of every section of every tree as tabular data.
     •	[original file name]_check_circle: Text file containing the ‘check’ status of every section of every tree as tabular data.
     •	[original file name]_n_points_in: Text file containing the number of points within the inner circle of every section of every tree as tabular data.
-    •	[original file name]_sections: Text file containing the sections as a vector.  
+    •	[original file name]_sections: Text file containing the sections as a vector.
     """
 
     # -------------------------------------------------------------------------------------------------
@@ -162,7 +162,9 @@ def fin_processing(fin_app: Application, params: dict):
             t = timeit.default_timer()
             # Noise elimination
             clean_points = dm.clean_ground(
-                coords, params["expert"]["res_ground"], params["expert"]["min_points_ground"]
+                coords,
+                params["expert"]["res_ground"],
+                params["expert"]["min_points_ground"],
             )
 
             elapsed = timeit.default_timer() - t
@@ -460,7 +462,9 @@ def fin_processing(fin_app: Application, params: dict):
         mask = (
             (
                 sector_perct
-                < params["expert"]["m_number_sectors"] / params["expert"]["number_sectors"] * 100
+                < params["expert"]["m_number_sectors"]
+                / params["expert"]["number_sectors"]
+                * 100
             )  # Percentange of occupied sectors less than minimum
             | (n_points_in > params["expert"]["point_threshold"])
             | (outliers > 0.3)  # Outlier probability larger than 30 %

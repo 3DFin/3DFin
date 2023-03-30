@@ -5,7 +5,7 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import ttk
 
-from tooltip import ToolTip
+from .tooltip import ToolTip
 from PIL import Image, ImageTk
 
 
@@ -29,7 +29,7 @@ class Application(tk.Tk):
         try:
             base_path = sys._MEIPASS
         except Exception:
-            base_path = Path(__file__).absolute().parents[1] / "files"
+            base_path = Path(__file__).absolute().parents[2] / "files"
         return str(base_path / Path(relative_path))
 
     def _preload_images(self):
