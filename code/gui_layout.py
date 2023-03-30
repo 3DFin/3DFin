@@ -1,5 +1,4 @@
 import configparser
-import os
 import subprocess
 import sys
 import tkinter as tk
@@ -23,7 +22,7 @@ class Application(tk.Tk):
             Parameters:
                 relatvie_path (str): the current relative path to the ressource
             
-            Return:
+            Returns:
                 str: the full path to the ressource
         """
         try:
@@ -116,6 +115,8 @@ class Application(tk.Tk):
         self.min_points_ground = tk.StringVar()
         self.res_cloth = tk.StringVar()
 
+        # TODO: misc parameters. These parameters have no entry in the option file
+        # but they are needed for processing and exposed in the GUI
         # Variable to keep track of the option selected in normalized_button_1
         self.is_normalized_var = tk.BooleanVar()
         # Variable to keep track of the option selected in clean_button_1
@@ -251,6 +252,116 @@ class Application(tk.Tk):
             self.min_points_ground.set(config['expert']['min_points_ground'])
             self.res_cloth.set(config['expert']['res_cloth'])
 
+    def get_parameters(self) -> dict:
+        """Returns parameters as a dictionary"""
+        options = {}
+        
+        # misc parameters see TODO section in the _generate_parameters method
+        options.misc.is_normalized = self.is_normalized_var.get()
+        options.misc.is_noisy = self.is_noisy_var.get()
+        options.misc.txt = self.txt_var.get()
+        
+        #-------------------------------------------------------------------------------------------------
+        # BASIC PARAMETERS. These are the parameters to be checked (and changed if needed) for each dataset/plot
+        # All parameters are in m or points
+        #-------------------------------------------------------------------------------------------------
+
+        options.basic.z0_name = self.z0_name.get() # Name of the Z0 field in the LAS file containing the cloud. 
+        # If the normalized heights are stored in the Z coordinate of the .LAS file: field_name_z0 = "z" (lowercase)
+
+        # Upper and lower limits (vertical) of the stripe where it should be reasonable to find stems with minimum presence of shrubs or branches.
+        options.basic.upper_limit = float(self.upper_limit.get()) # Values, normally between 2 and 5
+        options.basic.lower_limit = float(self.lower_limit.get()) # Values, normally between 0.3 and 1.3
+
+        options.basic.number_of_iterations = int(self.number_of_iterations.get()) # Number of iterations of 'peeling off branches'. 
+        # Values between 0 (no branch peeling/cleaning) and 5 (very extreme branch peeling/cleaning)
+
+        #-------------------------------------------------------------------------------------------------
+        # Advanced PARAMETERS. They should only be modified when no good results are obtained tweaking basic parameters.
+        # They require a deeper knowledge of how the algorithm and the implementation work
+        #-------------------------------------------------------------------------------------------------
+
+        options.advanced.stem_search_diameter = float(self.stem_search_diameter.get()) / 2# Points within this distance from tree axes will be considered as potential stem points. 
+        # Values between maximum diameter and 1 (exceptionally greater than 1: very large diameters and/or intricate stems)
+
+        options.advanced.maximum_diameter = float(self.maximum_diameter.get()) / 2 # Maximum radius expected for any section during circle fitting.
+
+        options.advanced.minimum_height = float(self.minimum_height.get()) # Lowest height
+        options.advanced.maximum_height = float(self.maximum_height.get()) # highest height
+
+        options.advanced.section_len = float(self.section_len.get()) # sections are this long (z length)
+        options.advanced.section_wid = float(self.section_wid.get()) # sections are this wide
+
+        #-------------------------------------------------------------------------------------------------
+        # EXPERT PARAMETERS. They should only be modified when no good results are obtained peaking basic parameters.
+        # They require a deeper knowledge of how the algorithm and the implementation work
+        # *Stored in the main script in this version.
+        #-------------------------------------------------------------------------------------------------
+
+        #-------------------------------------------------------------------------------------------------
+        # Stem extraction
+        #-------------------------------------------------------------------------------------------------
+        options.expert.res_xy_stripe = float(self.res_xy_stripe.get())  # (x, y) voxel resolution during stem extraction
+        options.expert.res_z_stripe = float(self.res_z_stripe.get())  # (z) voxel resolution during stem extraction
+
+        options.expert.number_of_points = int(self.number_of_points.get()) # minimum number of points per stem within the stripe (DBSCAN clustering). 
+        # Values, normally between 500 and 3000 
+
+        options.expert.verticality_scale_stripe = float(self.verticality_scale_stripe.get()) # Vicinity radius for PCA during stem extraction
+        options.expert.verticality_thresh_stripe = float(self.verticality_thresh_stripe.get())  # Verticality threshold durig stem extraction
+
+        #-------------------------------------------------------------------------------------------------
+        # Tree individualization.
+        #-------------------------------------------------------------------------------------------------
+        options.expert.res_xy = float(self.res_xy.get())  # (x, y) voxel resolution during tree individualization
+        options.expert.res_z = float(self.res_z.get())  # (z) voxel resolution during tree individualization
+
+        options.expert.minimum_points = int(self.minimum_points.get()) # Minimum number of points within a stripe to consider it as a potential tree during tree individualization
+
+        options.expert.verticality_scale_stems = float(self.verticality_scale_stems.get()) # Vicinity radius for PCA  during tree individualization
+        options.expert.verticality_thresh_stems = float(self.verticality_thresh_stems.get()) # Verticality threshold  during tree individualization
+
+        options.expert.height_range = float(self.height_range.get())  # only stems where points extend vertically throughout this range are considered. 
+        options.expert.maximum_d = float(self.maximum_d.get()) # Points that are closer than d_max to an axis are assigned to that axis during individualize_trees process.
+
+        options.expert.distance_to_axis = float(self.distance_to_axis.get()) # Points within this distance from tree axes will be used to find tree height
+        options.expert.res_heights = float(self.res_heights.get()) # Resolution for the voxelization while computing tree heights 
+        options.expert.maximum_dev = float(self.maximum_dev.get()) # Maximum degree of vertical deviation from the axis
+
+        #-------------------------------------------------------------------------------------------------
+        # Extracting sections.
+        #-------------------------------------------------------------------------------------------------
+        options.expert.number_points_section = int(self.number_points_section.get()) # Minimum number of points in a section to be considered
+        options.expert.diameter_proportion = float(self.diameter_proportion.get()) # Proportion, regarding the circumference fit by fit_circle, that the inner circumference radius will have as length
+        options.expert.minimum_diameter = float(self.minimum_diameter.get()) / 2 # Minimum radius expected for any section circle fitting.
+        options.expert.point_threshold = int(self.point_threshold.get()) # Number of points inside the inner circle
+        options.expert.point_distance = float(self.point_distance.get()) # Maximum distance among points to be considered within the same cluster.
+        options.expert.number_sectors = int(self.number_sectors.get()) # Number of sectors in which the circumference will be divided
+        options.expert.m_number_sectors = int(self.m_number_sectors.get()) # Minimum number of sectors that must be occupied.
+        options.expert.circle_width = float(self.circle_width.get()) # Width, in centimeters, around the circumference to look for points
+
+        #-------------------------------------------------------------------------------------------------
+        # Drawing circles.
+        #-------------------------------------------------------------------------------------------------
+        options.expert.circa_points = int(self.circa.get())
+
+        #-------------------------------------------------------------------------------------------------
+        # Drawing axes.
+        #-------------------------------------------------------------------------------------------------
+        options.expert.p_interval = float(self.p_interval.get())
+        options.expert.axis_downstep= float(self.axis_downstep.get())
+        options.expert.axis_upstep = float(self.axis_upstep.get()) # From the stripe centroid, how much (upwards direction) will the drawn axes extend.
+
+        #-------------------------------------------------------------------------------------------------
+        # Height normalization
+        #-------------------------------------------------------------------------------------------------
+        options.expert.res_ground = float(self.res_ground.get())
+        options.expert.min_points_ground = int(self.min_points_ground.get())
+        options.expert.res_cloth = float(self.res_cloth.get())
+
+        return options
+
+    
     def _create_basic_tab(self):
         """Create the basic parameters tab (1)"""
         self.basic_tab = ttk.Frame(self.note)
@@ -544,7 +655,6 @@ class Application(tk.Tk):
         self.expert_tab = ttk.Frame(self.note)
 
         self.note.add(self.expert_tab, text = "Expert")
-
 
         ### Stem identification from stripe ###
         ttk.Label(self.expert_tab, text="Stem identification whithin the stripe", font = ("Helvetica", 10, "bold")).grid(column=1, row=1, columnspan=4, sticky="N")
@@ -1208,11 +1318,18 @@ class Application(tk.Tk):
 
         # Set the canvas scrolling region
         canvas.config(scrollregion=canvas.bbox("all"))
+    
+    def run(self):
+        """
+        TODO: This is a temporary method. One of the last milestone before the final design
+        it runs the GUI and return the options dictionary when the user quit the GUI in order
+        to match the current behavior (the processing button quit the GUI)
+        """
+        self.mainloop()
+        return self.get_parameters()
 
     def _bootstrap(self):
-        """
-        Create the GUI
-        """
+        """Create the GUI"""
         self._preload_images()
         self._generate_parameters()
 

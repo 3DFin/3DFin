@@ -80,123 +80,8 @@ import numpy as np
 import pandas as pd
 
 
-finApp = Application()
-finApp.mainloop()
-
-
-#-------------------------------------------------------------------------------------------------
-# BASIC PARAMETERS. These are the parameters to be checked (and changed if needed) for each dataset/plot
-# All parameters are in m or points
-#-------------------------------------------------------------------------------------------------
-
-is_normalized = finApp.is_normalized_var.get()
-is_noisy = finApp.is_noisy_var.get()
-txt = finApp.txt_var.get()
-
-field_name_z0 = finApp.z0_name.get() # Name of the Z0 field in the LAS file containing the cloud. 
-# If the normalized heights are stored in the Z coordinate of the .LAS file: field_name_z0 = "z" (lowercase)
-
-# Upper and lower limits (vertical) of the stripe where it should be reasonable to find stems with minimum presence of shrubs or branches.
-stripe_upper_limit = float(finApp.upper_limit.get()) # Values, normally between 2 and 5
-stripe_lower_limit = float(finApp.lower_limit.get()) # Values, normally between 0.3 and 1.3
-
-n_iter = int(finApp.number_of_iterations.get()) # Number of iterations of 'peeling off branches'. 
-# Values between 0 (no branch peeling/cleaning) and 5 (very extreme branch peeling/cleaning)
-
-#-------------------------------------------------------------------------------------------------
-# INTERMEDIATE PARAMETERS. They should only be modified when no good results are obtained tweaking basic parameters.
-# They require a deeper knowledge of how the algorithm and the implementation work
-#-------------------------------------------------------------------------------------------------
-
-expected_R = float(finApp.stem_search_diameter.get()) / 2# Points within this distance from tree axes will be considered as potential stem points. 
-# Values between R_max and 1 (exceptionally greater than 1: very large diameters and/or intricate stems)
-
-R_max = float(finApp.maximum_diameter.get()) / 2 # Maximum radius expected for any section during circle fitting.
-
-min_h = float(finApp.minimum_height.get()) # Lowest height
-max_h = float(finApp.maximum_height.get()) # highest height
-
-section_length = float(finApp.section_len.get()) # sections are this long (z length)
-
-
-#-------------------------------------------------------------------------------------------------
-# EXPERT PARAMETERS. They should only be modified when no good results are obtained peaking basic parameters.
-# They require a deeper knowledge of how the algorithm and the implementation work
-# *Stored in the main script in this version.
-#-------------------------------------------------------------------------------------------------
-
-
-#-------------------------------------------------------------------------------------------------
-# Stem extraction
-#-------------------------------------------------------------------------------------------------
-resolution_xy_stripe = float(finApp.res_xy_stripe.get())  # (x, y) voxel resolution during stem extraction
-resolution_z_stripe = float(finApp.res_z_stripe.get())  # (z) voxel resolution during stem extraction
-
-n_points = int(finApp.number_of_points.get()) # minimum number of points per stem within the stripe (DBSCAN clustering). 
-# Values, normally between 500 and 3000 
-
-n_points_stripe = int(finApp.number_of_points.get())  # DBSCAN minimum number of points during stem extraction
-
-vert_scale_stripe = float(finApp.verticality_scale_stripe.get()) # Vicinity radius for PCA during stem extraction
-vert_threshold_stripe = float(finApp.verticality_thresh_stripe.get())  # Verticality threshold durig stem extraction
-
-n_iter_stripe = n_iter  # Number of iterations of 'peeling off branchs' during stem extraction
-
-#-------------------------------------------------------------------------------------------------
-# Tree individualization.
-#-------------------------------------------------------------------------------------------------
-resolution_xy = float(finApp.res_xy.get())  # (x, y) voxel resolution during tree individualization
-resolution_z = float(finApp.res_z.get())  # (z) voxel resolution during tree individualization
-
-min_points = int(finApp.minimum_points.get()) # Minimum number of points within a stripe to consider it as a potential tree during tree individualization
-
-vert_scale_stems = float(finApp.verticality_scale_stems.get()) # Vicinity radius for PCA  during tree individualization
-vert_threshold_stems = float(finApp.verticality_thresh_stems.get()) # Verticality threshold  during tree individualization
-
-h_range = float(finApp.height_range.get())  # only stems where points extend vertically throughout this range are considered. 
-d_max = float(finApp.maximum_d.get()) # Points that are closer than d_max to an axis are assigned to that axis during individualize_trees process.
-
-d_heights = float(finApp.distance_to_axis.get()) # Points within this distance from tree axes will be used to find tree height
-resolution_heights = float(finApp.res_heights.get()) # Resolution for the voxelization while computing tree heights 
-max_dev = float(finApp.maximum_dev.get()) # Maximum degree of vertical deviation from the axis
-
-n_iter_stems = n_iter # Number of iterations of 'peeling off branchs' during tree individualization
-
-n_points_stems = n_points # DBSCAN minimum number of points during tree individualization 
-
-#-------------------------------------------------------------------------------------------------
-# Extracting sections.
-#-------------------------------------------------------------------------------------------------
-
-section_width = float(finApp.section_wid.get()) # sections are this wide
-n_points_section = int(finApp.number_points_section.get()) # Minimum number of points in a section to be considered
-times_R = float(finApp.diameter_proportion.get()) # Proportion, regarding the circumference fit by fit_circle, that the inner circumference radius will have as length
-R_min = float(finApp.minimum_diameter.get()) / 2 # Minimum radius expected for any section circle fitting.
-threshold = int(finApp.point_threshold.get()) # Number of points inside the inner circle
-max_dist = float(finApp.point_distance.get()) # Maximum distance among points to be considered within the same cluster.
-n_sectors = int(finApp.number_sectors.get()) # Number of sectors in which the circumference will be divided
-min_n_sectors = int(finApp.m_number_sectors.get()) # Minimum number of sectors that must be occupied.
-width = float(finApp.circle_width.get()) # Width, in centimeters, around the circumference to look for points
-
-#-------------------------------------------------------------------------------------------------
-# Drawing circles.
-#-------------------------------------------------------------------------------------------------
-circa_points = int(finApp.circa.get())
-
-#-------------------------------------------------------------------------------------------------
-# Drawing axes.
-#-------------------------------------------------------------------------------------------------
-point_interval = float(finApp.p_interval.get())
-line_downstep = float(finApp.axis_downstep.get())
-line_upstep = float(finApp.axis_upstep.get()) # From the stripe centroid, how much (upwards direction) will the drawn axes extend.
-
-#-------------------------------------------------------------------------------------------------
-# Height normalization
-#-------------------------------------------------------------------------------------------------
-
-ground_res = float(finApp.res_ground.get())
-points_ground = int(finApp.min_points_ground.get())
-cloth_res = float(finApp.res_cloth.get())
+fin_app = Application()
+params = fin_app.run()
 
 #-------------------------------------------------------------------------------------------------
 # NON MODIFIABLE. These parameters should never be modified by the user.
@@ -225,18 +110,18 @@ filename_las = filedialog.askopenfilename()
 #################################################################
 #################################################################
 
-print(finApp.copyright_info_1)
-print(finApp.copyright_info_2)
+print(fin_app.copyright_info_1)
+print(fin_app.copyright_info_2)
 print("See License at the bottom of 'About' tab for more details or visit <https://www.gnu.org/licenses/>")
 
 t_t = timeit.default_timer()
 
 
-if is_normalized:
+if params.misc.is_normalized:
     
     # Read .LAS file. 
     entr = laspy.read(filename_las)
-    coords = np.vstack((entr.x, entr.y, entr.z, entr[field_name_z0])).transpose()
+    coords = np.vstack((entr.x, entr.y, entr.z, entr[params.basic.z0_name])).transpose()
     
     # Number of points and area occuped by the plot. 
     print('---------------------------------------------')
@@ -275,14 +160,14 @@ else:
     print('Cloud is not normalized...')
     print('---------------------------------------------')
     
-    if is_noisy:
+    if params.misc.is_noisy:
         
         print('---------------------------------------------')
         print('And there is noise. Reducing it...')
         print('---------------------------------------------')
         t = timeit.default_timer()
         # Noise elimination
-        clean_points = dm.clean_ground(coords, ground_res, points_ground)
+        clean_points = dm.clean_ground(coords, params.expert.res_ground, params.expert.min_points_ground)
         
         elapsed = timeit.default_timer() - t
         print('        ',"%.2f" % elapsed,'s: denoising')
@@ -304,7 +189,7 @@ else:
         print('---------------------------------------------')
         t = timeit.default_timer()
         # Extracting ground points and DTM
-        cloth_nodes = dm.generate_dtm(coords, cloth_resolution=cloth_res)
+        cloth_nodes = dm.generate_dtm(coords, cloth_resolution=params.expert.res_cloth)
         
         elapsed = timeit.default_timer() - t
         print('        ',"%.2f" % elapsed,'s: generating the DTM')
@@ -346,14 +231,14 @@ print('---------------------------------------------')
 print('1.-Extracting the stripe and peeling the stems...')
 print('---------------------------------------------')
 
-stripe = coords[(coords[:, 3] > stripe_lower_limit) & (coords[:, 3] < stripe_upper_limit), 0:4]
-clust_stripe = dm.verticality_clustering(stripe, vert_scale_stripe, vert_threshold_stripe, n_points_stripe, n_iter_stripe, resolution_xy_stripe, resolution_z_stripe, n_digits)
+stripe = coords[(coords[:, 3] > params.basic.lower_limit) & (coords[:, 3] < params.basic.upper_limit), 0:4]
+clust_stripe = dm.verticality_clustering(stripe, params.expert.verticality_scale_stripe, params.expert.verticality_thresh_stripe, params.expert.number_of_points, params.basic.number_of_iterations, params.expert.res_xy_stripe, params.expert.res_z_stripe, n_digits)
 
 print('---------------------------------------------')
 print('2.-Computing distances to axes and individualizating trees...')
 print('---------------------------------------------')
                                                                                        
-assigned_cloud, tree_vector, tree_heights = dm.individualize_trees(coords, clust_stripe, resolution_z, resolution_xy, stripe_lower_limit, stripe_upper_limit, h_range, d_max, min_points, d_heights, max_dev, resolution_heights, n_digits, X_field, Y_field, Z_field, tree_id_field = -1)     
+assigned_cloud, tree_vector, tree_heights = dm.individualize_trees(coords, clust_stripe, params.expert.res_z, params.expert.res_xy, params.basic.lower_limit,params.basic.upper_limit, params.expert.height_range, params.expert.maximum_d, params.expert.minimum_points, params.expert.distance_to_axis, params.expert.maximum_dev , params.expert.res_heights, n_digits, X_field, Y_field, Z_field, tree_id_field = -1)     
 
 print('  ')
 print('---------------------------------------------')
@@ -377,7 +262,7 @@ entr.add_extra_dim(laspy.ExtraBytesParams(name="tree_ID", type=np.int32))
 entr.dist_axes = assigned_cloud[:, 5]
 entr.tree_ID = assigned_cloud[:, 4]
 
-if is_noisy:
+if params.misc.is_noisy:
     entr.add_extra_dim(laspy.ExtraBytesParams(name="Z0", type=np.float64))
     entr.Z0 = z0_values
 entr.write(filename_las[:-4]+"_tree_ID_dist_axes.las")
@@ -401,8 +286,8 @@ print('---------------------------------------------')
 print('4.-Extracting and curating stems...')
 print('---------------------------------------------')
 
-xyz0_coords = assigned_cloud[(assigned_cloud[:, 5] < expected_R) & (assigned_cloud[:, 3] > min_h) & (assigned_cloud[:,3] < max_h + section_width),:]
-stems = dm.verticality_clustering(xyz0_coords, vert_scale_stems, vert_threshold_stems, n_points_stems, n_iter_stems, resolution_xy_stripe, resolution_z_stripe, n_digits)[:, 0:6]
+xyz0_coords = assigned_cloud[(assigned_cloud[:, 5] < params.advanced.stem_search_diameter) & (assigned_cloud[:, 3] > params.advanced.minimum_height) & (assigned_cloud[:,3] < params.advanced.maximum_height + params.advanced.section_wid),:]
+stems = dm.verticality_clustering(xyz0_coords, params.expert.verticality_scale_stripe, params.expert.verticality_thresh_stripe, params.expert.number_of_points, params.basic.number_of_iterations, params.expert.res_xy_stripe, params.expert.res_z_stripe, n_digits)[:, 0:6]
 
 
 # Computing circles 
@@ -410,9 +295,9 @@ print('---------------------------------------------')
 print('5.-Computing diameters along stems...')
 print('---------------------------------------------')
 
-sections = np.arange(min_h, max_h, section_length) # Range of uniformly spaced values within the specified interval 
+sections = np.arange(params.advanced.minimum_height, params.advanced.maximum_height, params.advanced.section_len) # Range of uniformly spaced values within the specified interval 
 
-X_c, Y_c, R, check_circle, second_time, sector_perct, n_points_in = dm.compute_sections(stems, sections, section_width, times_R, threshold, R_min, R_max, max_dist, n_points_section, n_sectors, min_n_sectors, width)
+X_c, Y_c, R, check_circle, second_time, sector_perct, n_points_in = dm.compute_sections(stems, sections, params.advanced.section_wid, params.expert.diameter_proportion, params.expert.point_threshold, params.expert.point_distance, params.advanced.maximum_diameter, params.expert.minimum_diameter, params.advanced.maximum_diameter, params.expert.number_points_section, params.expert.number_sectors, params.expert.m_number_sectors, params.expert.circle_width)
 
 
 # Once every circle on every tree is fitted, outliers are detected.
@@ -427,11 +312,11 @@ print('---------------------------------------------')
 
 t_las2 = timeit.default_timer()
 
-dm.draw_circles(X_c, Y_c, R, sections, check_circle, sector_perct, n_points_in, tree_vector, outliers, filename_las, R_min, R_max, threshold, n_sectors, min_n_sectors, circa_points)
+dm.draw_circles(X_c, Y_c, R, sections, check_circle, sector_perct, n_points_in, tree_vector, outliers, filename_las, params.expert.minimum_diameter, params.advanced.maximum_diameter, params.expert.point_threshold, params.expert.number_sectors, params.expert.m_number_sectors, params.expert.circa_points)
 
-dm.draw_axes(tree_vector, filename_las, line_downstep, line_upstep, stripe_lower_limit, stripe_upper_limit, point_interval, X_field, Y_field, Z_field)
+dm.draw_axes(tree_vector, filename_las, params.expert.axis_downstep, params.expert.axis_upstep, params.basic.lower_limit, params.basic.upper_limit, params.expert.p_interval, X_field, Y_field, Z_field)
 
-dbh_values, tree_locations = dm.tree_locator(sections, X_c, Y_c, tree_vector, sector_perct, R, outliers, n_points_in, threshold, X_field, Y_field, Z_field)
+dbh_values, tree_locations = dm.tree_locator(sections, X_c, Y_c, tree_vector, sector_perct, R, outliers, n_points_in, params.expert.point_threshold, X_field, Y_field, Z_field)
 
 las_tree_locations = laspy.create(point_format = 2, file_version = '1.2')
 las_tree_locations.x = tree_locations[:, 0]
@@ -456,16 +341,16 @@ dbh_and_heights[:, 1] = dbh_values[:, 0]
 dbh_and_heights[:, 2] = tree_locations[:, 0]
 dbh_and_heights[:, 3] = tree_locations[:, 1]
 
-if not txt:
+if not params.misc.txt:
     
     # Generating aggregated quality value for each section
     quality = np.zeros(sector_perct.shape)
     # Section does not pass quality check if:
     mask = (
-        (sector_perct < min_n_sectors / n_sectors * 100) # Percentange of occupied sectors less than minimum
-        | (n_points_in > threshold) | (outliers > 0.3) # Outlier probability larger than 30 %
-        | (R < R_min) # Radius smaller than the minimum radius
-        | (R > R_max) # Radius larger than the maximum radius
+        (sector_perct < params.expert.m_number_sectors / params.expert.number_sectors * 100) # Percentange of occupied sectors less than minimum
+        | (n_points_in > params.expert.point_threshold) | (outliers > 0.3) # Outlier probability larger than 30 %
+        | (R < params.expert.minimum_diameter) # Radius smaller than the minimum radius
+        | (R > params.advanced.maximum_diameter) # Radius larger than the maximum radius
         )       
     # 0: does not pass quality check - 1: passes quality checks
     quality = np.where(mask, quality, 1)
