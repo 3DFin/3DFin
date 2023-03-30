@@ -1,11 +1,11 @@
 import timeit
 from tkinter import filedialog
-from gui.gui_layout import Application
 
 import dendromatics as dm
 import laspy
 import numpy as np
 import pandas as pd
+from gui.gui_layout import Application
 
 
 def fin_processing(fin_app: Application, params: dict):

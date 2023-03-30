@@ -1,0 +1,73 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "3DFIN"
+description = "Automatic dendrometry and forest inventory for terrestrial point clouds, application package"
+readme = "README.md"
+requires-python = ">=3.7"
+license = "GPL-3.0-only"
+keywords = ["lidar", "forestry", "tls"]
+authors = [
+  { name = "Carlos Cabo", email = "carloscabo@uniovi.es" },
+  { name = "Diego Laino", email = "diegolainor@gmail.com" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: GIS",
+  "Intended Audience :: Science/Research",
+]
+dependencies = [
+  "laspy",
+  "numpy",
+  "pandas",
+  "Pillow",
+  "dendromatics @ git+https://github.com/3DFIN/dendromatics@temp_merge_gui"
+]
+version = "0.0.1"
+
+[project.urls]
+Documentation = "https://github.com/3DFIN/3DFIN#README.md"
+Issues = "https://github.com/3DFIN/3DFIN/issues"
+Source = "https://github.com/3DFIN/3DFIN"
+
+[project.gui-scripts]
+3DFIN = "todopackage.cli:todo.function"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.envs.default]
+dependencies = [
+  "pytest",
+  "pytest-cov",
+]
+[tool.hatch.envs.default.scripts]
+cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=_ --cov=tests {args}"
+no-cov = "cov --no-cov {args}"
+
+[[tool.hatch.envs.test.matrix]]
+python = ["37", "38", "39", "310", "311"]
+
+[tool.coverage.run]
+branch = true
+parallel = true
+omit = [
+  "_/__about__.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]

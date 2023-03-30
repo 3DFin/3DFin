@@ -1,7 +1,4 @@
-CSF==1.0.20.0
-jakteristics==0.5.0
 laspy
-matplotlib
 numpy
 pandas
 Pillow
