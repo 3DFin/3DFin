@@ -673,5 +673,6 @@ def fin_processing(fin_app: Application, params: dict):
     input("Press enter to close the program...")
 
 
-fin_app = Application(fin_processing)
-params = fin_app.run()
+if __name__ == "__main__":
+    fin_app = Application(fin_processing)
+    _ = fin_app.run()
