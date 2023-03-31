@@ -41,7 +41,7 @@ Issues = "https://github.com/3DFIN/3DFIN/issues"
 Source = "https://github.com/3DFIN/3DFIN"
 
 [project.gui-scripts]
-3DFIN = "todopackage.cli:todo.function"
+gui = "3dfin.cli:todo.function"
 
 [tool.hatch.metadata]
 allow-direct-references = true
