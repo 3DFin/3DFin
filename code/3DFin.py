@@ -304,7 +304,7 @@ def fin_processing(fin_app: Application, params: dict):
     las_tree_heights.x = tree_heights[:, 0]  # x
     las_tree_heights.y = tree_heights[:, 1]  # y
     las_tree_heights.z = tree_heights[:, 2]  # z
-    las_tree_heights.add_extra_dim(laspy.ExtraBytesParams(name="z0", type=np.int32))
+    las_tree_heights.add_extra_dim(laspy.ExtraBytesParams(name="z0", type=np.float64))
     las_tree_heights.z0 = tree_heights[:, 3]  # z0
     las_tree_heights.add_extra_dim(
         laspy.ExtraBytesParams(name="deviated", type=np.int32)
@@ -436,6 +436,8 @@ def fin_processing(fin_app: Application, params: dict):
     las_tree_locations.x = tree_locations[:, 0]
     las_tree_locations.y = tree_locations[:, 1]
     las_tree_locations.z = tree_locations[:, 2]
+    las_tree_locations.add_extra_dim(laspy.ExtraBytesParams(name="diameters", type=np.float64))
+    las_tree_locations.diameters = dbh_values[:, 0]
 
     las_tree_locations.write(filename_las[:-4] + "_tree_locator.las")
 
