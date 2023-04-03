@@ -52,11 +52,14 @@ dependencies = [
   "pytest-cov",
 ]
 
-#  hatch env run -e pyinstaller-build pyinstaller .\generate_exe\options.spec
-[tool.hatch.envs.pyinstaller-build]
+[tool.hatch.envs.pyinstaller]
 dependencies = [
   "pyinstaller"
 ]
+
+# hatch run pyinstaller:build
+[tool.hatch.envs.pyinstaller.scripts]
+build = "pyinstaller generate_exe/options.spec"
 
 [tool.hatch.envs.default.scripts]
 cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=_ --cov=tests {args}"

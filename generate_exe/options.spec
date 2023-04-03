@@ -5,7 +5,7 @@ block_cipher = None
 
 
 a = Analysis(
-    ["../code/3DFIN.py"],
+    ["../code/3DFin.py"],
     pathex=["../code/"],
     binaries=[],
     datas=[
@@ -60,7 +60,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name="3DFIN",
+    name="3DFin",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
