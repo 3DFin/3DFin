@@ -32,7 +32,7 @@ dependencies = [
   "pandas",
   "XlsxWriter",
   "Pillow",
-  "dendromatics @ git+https://github.com/3DFIN/dendromatics@temp_merge_gui"
+  "dendromatics @ git+https://github.com/rjanvier/dendromatics@temp_merge_gui"
 ]
 version = "0.0.1"
 
