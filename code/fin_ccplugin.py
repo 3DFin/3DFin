@@ -465,7 +465,7 @@ def main_cloudcompare():
 
     point_cloud = entities[0]
 
-    if not isinstance(point_cloud, pycc.pointcloud):
+    if not isinstance(point_cloud,  pycc.ccPointCloud):
         raise RuntimeError("Selected entity should be a point cloud")
     
     z0_name = point_cloud.getCurrentDisplayedScalarField().getName()
