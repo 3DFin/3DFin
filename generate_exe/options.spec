@@ -41,6 +41,7 @@ a = Analysis(
         "sklearn.metrics._pairwise_distances_reduction._datasets_pair",
         "sklearn.metrics._pairwise_distances_reduction._base",
         "sklearn.metrics._pairwise_distances_reduction._middle_term_computer",
+        " xlsxwriter"
     ],
     hookspath=[],
     hooksconfig={},

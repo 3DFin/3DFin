@@ -30,6 +30,7 @@ dependencies = [
   "laspy",
   "numpy",
   "pandas",
+  "XlsxWriter",
   "Pillow",
   "dendromatics @ git+https://github.com/3DFIN/dendromatics@temp_merge_gui"
 ]
