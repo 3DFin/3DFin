@@ -53,6 +53,13 @@ dependencies = [
   "pytest-cov",
 ]
 
+[tool.hatch.build]
+include = [
+  "finapplication/*.py",
+  "finapplication/gui/*.py",
+  "files/*",
+]
+
 [tool.hatch.envs.pyinstaller]
 dependencies = [
   "pyinstaller"
