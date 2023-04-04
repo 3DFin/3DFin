@@ -1,4 +1,4 @@
-name: build standalone
+name: build standalone application
 
 on: push
 
