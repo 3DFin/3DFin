@@ -245,7 +245,7 @@ class Application(tk.Tk):
 
             ### Expert parameters
 
-            # Stem identification whithin the stripe
+            # Stem identification within the stripe
             self.res_xy_stripe.set(config["expert"]["res_xy_stripe"])
             self.res_z_stripe.set(config["expert"]["res_z_stripe"])
             self.number_of_points.set(config["expert"]["number_of_points"])
@@ -912,7 +912,7 @@ class Application(tk.Tk):
         ### Stem identification from stripe ###
         ttk.Label(
             self.expert_tab,
-            text="Stem identification whithin the stripe",
+            text="Stem identification within the stripe",
             font=("Helvetica", 10, "bold"),
         ).grid(column=1, row=1, columnspan=4, sticky="N")
 
