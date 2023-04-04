@@ -55,8 +55,8 @@ dependencies = [
 
 [tool.hatch.build]
 include = [
-  "finapplication/*.py",
-  "finapplication/gui/*.py",
+  "code/*.py",
+  "code/gui/*.py",
   "files/*",
 ]
 
