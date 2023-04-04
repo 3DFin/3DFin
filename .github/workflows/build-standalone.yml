@@ -1,10 +1,6 @@
 name: build standalone
 
-on:
-  push
-    # should only build standalone when a new version is tagged
-    # tags:
-    # - 3DFin-v*
+on: push
 
 permissions:
   contents: write
@@ -24,7 +20,7 @@ jobs:
       uses: webfactory/ssh-agent@v0.7.0
       with:
         ssh-private-key: |
-                        ${{ secrets.PIP_DEPLOY }}
+                        ${{ secrets.DENDROMATICS_GITHUB_DEPLOY_KEY }}
 
     - name: Install Hatch
       run: python -m pip install hatch
