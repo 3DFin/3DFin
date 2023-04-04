@@ -1,5 +1,6 @@
 # Description
 
+https://github.com/3DFIN/3DFIN/actions/workflows/build-standalone.yml/badge.svg?branch=main
 
 The associated code implements an algorithm to detect the trees present in a terrestrial 3D point cloud from a forest plot, and compute individual tree parameters: tree height, tree location, diameters along the stem (including DBH), and stem axis. This algorithm is mainly based on rules, although it uses clusterization in some stages.
 
@@ -137,3 +138,25 @@ Ester, M., Kriegel, H.-P., Sander, J., & Xu, X. (1996). A Density-Based Algorith
 
 
 Prendes, C., Cabo, C., Ordoñez, C., Majada, J., & Canga, E. (2021). An algorithm for the automatic parametrization of wood volume equations from Terrestrial Laser Scanning point clouds: application in Pinus pinaster. GIScience and Remote Sensing, 58(7), 1130–1150. https://doi.org/10.1080/15481603.2021.1972712 
+
+# Building
+
+3DFIN mainly depends on dendromatics, list of dependencies is available on the pyproject.toml file
+3DFIN has a single developpement dependency, [hatch](https://github.com/pypa/hatch).
+
+```
+python -m pip install hatch
+```
+
+You can run 3DFIN on an isolated Python environement with all dependencies needed:
+```
+hatch shell
+python code/3DFIN.py
+```
+
+In order to build the standalone application for windows you can run the following command:
+```
+hatch run pyinstaller:build
+```
+
+
