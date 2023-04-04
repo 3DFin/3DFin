@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build standalone 3DFon windows version
+    name: Build standalone 3DFin windows version
     runs-on: windows-latest
 
     steps:
