@@ -280,7 +280,7 @@ else:
     
     ### Expert parameters ###
     
-    # Stem identification whithin the stripe #
+    # Stem identification within the stripe #
     res_xy_stripe.set(config['expert']['res_xy_stripe'])
     res_z_stripe.set(config['expert']['res_z_stripe'])
     number_of_points.set(config['expert']['number_of_points'])
@@ -649,7 +649,7 @@ note.add(expert_tab, text = "Expert")
 
 
 ### Stem identification from stripe ###
-ttk.Label(expert_tab, text="Stem identification whithin the stripe", font = ("Helvetica", 10, "bold")).grid(column=1, row=1, columnspan=4, sticky="N")
+ttk.Label(expert_tab, text="Stem identification within the stripe", font = ("Helvetica", 10, "bold")).grid(column=1, row=1, columnspan=4, sticky="N")
 
 # (x, y) voxel resolution 
 res_xy_stripe_entry = ttk.Entry(expert_tab, width=7, textvariable=res_xy_stripe)
