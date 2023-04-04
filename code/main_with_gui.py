@@ -150,7 +150,7 @@ section_wid = StringVar()
  
  ### Expert parameters ###
  
- # Stem extraction #
+ # Stem identification #
 res_xy_stripe = StringVar()
 res_z_stripe = StringVar()
 number_of_points = StringVar()
@@ -158,7 +158,7 @@ verticality_scale_stripe = StringVar()
 verticality_thresh_stripe = StringVar()
 height_range = StringVar()
  
- # Tree individualization #
+ # Stem extraction and Tree individualization #
 res_xy = StringVar()
 res_z = StringVar()
 minimum_points = StringVar()
@@ -216,7 +216,7 @@ except FileNotFoundError:
     
     ### Expert parameters ###
     
-    # Stem extraction #
+    # Stem identification #
     res_xy_stripe.set("0.02")
     res_z_stripe.set("0.02")
     number_of_points.set("1000")
@@ -656,7 +656,7 @@ res_xy_stripe_entry = ttk.Entry(expert_tab, width=7, textvariable=res_xy_stripe)
 res_xy_stripe_entry.grid(column=3, row=2, sticky="EW")
 
 
-# (z) voxel resolution during stem extraction entry #
+# (z) voxel resolution during stem identification entry #
 res_z_stripe_entry = ttk.Entry(expert_tab, width=7, textvariable=res_z_stripe)
 res_z_stripe_entry.grid(column=3, row=3, sticky="EW")
 
@@ -666,12 +666,12 @@ number_of_points_entry = ttk.Entry(expert_tab, width=7, textvariable=number_of_p
 number_of_points_entry.grid(column=3, row=4, sticky="EW")
 
 
-# Vicinity radius for PCA during stem extraction entry #
+# Vicinity radius for PCA during stem identification entry #
 verticality_scale_stripe_entry = ttk.Entry(expert_tab, width=7, textvariable=verticality_scale_stripe)
 verticality_scale_stripe_entry.grid(column=3, row=5, sticky="EW")
 
 
-# Verticality threshold durig stem extraction entry #
+# Verticality threshold durig stem identification entry #
 verticality_thresh_stripe_entry = ttk.Entry(expert_tab, width=7, textvariable=verticality_thresh_stripe)
 verticality_thresh_stripe_entry.grid(column=3, row=6, sticky="EW")
 
@@ -879,12 +879,12 @@ for child in expert_tab.winfo_children():
 
 res_xy_stripe_info = ttk.Label(expert_tab, image = info_icon)
 res_xy_stripe_info.grid(column = 1, row = 2)
-gui.CreateToolTip(res_xy_stripe_info, text = '(x, y) voxel resolution during stem extraction.\n'
+gui.CreateToolTip(res_xy_stripe_info, text = '(x, y) voxel resolution during stem identification.\n'
               'Default value: 0.035 meters.')
 
 res_z_stripe_info = ttk.Label(expert_tab, image = info_icon)
 res_z_stripe_info.grid(column = 1, row = 3)
-gui.CreateToolTip(res_z_stripe_info, text = '(z) voxel resolution during stem extraction.\n'
+gui.CreateToolTip(res_z_stripe_info, text = '(z) voxel resolution during stem identification.\n'
               'Default value: 0.035 meters.')
 
 number_of_points_info = ttk.Label(expert_tab, image = info_icon)
@@ -895,12 +895,12 @@ gui.CreateToolTip(number_of_points_info, text = 'minimum number of points (voxel
 
 verticality_scale_stripe_info = ttk.Label(expert_tab, image = info_icon)
 verticality_scale_stripe_info.grid(column = 1, row = 5)
-gui.CreateToolTip(verticality_scale_stripe_info, text = 'Vicinity radius for PCA during stem extraction.\n'
+gui.CreateToolTip(verticality_scale_stripe_info, text = 'Vicinity radius for PCA during stem identification.\n'
               'Default value: 0.1 meters.')
 
 verticality_thresh_stripe_info = ttk.Label(expert_tab, image = info_icon)
 verticality_thresh_stripe_info.grid(column = 1, row = 6)
-gui.CreateToolTip(verticality_thresh_stripe_info, text = 'Verticality threshold durig stem extraction.\n'
+gui.CreateToolTip(verticality_thresh_stripe_info, text = 'Verticality threshold durig stem identification.\n'
                   'Verticality is defined as (1 - sin(V)), being V the vertical angle of the normal\n'
                   'vector, measured from the horizontal. Note that it does not grow linearly.\n'
                   'Default value: 0.7.')
@@ -929,7 +929,7 @@ gui.CreateToolTip(minimum_points_info, text = 'Minimum number of points (voxels)
 
 verticality_scale_stems_info = ttk.Label(expert_tab, image = info_icon)
 verticality_scale_stems_info.grid(column = 1, row = 13)
-gui.CreateToolTip(verticality_scale_stems_info, text = 'Vicinity radius for PCA during tree individualization.\n'
+gui.CreateToolTip(verticality_scale_stems_info, text = 'Vicinity radius for PCA during stem extraction.\n'
               'Default value: 0.1 meters.')
 
 verticality_thresh_stems_info = ttk.Label(expert_tab, image = info_icon)
@@ -943,7 +943,7 @@ gui.CreateToolTip(verticality_thresh_stems_info, text = 'Verticality threshold d
 maximum_d_info = ttk.Label(expert_tab, image = info_icon)
 maximum_d_info.grid(column = 1, row = 15)
 gui.CreateToolTip(maximum_d_info, text = 'Points that are closer than this distance to an axis '
-              'are assigned to that axis during individualize_trees process.\n'
+              'are assigned to that axis during tree individualization.\n'
               'Default value: 15 meters.')
 
 distance_to_axis_info = ttk.Label(expert_tab, image = info_icon)
@@ -1395,20 +1395,20 @@ section_length = float(section_len.get()) # sections are this long (z length)
 
 
 #-------------------------------------------------------------------------------------------------
-# Stem extraction
+# Stem identification within the stripe
 #-------------------------------------------------------------------------------------------------
-resolution_xy_stripe = float(res_xy_stripe.get())  # (x, y) voxel resolution during stem extraction
-resolution_z_stripe = float(res_z_stripe.get())  # (z) voxel resolution during stem extraction
+resolution_xy_stripe = float(res_xy_stripe.get())  # (x, y) voxel resolution during stem identification
+resolution_z_stripe = float(res_z_stripe.get())  # (z) voxel resolution during stem identification
 
 n_points = int(number_of_points.get()) # minimum number of points per stem within the stripe (DBSCAN clustering). 
 # Values, normally between 500 and 3000 
 
-n_points_stripe = int(number_of_points.get())  # DBSCAN minimum number of points during stem extraction
+n_points_stripe = int(number_of_points.get())  # DBSCAN minimum number of points during stem identification
 
-vert_scale_stripe = float(verticality_scale_stripe.get()) # Vicinity radius for PCA during stem extraction
-vert_threshold_stripe = float(verticality_thresh_stripe.get())  # Verticality threshold durig stem extraction
+vert_scale_stripe = float(verticality_scale_stripe.get()) # Vicinity radius for PCA during stem identification
+vert_threshold_stripe = float(verticality_thresh_stripe.get())  # Verticality threshold durig stem identification
 
-n_iter_stripe = n_iter  # Number of iterations of 'peeling off branchs' during stem extraction
+n_iter_stripe = n_iter  # Number of iterations of 'peeling off branchs' during stem identification
 
 #-------------------------------------------------------------------------------------------------
 # Tree individualization.
