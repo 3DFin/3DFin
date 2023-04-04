@@ -7,7 +7,7 @@ name = "3DFIN"
 description = "Automatic dendrometry and forest inventory for terrestrial point clouds, application package"
 readme = "README.md"
 requires-python = ">=3.7"
-license = "GPL-3.0-only"
+license = "GPL-3.0-or-later"
 keywords = ["lidar", "forestry", "tls"]
 authors = [
   { name = "Carlos Cabo", email = "carloscabo@uniovi.es" },
@@ -34,7 +34,10 @@ dependencies = [
   "Pillow",
   "dendromatics @ git+https://github.com/3DFIN/dendromatics@temp_merge_gui"
 ]
-version = "0.0.1"
+dynamic = ["version"]
+
+[tool.hatch.version]
+path = "code/__about__.py"
 
 [project.urls]
 Documentation = "https://github.com/3DFIN/3DFIN#README.md"
@@ -68,24 +71,3 @@ dependencies = [
 # hatch run pyinstaller:build
 [tool.hatch.envs.pyinstaller.scripts]
 build = "pyinstaller generate_exe/options.spec"
-
-[tool.hatch.envs.default.scripts]
-cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=_ --cov=tests {args}"
-no-cov = "cov --no-cov {args}"
-
-[[tool.hatch.envs.test.matrix]]
-python = ["37", "38", "39", "310", "311"]
-
-[tool.coverage.run]
-branch = true
-parallel = true
-omit = [
-  "_/__about__.py",
-]
-
-[tool.coverage.report]
-exclude_lines = [
-  "no cov",
-  "if __name__ == .__main__.:",
-  "if TYPE_CHECKING:",
-]
