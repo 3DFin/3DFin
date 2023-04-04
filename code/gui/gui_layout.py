@@ -110,7 +110,7 @@ class Application(tk.Tk):
         self.section_wid = tk.StringVar()
 
         ### Expert parameters
-        # Stem extraction
+        # Stem identification 
         self.res_xy_stripe = tk.StringVar()
         self.res_z_stripe = tk.StringVar()
         self.number_of_points = tk.StringVar()
@@ -118,7 +118,7 @@ class Application(tk.Tk):
         self.verticality_thresh_stripe = tk.StringVar()
         self.height_range = tk.StringVar()
 
-        # Tree individualization
+        # Stem extraction and Tree individualization
         self.res_xy = tk.StringVar()
         self.res_z = tk.StringVar()
         self.minimum_points = tk.StringVar()
@@ -182,7 +182,7 @@ class Application(tk.Tk):
 
             ### Expert parameters
 
-            # Stem extraction
+            # Stem identification
             self.res_xy_stripe.set("0.02")
             self.res_z_stripe.set("0.02")
             self.number_of_points.set("1000")
@@ -190,7 +190,7 @@ class Application(tk.Tk):
             self.verticality_thresh_stripe.set("0.7")
             self.height_range.set("0.7")
 
-            # Tree individualization
+            # Stem extraction and Tree individualization
             self.res_xy.set("0.035")
             self.res_z.set("0.035")
             self.minimum_points.set("20")
@@ -364,14 +364,14 @@ class Application(tk.Tk):
         # -------------------------------------------------------------------------------------------------
 
         # -------------------------------------------------------------------------------------------------
-        # Stem extraction
+        # Stem identification within the stripe
         # -------------------------------------------------------------------------------------------------
         params["expert"]["res_xy_stripe"] = float(
             self.res_xy_stripe.get()
-        )  # (x, y) voxel resolution during stem extraction
+        )  # (x, y)voxel resolution during stem identification
         params["expert"]["res_z_stripe"] = float(
             self.res_z_stripe.get()
-        )  # (z) voxel resolution during stem extraction
+        )  # (z) voxel resolution during stem identification
 
         params["expert"]["number_of_points"] = int(
             self.number_of_points.get()
@@ -401,10 +401,10 @@ class Application(tk.Tk):
 
         params["expert"]["verticality_scale_stems"] = float(
             self.verticality_scale_stems.get()
-        )  # Vicinity radius for PCA  during tree individualization
+        )   # DBSCAN minimum number of points during stem identification
         params["expert"]["verticality_thresh_stems"] = float(
             self.verticality_thresh_stems.get()
-        )  # Verticality threshold  during tree individualization
+        )  # Verticality threshold durig stem identification
 
         params["expert"]["height_range"] = float(
             self.height_range.get()
@@ -922,7 +922,7 @@ class Application(tk.Tk):
         )
         res_xy_stripe_entry.grid(column=3, row=2, sticky="EW")
 
-        # (z) voxel resolution during stem extraction entry #
+        # (z) voxel resolution during stem identification entry #
         res_z_stripe_entry = ttk.Entry(
             self.expert_tab, width=7, textvariable=self.res_z_stripe
         )
@@ -934,13 +934,13 @@ class Application(tk.Tk):
         )
         number_of_points_entry.grid(column=3, row=4, sticky="EW")
 
-        # Vicinity radius for PCA during stem extraction entry #
+        # Vicinity radius for PCA during stem identification entry #
         verticality_scale_stripe_entry = ttk.Entry(
             self.expert_tab, width=7, textvariable=self.verticality_scale_stripe
         )
         verticality_scale_stripe_entry.grid(column=3, row=5, sticky="EW")
 
-        # Verticality threshold durig stem extraction entry #
+        # Verticality threshold durig stem identification entry #
         verticality_thresh_stripe_entry = ttk.Entry(
             self.expert_tab, width=7, textvariable=self.verticality_thresh_stripe
         )
@@ -1274,7 +1274,7 @@ class Application(tk.Tk):
         verticality_scale_stripe_info.grid(column=1, row=5)
         ToolTip.create(
             verticality_scale_stripe_info,
-            text="Vicinity radius for PCA during stem extraction.\n"
+            text="Vicinity radius for PCA during stem identification.\n"
             "Default value: 0.1 meters.",
         )
 
@@ -1284,7 +1284,7 @@ class Application(tk.Tk):
         verticality_thresh_stripe_info.grid(column=1, row=6)
         ToolTip.create(
             verticality_thresh_stripe_info,
-            text="Verticality threshold durig stem extraction.\n"
+            text="Verticality threshold durig stem identification\n"
             "Verticality is defined as (1 - sin(V)), being V the vertical angle of the normal\n"
             "vector, measured from the horizontal. Note that it does not grow linearly.\n"
             "Default value: 0.7.",
@@ -1347,7 +1347,7 @@ class Application(tk.Tk):
         ToolTip.create(
             maximum_d_info,
             text="Points that are closer than this distance to an axis "
-            "are assigned to that axis during individualize_trees process.\n"
+            "are assigned to that axis during tree individualization process.\n"
             "Default value: 15 meters.",
         )
 
