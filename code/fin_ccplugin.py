@@ -262,7 +262,7 @@ class CCPluginFinProcessing:
         z0 = cloud.getScalarField(0)  # z0
 
         # Add label with z0 values
-        for i, _ in enumerate(cloud.points()):
+        for i in range(len(cloud.points())):
             hlabel = pycc.cc2DLabel(f"point{i}")
             hlabel.addPickedPoint(cloud, i)
             value = round(z0.asArray()[i], 2)
@@ -406,7 +406,7 @@ class CCPluginFinProcessing:
         CCPluginFinProcessing.write_sf(cloud, tilt, "tilting_degree")
         cloud.toggleSF()
         cloud.setCurrentDisplayedScalarField(0)  # = tilting_degree
-        cloud.toggleVisibility()
+        cloud.setEnabled(False)
         base_group.addChild(cloud)
         self.cc_instance.addToDB(cloud)
 
@@ -437,7 +437,7 @@ class CCPluginFinProcessing:
         cloud.toggleColors()
         dbh = cloud.getScalarField(0)  # dbh
 
-        for i, _ in enumerate(cloud.points()):
+        for i in range(len(cloud.points())):
             dlabel = pycc.cc2DLabel(f"point{i}")
             dlabel.addPickedPoint(cloud, i)
             value = round(dbh.asArray()[i], 3)
@@ -453,6 +453,38 @@ class CCPluginFinProcessing:
 
         base_group.addChild(cloud)
         self.cc_instance.addToDB(cloud, autoExpandDBTree=False)
+
+
+def _create_app_and_run(plugin_functor: CCPluginFinProcessing):
+    """Encapsulate the 3DFin application and its the HiDPI support fix
+    This way all could be run in a dedicated thread with pycc.RunInThread
+
+    Parameters:
+        plugin_functor (CCPluginFinProcessing): the functor you want to run
+    """
+    # FIX for HidPI support on windows 10+
+    # The "bug" was sneaky for two reasons:
+    # - First, you should turn the DpiAwareness value to a counter intuitive value
+    # in other context you would assume to turn Dpi awarness at least >= 1 (PROCESS_SYSTEM_DPI_AWARE)
+    # but here, with TK the right value is 0 (PROCESS_DPI_UNAWARE) maybe because DPI is handled by CC process
+    # - Second, you can't use the usual SetProcessDpiAwareness function here because it could not be redefined
+    # when defined once somewhere (TODO: maybe we could try to redefine it at startup of CC-PythonPlugin see if it works)
+    # so we have to force it for the current thread with this one:
+    # TODO: we do not know how it's handled in other OSes.
+    import ctypes
+    import platform
+
+    awareness_code = ctypes.c_int()
+    if platform.system() == "Windows" and (
+        platform.release() == "10" or platform.release() == "11"
+    ):
+        ctypes.windll.shcore.GetProcessDpiAwareness(0, ctypes.byref(awareness_code))
+        if awareness_code.value > 0:
+            ctypes.windll.user32.SetThreadDpiAwarenessContext(
+                ctypes.wintypes.HANDLE(-1)
+            )
+    fin_app = Application(plugin_functor)
+    fin_app.run()
 
 
 def main_cloudcompare():
@@ -479,46 +511,9 @@ def main_cloudcompare():
     # TODO: Handle big coodinates (could be tested by maybe wait for CC API update)
 
     plugin_functor = CCPluginFinProcessing(cc, point_cloud, z0_name)
-    import ctypes
-    import platform
 
-    # FIX for HidPI support on windows 10+
-    # The "bug" was sneaky for two reasons:
-    # - First, you should turn the DpiAwareness value to a counter intuitive value
-    # in other context you would assume to turn Dpi awarness at least >= 1 (PROCESS_SYSTEM_DPI_AWARE)
-    # but here, with TK the right value is 0 (PROCESS_DPI_UNAWARE) maybe because DPI is handled by CC process
-    # - Second, you can't use the usual SetProcessDpiAwareness function here because it could not be redefined
-    # when defined once somewhere (TODO: maybe we could try to redefine it at startup of CC-PythonPlugin see if it works)
-    # so we have to force it for the current thread with this one:
-    # TODO: we do not know how it's handled in other OSes.
-    awareness_code = ctypes.c_int()
-    if platform.system() == "Windows" and (
-        platform.release() == "10" or platform.release() == "11"
-    ):
-        ctypes.windll.shcore.GetProcessDpiAwareness(0, ctypes.byref(awareness_code))
-        if awareness_code.value > 0:
-            ctypes.windll.user32.SetThreadDpiAwarenessContext(
-                ctypes.wintypes.HANDLE(-1)
-            )
-    try:
-        # TODO: We need to freeze UI to be sure nothing happen during the processing
-        # we have to add this to CC-PythonPlugin
-        # TODO: Wrap this into a RunInThread
-        fin_app = Application(plugin_functor)
-        fin_app.run()
-    # TODO: Maybe catch exception in order to redirect them to modals
-    finally:
-        # In any case we should come back to previous DPI awarness
-        if platform.system() == "Windows" and (
-            platform.release() == "10" or platform.release() == "11"
-        ):
-            if awareness_code.value == 1:
-                ctypes.windll.user32.SetThreadDpiAwarenessContext(
-                    ctypes.wintypes.HANDLE(-2)
-                )
-            elif awareness_code.value == 2:
-                ctypes.windll.user32.SetThreadDpiAwarenessContext(
-                    ctypes.wintypes.HANDLE(-3)
-                )
-
+    cc.freezeUI(True)
+    #TODO: catch exceptions into modals.
+    pycc.RunInThread(_create_app_and_run, plugin_functor)
+    cc.freezeUI(False)
     cc.updateUI()
