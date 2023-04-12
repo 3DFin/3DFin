@@ -71,3 +71,29 @@ dependencies = [
 # hatch run pyinstaller:build
 [tool.hatch.envs.pyinstaller.scripts]
 build = "pyinstaller generate_exe/options.spec"
+
+[tool.hatch.envs.lint]
+detached = true
+dependencies = [
+  "ruff>=0.0.261",
+  "black>=23.3.0",
+  "isort>=5.12.0"
+]
+[tool.hatch.envs.lint.scripts]
+# static analysis with ruff
+check-static = "ruff check code/"
+format = "black --check --diff --color code/"
+sort-import = "isort --check-only --diff --color code/"
+all = ["check-static", "format", "sort-import"]
+
+[tool.ruff]
+select = ["E", "F", "B"] # TODO Add D
+target-version = "py310"
+# Ignore import errors for now.
+# TODO: Ignore Line too long error in comments or check them manually
+line-length = 88
+ignore = ["F405", "F403", "E501"]
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
