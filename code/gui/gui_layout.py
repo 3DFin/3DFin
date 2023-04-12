@@ -4,7 +4,7 @@ import sys
 import tkinter as tk
 from pathlib import Path
 from tkinter import ttk
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, Optional
 
 from PIL import Image, ImageTk
 
@@ -17,7 +17,7 @@ class Application(tk.Tk):
     def __init__(
         self,
         processing_callback: Callable[
-            ["Application" | None, Dict[str, Dict[str, Any]]], None
+            [Optional["Application"], Dict[str, Dict[str, Any]]], None
         ],
     ):
         """Construct the 3DFIN GUI Application.
@@ -58,6 +58,12 @@ class Application(tk.Tk):
 
         TODO: Add license loading too.
         """
+        self.sections_img = ImageTk.PhotoImage(
+            Image.open(self._get_resource_path("section_details.png"))
+        )
+        self.sectors_img = ImageTk.PhotoImage(
+            Image.open(self._get_resource_path("sectors.png"))
+        )
         self.warning_img = ImageTk.PhotoImage(
             Image.open(self._get_resource_path("warning_img_1.png"))
         )
@@ -854,10 +860,8 @@ class Application(tk.Tk):
             child.grid_configure(padx=5, pady=5)
 
         #### Adding images
-        sections_img = ImageTk.PhotoImage(
-            Image.open(self._get_resource_path("section_details.png"))
-        )
-        ttk.Label(self.advanced_tab, image=sections_img).grid(
+
+        ttk.Label(self.advanced_tab, image=self.sections_img).grid(
             column=1, row=9, columnspan=15, sticky="W", padx=20, pady=5
         )
 
@@ -868,10 +872,7 @@ class Application(tk.Tk):
             column=1, row=10, columnspan=15, sticky="NW", padx=20, pady=5
         )
 
-        sectors_img = ImageTk.PhotoImage(
-            Image.open(self._get_resource_path("sectors.png"))
-        )
-        ttk.Label(self.advanced_tab, image=sectors_img).grid(
+        ttk.Label(self.advanced_tab, image=self.sectors_img).grid(
             column=1, row=9, columnspan=15, sticky="E", padx=20, pady=5
         )
 
@@ -1771,63 +1772,62 @@ class Application(tk.Tk):
 
         ttk.Label(self.scrollable_info, image=self.covadonga_img).grid(row=17, column=1)
 
-        f = Path.open(self._get_resource_path("License.txt"), "r")
-        gnu_license = f.read()
-
         #### license button ####
         def open_license():
-            new = tk.Toplevel(self.scrollable_info)
+            with Path(self._get_resource_path("License.txt")).open("r") as f:
+                gnu_license = f.read()
+                new = tk.Toplevel(self.scrollable_info)
 
-            # Create a frame for the canvas with non-zero row&column weights
-            license_frame_canvas = ttk.Frame(new)
-            license_frame_canvas.grid(row=0, column=0, pady=(0, 0), sticky="nw")
-            license_frame_canvas.grid_rowconfigure(0, weight=1)
-            license_frame_canvas.grid_columnconfigure(0, weight=1)
+                # Create a frame for the canvas with non-zero row&column weights
+                license_frame_canvas = ttk.Frame(new)
+                license_frame_canvas.grid(row=0, column=0, pady=(0, 0), sticky="nw")
+                license_frame_canvas.grid_rowconfigure(0, weight=1)
+                license_frame_canvas.grid_columnconfigure(0, weight=1)
 
-            # Set grid_propagate to False to allow 5-by-5 buttons resizing later
-            license_frame_canvas.grid_propagate(False)
+                # Set grid_propagate to False to allow 5-by-5 buttons resizing later
+                license_frame_canvas.grid_propagate(False)
 
-            # Add a canvas in that frame
-            license_canvas = tk.Canvas(license_frame_canvas)
-            license_canvas.grid(row=0, column=0, sticky="news")
+                # Add a canvas in that frame
+                license_canvas = tk.Canvas(license_frame_canvas)
+                license_canvas.grid(row=0, column=0, sticky="news")
 
-            # Link a scrollbar to the canvas
-            license_vsb = ttk.Scrollbar(
-                license_frame_canvas, orient="vertical", command=license_canvas.yview
-            )
-            license_vsb.grid(row=0, column=1, sticky="ns")
-            license_canvas.configure(yscrollcommand=license_vsb.set)
+                # Link a scrollbar to the canvas
+                license_vsb = ttk.Scrollbar(
+                    license_frame_canvas, orient="vertical", command=license_canvas.yview
+                )
+                license_vsb.grid(row=0, column=1, sticky="ns")
+                license_canvas.configure(yscrollcommand=license_vsb.set)
 
-            # Create a frame to contain the info
-            license_scrollable = ttk.Frame(license_canvas)
+                # Create a frame to contain the info
+                license_scrollable = ttk.Frame(license_canvas)
 
-            new.geometry("620x400")
-            new.title("LICENSE")
-            ttk.Label(
-                license_scrollable,
-                text="GNU GENERAL PUBLIC LICENSE",
-                font=("Helvetica", 10, "bold"),
-            ).grid(row=1, column=1)
+                new.geometry("620x400")
+                new.title("LICENSE")
+                ttk.Label(
+                    license_scrollable,
+                    text="GNU GENERAL PUBLIC LICENSE",
+                    font=("Helvetica", 10, "bold"),
+                ).grid(row=1, column=1)
 
-            ttk.Label(
-                license_scrollable,
-                text=gnu_license,
-                font=("Helvetica", 10),
-            ).grid(row=2, column=1, sticky="W")
+                ttk.Label(
+                    license_scrollable,
+                    text=gnu_license,
+                    font=("Helvetica", 10),
+                ).grid(row=2, column=1, sticky="W")
 
-            # Create canvas window to hold the buttons_frame.
-            license_canvas.create_window((0, 0), window=license_scrollable, anchor="nw")
+                # Create canvas window to hold the buttons_frame.
+                license_canvas.create_window((0, 0), window=license_scrollable, anchor="nw")
 
-            # Update buttons frames idle tasks to let tkinter calculate buttons sizes
-            license_scrollable.update_idletasks()
+                # Update buttons frames idle tasks to let tkinter calculate buttons sizes
+                license_scrollable.update_idletasks()
 
-            license_frame_canvas.config(width=620, height=400)
+                license_frame_canvas.config(width=620, height=400)
 
-            # Set the canvas scrolling region
-            license_canvas.config(scrollregion=license_canvas.bbox("all"))
+                # Set the canvas scrolling region
+                license_canvas.config(scrollregion=license_canvas.bbox("all"))
 
-            for child in license_scrollable.winfo_children():
-                child.grid_configure(padx=5, pady=5)
+                for child in license_scrollable.winfo_children():
+                    child.grid_configure(padx=5, pady=5)
 
         ttk.Separator(self.scrollable_info, orient="horizontal").grid(
             row=18, column=1, columnspan=3, sticky="EW"
