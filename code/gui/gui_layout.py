@@ -4,6 +4,7 @@ import sys
 import tkinter as tk
 from pathlib import Path
 from tkinter import ttk
+from typing import Any, Callable, Dict, TypeVar
 
 from PIL import Image, ImageTk
 
@@ -11,21 +12,40 @@ from .tooltip import ToolTip
 
 
 class Application(tk.Tk):
-    def __init__(self, processing_callback: callable):
+    """Encapsulate GUI creation and interactions for 3DFIN application."""
+
+    def __init__(
+        self,
+        processing_callback: Callable[
+            ["Application" | None, Dict[str, Dict[str, Any]]], None
+        ],
+    ):
+        """Construct the 3DFIN GUI Application.
+
+        Parameters
+        ----------
+        processing_callback : Callable[[Application|None, Dict[str, Dict[str, Any]]]
+            Callback/Functor that is responsible for the computing logic.
+        it is triggered by the "compute" button of the GUI.
+        """
         tk.Tk.__init__(self)
         self.processing_callback = processing_callback
         self._bootstrap()
 
     def _get_resource_path(self, relative_path: str) -> str:
-        """
-        This method allows to retrieve the path of the data used to generate the images and
-        the documentation, so they can be included in the executable
+        """Retrieve the path of the assets.
 
-            Parameters:
-                relatvie_path (str): the current relative path to the ressource
+        Assets path is different if run in a standalone fashion or run as a "script"
 
-            Returns:
-                str: the full path to the ressource
+        Parameters
+        ----------
+        relative_path : str
+            Current relative path to the ressource.
+
+        Returns
+        -------
+        return_path : str
+            Full path to the ressource.
         """
         try:
             base_path = sys._MEIPASS
@@ -33,10 +53,10 @@ class Application(tk.Tk):
             base_path = Path(__file__).absolute().parents[2] / "files"
         return str(base_path / Path(relative_path))
 
-    def _preload_images(self):
-        """
-        Centralise image loading
-        TODO(RJ): Add license loading too
+    def _preload_images(self) -> None:
+        """Centralise assets loading and expose them to class members.
+
+        TODO: Add license loading too.
         """
         self.warning_img = ImageTk.PhotoImage(
             Image.open(self._get_resource_path("warning_img_1.png"))
@@ -90,10 +110,10 @@ class Application(tk.Tk):
             Image.open(self._get_resource_path("normalized_cloud.png"))
         )
 
-    def _generate_parameters(self):
-        """
-        Generate dendromatics mandatory parameters
-        The methods tries to load a config file in the root of the source code and if it fails,
+    def _generate_parameters(self) -> None:
+        """Generate dendromatics mandatory parameters.
+
+        Try to load a config file in the root of CWD and, if it fails,
         it fallback to default parameters hardcoded here.
         """
         ### Basic parameters
@@ -294,9 +314,18 @@ class Application(tk.Tk):
             self.min_points_ground.set(config["expert"]["min_points_ground"])
             self.res_cloth.set(config["expert"]["res_cloth"])
 
-    def get_parameters(self) -> dict:
-        """Returns parameters as a dictionary"""
-        params = {}
+    def get_parameters(self) -> Dict[str, Dict[str, Any]]:
+        """Get parameters from widgets and return them organized in a dictionnary.
+
+        Returns
+        -------
+        options : Dict[str, Dict[str, Any]]
+            Dictionary of parameters. It is organised followinf the 3DFINconfig.ini file:
+            Each parameters are sorted in sub-dict ("basic", "expert", "advanced").
+            TODO: A "misc" subsection enclose all parameters needed by 3DFIN but not
+            defined in the the config file.
+        """
+        params: Dict[str, Dict[str, Any]] = {}
         params["misc"] = {}
         params["basic"] = {}
         params["expert"] = {}
@@ -477,8 +506,8 @@ class Application(tk.Tk):
 
         return params
 
-    def _create_basic_tab(self):
-        """Create the basic parameters tab (1)"""
+    def _create_basic_tab(self) -> None:
+        """Create the "basic" parameters tab (1)."""
         self.basic_tab = ttk.Frame(self.note)
         self.note.add(self.basic_tab, text="Basic")
 
@@ -727,8 +756,8 @@ class Application(tk.Tk):
             "Default value is 2.",
         )
 
-    def _create_advanced_tab(self):
-        """Create the advanced parameters tab (2)"""
+    def _create_advanced_tab(self) -> None:
+        """Create the advanced parameters tab (2)."""
         self.advanced_tab = ttk.Frame(self.note)
         self.note.add(self.advanced_tab, text="Advanced")
 
@@ -906,8 +935,8 @@ class Application(tk.Tk):
             "Default value: 0.05 meters.",
         )
 
-    def _create_expert_tab(self):
-        """Create the expert parameters tab (3)"""
+    def _create_expert_tab(self) -> None:
+        """Create the expert parameters tab (3)."""
         self.expert_tab = ttk.Frame(self.note)
 
         self.note.add(self.expert_tab, text="Expert")
@@ -1516,9 +1545,7 @@ class Application(tk.Tk):
         )
 
         def open_warning():
-            """
-            logic triggered by the warning button
-            """
+            """Logic triggered by the warning button."""
             new = tk.Toplevel(self)
             new.geometry("700x380")
             new.title("WARNING")
@@ -1589,8 +1616,8 @@ class Application(tk.Tk):
             command=open_warning,
         ).grid(column=9, row=1, columnspan=2, sticky="E")
 
-    def _create_about_tab(self):
-        """Create the about tab (4)"""
+    def _create_about_tab(self) -> None:
+        """Create the about tab (4)."""
         self.about_tab = ttk.Frame(self.note)
         self.note.add(self.about_tab, text="About")
 
@@ -1777,31 +1804,29 @@ class Application(tk.Tk):
             new.geometry("620x400")
             new.title("LICENSE")
             ttk.Label(
-                license_scrollable.scrollable_info,
+                license_scrollable,
                 text="GNU GENERAL PUBLIC LICENSE",
                 font=("Helvetica", 10, "bold"),
             ).grid(row=1, column=1)
 
             ttk.Label(
-                license_scrollable.scrollable_info,
+                license_scrollable,
                 text=gnu_license,
                 font=("Helvetica", 10),
             ).grid(row=2, column=1, sticky="W")
 
             # Create canvas window to hold the buttons_frame.
-            license_canvas.create_window(
-                (0, 0), window=license_scrollable.scrollable_info, anchor="nw"
-            )
+            license_canvas.create_window((0, 0), window=license_scrollable, anchor="nw")
 
             # Update buttons frames idle tasks to let tkinter calculate buttons sizes
-            license_scrollable.scrollable_info.update_idletasks()
+            license_scrollable.update_idletasks()
 
             license_frame_canvas.config(width=620, height=400)
 
             # Set the canvas scrolling region
             license_canvas.config(scrollregion=license_canvas.bbox("all"))
 
-            for child in license_scrollable.scrollable_info.winfo_children():
+            for child in license_scrollable.winfo_children():
                 child.grid_configure(padx=5, pady=5)
 
         ttk.Separator(self.scrollable_info, orient="horizontal").grid(
@@ -1831,24 +1856,24 @@ class Application(tk.Tk):
         # Set the canvas scrolling region
         canvas.config(scrollregion=canvas.bbox("all"))
 
-    def run(self):
-        """
-        TODO: This is a temporary method. One of the last milestone before the final design
-        it runs the GUI and return the options dictionary when the user quit the GUI in order
-        to match the current behavior (the processing button quit the GUI)
+    def run(self) -> Dict[str, Dict[str, Any]]:
+        """Run the GUI main loop and return the parameters when it quits.
+
+        Returns
+        -------
+        options : Dict[str, Dict[str, Any]]
+            parameters from the GUI
         """
         self.mainloop()
         return self.get_parameters()
 
-    def run_callback_and_destroy(self):
-        """
-        This method runs the processing callback and eventually destroys the GUI application
-        """
+    def run_callback_and_destroy(self) -> None:
+        """Run the processing callback and destroy the GUI application."""
         self.processing_callback(self, self.get_parameters())
         self.destroy()
 
     def _bootstrap(self):
-        """Create the GUI"""
+        """Create the GUI."""
         self._preload_images()
         self._generate_parameters()
 
