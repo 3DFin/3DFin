@@ -60,15 +60,15 @@ class ToolTip(object):
     @classmethod
     def create(cls, widget: tk.Widget, text: str) -> None:
         """Create and attach a ToolTip to a given widget.
-        
-        A ToolTip object is created. It holds a reference to the Widget 
+
+        A ToolTip object is created. It holds a reference to the Widget
         and binds "mouse enter" and "mouse leave" events to ad hoc ToolTip methods.
 
         Parameters
         ----------
-        widget : tk.Widget 
+        widget : tk.Widget
             The widget documented by the ToolTip instance.
-        text : str 
+        text : str
             The text to be shown in the window.
         """
         toolTip = cls(widget)
