@@ -9,7 +9,8 @@ from gui.gui_layout import Application
 
 
 def fin_processing(fin_app: Application, params: dict):
-    """
+    """3DFIN main algorithm.
+
     -----------------------------------------------------------------------------
     ------------------        General Description          ----------------------
     -----------------------------------------------------------------------------
@@ -34,18 +35,17 @@ def fin_processing(fin_app: Application, params: dict):
     ------------------   Heights in the input .LAS file    ----------------------
     -----------------------------------------------------------------------------
 
-        This script uses Z and Z0 to describe coordinates referring to 'heights'.
-            - Z refers to the originally captured elevation in the point cloud
-            - Z0 refers to a normalized height (elevation from the ground).
-        This script needs normalized heights to work, but also admits elevation
-        coordinates and preserves them in the outputs, as additional information
-        Then, the input point cloud might include just just Z0, or both Z and Z0.
+    This script uses Z and Z0 to describe coordinates referring to 'heights'.
+        - Z refers to the originally captured elevation in the point cloud
+        - Z0 refers to a normalized height (elevation from the ground).
+    This script needs normalized heights to work, but also admits elevation
+    coordinates and preserves them in the outputs, as additional information
+    Then, the input point cloud might include just just Z0, or both Z and Z0.
 
-        Before running script, it should be checked where are the normalized heights stored in the input file: 'z' or another field.
-        The name of that field is one of the basic input parameters:
-            - field_name_z0: Name of the field containing the height normalized data in the .LAS file.
-        If the normalized heights are stored in the z coordinate of the .LAS file, the value of field_name_z0 will be ‘z’ (lowercase).
-
+    Before running script, it should be checked where are the normalized heights stored in the input file: 'z' or another field.
+    The name of that field is one of the basic input parameters:
+        - field_name_z0: Name of the field containing the height normalized data in the .LAS file.
+    If the normalized heights are stored in the z coordinate of the .LAS file, the value of field_name_z0 will be 'z' (lowercase).
 
     -----------------------------------------------------------------------------
     ------------------                Outputs              ----------------------
@@ -73,13 +73,12 @@ def fin_processing(fin_app: Application, params: dict):
     •	[original file name]_X_c: Text file containing the (x) coordinate of the centre of every section of every tree as tabular data.
     •	[original file name]_Y_c: Text file containing the (y) coordinate of the centre of every section of every tree as tabular data.
     •	[original file name]_diameters: Text file containing the diameter of every section of every tree as tabular data.
-    •	[original file name]_outliers: Text file containing the ‘outlier probability’ of every section of every tree as tabular data.
+    •	[original file name]_outliers: Text file containing the 'outlier probability' of every section of every tree as tabular data.
     •	[original file name]_sector_perct: Text file containing the sector occupancy of every section of every tree as tabular data.
-    •	[original file name]_check_circle: Text file containing the ‘check’ status of every section of every tree as tabular data.
+    •	[original file name]_check_circle: Text file containing the 'check' status of every section of every tree as tabular data.
     •	[original file name]_n_points_in: Text file containing the number of points within the inner circle of every section of every tree as tabular data.
     •	[original file name]_sections: Text file containing the sections as a vector.
     """
-
     # -------------------------------------------------------------------------------------------------
     # NON MODIFIABLE. These parameters should never be modified by the user.
     # -------------------------------------------------------------------------------------------------
@@ -88,8 +87,8 @@ def fin_processing(fin_app: Application, params: dict):
     Y_field = 1  # Which column contains Y field  - NON MODIFIABLE
     Z_field = 2  # Which column contains Z field  - NON MODIFIABLE
 
-    Z0_field = 3  # Which column contains Z0 field  - NON MODIFIABLE
-    tree_id_field = 4  # Which column contains tree ID field  - NON MODIFIABLE
+    # Z0_field = 3  # Which column contains Z0 field  - Unused - NON MODIFIABLE
+    # tree_id_field = 4  # Which column contains tree ID field  - Unused - NON MODIFIABLE
     n_digits = 5  # Number of digits for voxel encoding.
 
     # --- Import file --- #
@@ -436,7 +435,9 @@ def fin_processing(fin_app: Application, params: dict):
     las_tree_locations.x = tree_locations[:, 0]
     las_tree_locations.y = tree_locations[:, 1]
     las_tree_locations.z = tree_locations[:, 2]
-    las_tree_locations.add_extra_dim(laspy.ExtraBytesParams(name="diameters", type=np.float64))
+    las_tree_locations.add_extra_dim(
+        laspy.ExtraBytesParams(name="diameters", type=np.float64)
+    )
     las_tree_locations.diameters = dbh_values[:, 0]
 
     las_tree_locations.write(filename_las[:-4] + "_tree_locator.las")
@@ -514,7 +515,7 @@ def fin_processing(fin_app: Application, params: dict):
         )
 
         # Description to be added to each excel sheet.
-        info_diameters = """Diameter of every section (S) of every tree (T). 
+        info_diameters = """Diameter of every section (S) of every tree (T).
             Units are meters.
             """
         info_X_c = (

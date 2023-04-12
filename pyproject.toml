@@ -71,3 +71,37 @@ dependencies = [
 # hatch run pyinstaller:build
 [tool.hatch.envs.pyinstaller.scripts]
 build = "pyinstaller generate_exe/options.spec"
+
+[tool.hatch.envs.lint]
+detached = true
+dependencies = [
+  "ruff>=0.0.261",
+  "black>=23.3.0",
+  "isort>=5.12.0"
+]
+[tool.hatch.envs.lint.scripts]
+# static analysis with ruff
+check-static = "ruff check code/"
+format = "black --check --diff --color code/"
+sort-import = "isort --check-only --diff --color code/"
+all = ["check-static", "format", "sort-import"]
+
+[tool.ruff]
+select = ["E", "W", "YTT", "PTH", "NPY", "RET", "PYI", "Q", "F", "B", "I", "D"]
+target-version = "py310"
+line-length = 88
+# TODO: for now we ignore "Line too long error (E501)" 
+# because our comments are too longs
+# Black will take care of the line lenght in code anyway
+ignore = ["E501", 
+# Ignore docstring in public package and module
+  "D100", "D104",
+# Blank line bedore class
+  "D203",
+# multiline summary second line
+  "D213"
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
