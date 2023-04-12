@@ -4,27 +4,48 @@ import sys
 import tkinter as tk
 from pathlib import Path
 from tkinter import ttk
+from typing import Any, Callable, Dict
+
+from PIL import Image, ImageTk
 
 from .tooltip import ToolTip
-from PIL import Image, ImageTk
 
 
 class Application(tk.Tk):
-    def __init__(self, processing_callback: callable):
+    """Encapsulate GUI creation and interactions for 3DFIN application."""
+
+    def __init__(
+        self,
+        processing_callback: Callable[
+            ["Application" | None, Dict[str, Dict[str, Any]]], None
+        ],
+    ):
+        """Construct the 3DFIN GUI Application.
+
+        Parameters
+        ----------
+        processing_callback : Callable[[Application|None, Dict[str, Dict[str, Any]]]
+            Callback/Functor that is responsible for the computing logic.
+        it is triggered by the "compute" button of the GUI.
+        """
         tk.Tk.__init__(self)
         self.processing_callback = processing_callback
         self._bootstrap()
 
     def _get_resource_path(self, relative_path: str) -> str:
-        """
-        This method allows to retrieve the path of the data used to generate the images and
-        the documentation, so they can be included in the executable
+        """Retrieve the path of the assets.
 
-            Parameters:
-                relatvie_path (str): the current relative path to the ressource
+        Assets path is different if run in a standalone fashion or run as a "script"
 
-            Returns:
-                str: the full path to the ressource
+        Parameters
+        ----------
+        relative_path : str
+            Current relative path to the ressource.
+
+        Returns
+        -------
+        return_path : str
+            Full path to the ressource.
         """
         try:
             base_path = sys._MEIPASS
@@ -32,10 +53,10 @@ class Application(tk.Tk):
             base_path = Path(__file__).absolute().parents[2] / "files"
         return str(base_path / Path(relative_path))
 
-    def _preload_images(self):
-        """
-        Centralise image loading
-        TODO(RJ): Add license loading too
+    def _preload_images(self) -> None:
+        """Centralise assets loading and expose them to class members.
+
+        TODO: Add license loading too.
         """
         self.warning_img = ImageTk.PhotoImage(
             Image.open(self._get_resource_path("warning_img_1.png"))
@@ -89,10 +110,10 @@ class Application(tk.Tk):
             Image.open(self._get_resource_path("normalized_cloud.png"))
         )
 
-    def _generate_parameters(self):
-        """
-        Generate dendromatics mandatory parameters
-        The methods tries to load a config file in the root of the source code and if it fails,
+    def _generate_parameters(self) -> None:
+        """Generate dendromatics mandatory parameters.
+
+        Try to load a config file in the root of CWD and, if it fails,
         it fallback to default parameters hardcoded here.
         """
         ### Basic parameters
@@ -110,7 +131,7 @@ class Application(tk.Tk):
         self.section_wid = tk.StringVar()
 
         ### Expert parameters
-        # Stem identification 
+        # Stem identification
         self.res_xy_stripe = tk.StringVar()
         self.res_z_stripe = tk.StringVar()
         self.number_of_points = tk.StringVar()
@@ -293,9 +314,18 @@ class Application(tk.Tk):
             self.min_points_ground.set(config["expert"]["min_points_ground"])
             self.res_cloth.set(config["expert"]["res_cloth"])
 
-    def get_parameters(self) -> dict:
-        """Returns parameters as a dictionary"""
-        params = {}
+    def get_parameters(self) -> Dict[str, Dict[str, Any]]:
+        """Get parameters from widgets and return them organized in a dictionnary.
+
+        Returns
+        -------
+        options : Dict[str, Dict[str, Any]]
+            Dictionary of parameters. It is organised followinf the 3DFINconfig.ini file:
+            Each parameters are sorted in sub-dict ("basic", "expert", "advanced").
+            TODO: A "misc" subsection enclose all parameters needed by 3DFIN but not
+            defined in the the config file.
+        """
+        params: Dict[str, Dict[str, Any]] = {}
         params["misc"] = {}
         params["basic"] = {}
         params["expert"] = {}
@@ -311,7 +341,9 @@ class Application(tk.Tk):
         # All parameters are in m or points
         # -------------------------------------------------------------------------------------------------
 
-        params["basic"]["z0_name"] = (
+        params["basic"][
+            "z0_name"
+        ] = (
             self.z0_name.get()
         )  # Name of the Z0 field in the LAS file containing the cloud.
         # If the normalized heights are stored in the Z coordinate of the .LAS file: field_name_z0 = "z" (lowercase)
@@ -401,7 +433,7 @@ class Application(tk.Tk):
 
         params["expert"]["verticality_scale_stems"] = float(
             self.verticality_scale_stems.get()
-        )   # DBSCAN minimum number of points during stem identification
+        )  # DBSCAN minimum number of points during stem identification
         params["expert"]["verticality_thresh_stems"] = float(
             self.verticality_thresh_stems.get()
         )  # Verticality threshold durig stem identification
@@ -474,8 +506,8 @@ class Application(tk.Tk):
 
         return params
 
-    def _create_basic_tab(self):
-        """Create the basic parameters tab (1)"""
+    def _create_basic_tab(self) -> None:
+        """Create the "basic" parameters tab (1)."""
         self.basic_tab = ttk.Frame(self.note)
         self.note.add(self.basic_tab, text="Basic")
 
@@ -540,18 +572,18 @@ class Application(tk.Tk):
         )
 
         #### Text displaying info
-        insert_text1 = """This program implements an algorithm to detect the trees present in a ground-based 
+        insert_text1 = """This program implements an algorithm to detect the trees present in a ground-based
         3D point cloud from a forest plot, and compute individual tree parameters: tree height,
-        tree location, diameters along the stem (including DBH), and stem axis. 
+        tree location, diameters along the stem (including DBH), and stem axis.
 
         It takes a .LAS/.LAZ file as input, which may contain extra fields (.LAS standard
-        or not). Also, the input point cloud can come from terrestrial photogrammetry, 
-        TLS or mobile (e.g. hand-held) LS, a combination of those, and/or a combination 
-        of those with UAV-(LS or SfM), or ALS. 
+        or not). Also, the input point cloud can come from terrestrial photogrammetry,
+        TLS or mobile (e.g. hand-held) LS, a combination of those, and/or a combination
+        of those with UAV-(LS or SfM), or ALS.
 
         After all computations are done, it outputs several .LAS files containing resulting
-        point clouds and a XLSX file storing tabular data. Optionally, tabular data may be 
-        output as text files instead of the Excel spreadsheet if preferred. 
+        point clouds and a XLSX file storing tabular data. Optionally, tabular data may be
+        output as text files instead of the Excel spreadsheet if preferred.
 
 
         Further details may be found in next tabs and in the documentation.
@@ -724,8 +756,8 @@ class Application(tk.Tk):
             "Default value is 2.",
         )
 
-    def _create_advanced_tab(self):
-        """Create the advanced parameters tab (2)"""
+    def _create_advanced_tab(self) -> None:
+        """Create the advanced parameters tab (2)."""
         self.advanced_tab = ttk.Frame(self.note)
         self.note.add(self.advanced_tab, text="Advanced")
 
@@ -793,12 +825,12 @@ class Application(tk.Tk):
 
         #### Text displaying info ###
         insert_text2 = """If the results obtained by just tweaking basic parameters do not meet your expectations,
-        you might want to modify these. 
+        you might want to modify these.
 
         You can get a brief description of what they do by hovering the mouse over the info icon
         right before each parameter. However, keep in mind that a thorough understanding is
         advisable before changing these. For that, you can get a better grasp of what the algo-
-        rithm does in the attached documentation. You can easily access it through the 
+        rithm does in the attached documentation. You can easily access it through the
         Documentation button in the bottom-left corner.
         """
 
@@ -829,7 +861,7 @@ class Application(tk.Tk):
             column=1, row=9, columnspan=15, sticky="W", padx=20, pady=5
         )
 
-        sections_text = """A) Sections along the stem B) Detail of computed sections showing the distance 
+        sections_text = """A) Sections along the stem B) Detail of computed sections showing the distance
         between them and their width C) Circle fitting to the points of a section.
         """
         ttk.Label(self.advanced_tab, text=sections_text).grid(
@@ -903,8 +935,8 @@ class Application(tk.Tk):
             "Default value: 0.05 meters.",
         )
 
-    def _create_expert_tab(self):
-        """Create the expert parameters tab (3)"""
+    def _create_expert_tab(self) -> None:
+        """Create the expert parameters tab (3)."""
         self.expert_tab = ttk.Frame(self.note)
 
         self.note.add(self.expert_tab, text="Expert")
@@ -1513,9 +1545,7 @@ class Application(tk.Tk):
         )
 
         def open_warning():
-            """
-            logic triggered by the warning button
-            """
+            """Logic triggered by the warning button."""
             new = tk.Toplevel(self)
             new.geometry("700x380")
             new.title("WARNING")
@@ -1586,8 +1616,8 @@ class Application(tk.Tk):
             command=open_warning,
         ).grid(column=9, row=1, columnspan=2, sticky="E")
 
-    def _create_about_tab(self):
-        """Create the about tab (4)"""
+    def _create_about_tab(self) -> None:
+        """Create the about tab (4)."""
         self.about_tab = ttk.Frame(self.note)
         self.note.add(self.about_tab, text="About")
 
@@ -1596,16 +1626,16 @@ class Application(tk.Tk):
         csic_project = """‘Advancing carbon emission estimations from wildfires applying artificial intelligence to 3D terrestrial point clouds’"""
 
         ### TEAM MEMBERS ###
-        carloscabo = """Carlos Cabo (carloscabo.uniovi@gmail.com). PhD in Geomatics. 'Maria Zambrano' Research Fellow at Department of 
-        Mining Exploitation, University of Oviedo and Honorary Appointment at Science and Engineering Faculty, Swansea 
+        carloscabo = """Carlos Cabo (carloscabo.uniovi@gmail.com). PhD in Geomatics. 'Maria Zambrano' Research Fellow at Department of
+        Mining Exploitation, University of Oviedo and Honorary Appointment at Science and Engineering Faculty, Swansea
         University. Research fields: Spatial analysis, cartography, geomatics."""
 
         diegolaino = """Diego Laino (diegolainor@gmail.com). PhD student in Natural Resources Engineering at Department of Mining Exploit-
         ation, University of Oviedo. Assist. Researcher at Centre for Wildfire Research, Geography Department, Swansea Univer-
         sity. Research fields: deep learning, remote sensing, forestry."""
 
-        crissantin = """Cristina Santin (c.santin@csic.es). Research fellow at the Research Institute of Biodiversity (CSIC-University of Oviedo 
-        - Principality of Asturias, Spain) and Honorary Assoc. Professor at the Biosciences Department of Swansea University. 
+        crissantin = """Cristina Santin (c.santin@csic.es). Research fellow at the Research Institute of Biodiversity (CSIC-University of Oviedo
+        - Principality of Asturias, Spain) and Honorary Assoc. Professor at the Biosciences Department of Swansea University.
         Research fields: environmental impacts of wildfires."""
 
         stefandoerr = """Stefan Doerr (s.doerr@swansea.ac.uk). PhD in Geography. Full Professor at the Geography Department, Swansea Univer-
@@ -1613,15 +1643,15 @@ class Application(tk.Tk):
         wildfires, landscape carbon dynamics, soils, water quality, ecosystem services."""
 
         celestinoordonez = """Celestino Ordonez (ordonezcelestino@uniovi.es). PhD in Mine Engineering. Full professor at Department of Mining Ex-
-        ploitation, University of Oviedo. Main researcher at GEOGRAPH research group. Research fields: Spatial analysis, laser 
+        ploitation, University of Oviedo. Main researcher at GEOGRAPH research group. Research fields: Spatial analysis, laser
         scanning, photogrammetry."""
 
-        tadasnikonovas = """Tadas Nikonovas (tadas.nikonovas@swansea.ac.uk). PhD in Geography. Office Researcher at Centre for Wildfire Research, 
-        Geography Department, Swansea University. Research fields: Global fire activity, atmospheric emissions, fire occurrence 
+        tadasnikonovas = """Tadas Nikonovas (tadas.nikonovas@swansea.ac.uk). PhD in Geography. Office Researcher at Centre for Wildfire Research,
+        Geography Department, Swansea University. Research fields: Global fire activity, atmospheric emissions, fire occurrence
         modelling."""
 
-        covadongaprendes = """Covadonga Prendes (cprendes@cetemas.es). PhD in Geomatics. Forest engineer and researcher at CETEMAS (Forest and 
-        Wood Technology Research Centre Foundation). Geomatics research group. Research fields: LiDAR, sustainable forestry 
+        covadongaprendes = """Covadonga Prendes (cprendes@cetemas.es). PhD in Geomatics. Forest engineer and researcher at CETEMAS (Forest and
+        Wood Technology Research Centre Foundation). Geomatics research group. Research fields: LiDAR, sustainable forestry
         development, spatial analysis. """
 
         ### SCROLLBAR ###
@@ -1648,7 +1678,9 @@ class Application(tk.Tk):
 
         # Copyright notice #
         copyright_1_lab = ttk.Label(
-            self.scrollable_info, text=self.copyright_info_1, font=("Helvetica", 10, "bold")
+            self.scrollable_info,
+            text=self.copyright_info_1,
+            font=("Helvetica", 10, "bold"),
         )
         copyright_1_lab.grid(row=1, column=1, columnspan=3)
 
@@ -1739,7 +1771,7 @@ class Application(tk.Tk):
 
         ttk.Label(self.scrollable_info, image=self.covadonga_img).grid(row=17, column=1)
 
-        f = open(self._get_resource_path("License.txt"), "r")
+        f = Path.open(self._get_resource_path("License.txt"), "r")
         gnu_license = f.read()
 
         #### license button ####
@@ -1772,31 +1804,29 @@ class Application(tk.Tk):
             new.geometry("620x400")
             new.title("LICENSE")
             ttk.Label(
-                license_scrollable.scrollable_info,
+                license_scrollable,
                 text="GNU GENERAL PUBLIC LICENSE",
                 font=("Helvetica", 10, "bold"),
             ).grid(row=1, column=1)
 
             ttk.Label(
-                license_scrollable.scrollable_info,
+                license_scrollable,
                 text=gnu_license,
                 font=("Helvetica", 10),
             ).grid(row=2, column=1, sticky="W")
 
             # Create canvas window to hold the buttons_frame.
-            license_canvas.create_window(
-                (0, 0), window=license_scrollable.scrollable_info, anchor="nw"
-            )
+            license_canvas.create_window((0, 0), window=license_scrollable, anchor="nw")
 
             # Update buttons frames idle tasks to let tkinter calculate buttons sizes
-            license_scrollable.scrollable_info.update_idletasks()
+            license_scrollable.update_idletasks()
 
             license_frame_canvas.config(width=620, height=400)
 
             # Set the canvas scrolling region
             license_canvas.config(scrollregion=license_canvas.bbox("all"))
 
-            for child in license_scrollable.scrollable_info.winfo_children():
+            for child in license_scrollable.winfo_children():
                 child.grid_configure(padx=5, pady=5)
 
         ttk.Separator(self.scrollable_info, orient="horizontal").grid(
@@ -1826,24 +1856,24 @@ class Application(tk.Tk):
         # Set the canvas scrolling region
         canvas.config(scrollregion=canvas.bbox("all"))
 
-    def run(self):
-        """
-        TODO: This is a temporary method. One of the last milestone before the final design
-        it runs the GUI and return the options dictionary when the user quit the GUI in order
-        to match the current behavior (the processing button quit the GUI)
+    def run(self) -> Dict[str, Dict[str, Any]]:
+        """Run the GUI main loop and return the parameters when it quits.
+
+        Returns
+        -------
+        options : Dict[str, Dict[str, Any]]
+            parameters from the GUI
         """
         self.mainloop()
         return self.get_parameters()
-    
-    def run_callback_and_destroy(self):
-        """
-        This method runs the processing callback and eventually destroys the GUI application
-        """
+
+    def run_callback_and_destroy(self) -> None:
+        """Run the processing callback and destroy the GUI application."""
         self.processing_callback(self, self.get_parameters())
         self.destroy()
 
     def _bootstrap(self):
-        """Create the GUI"""
+        """Create the GUI."""
         self._preload_images()
         self._generate_parameters()
 
@@ -1866,8 +1896,8 @@ class Application(tk.Tk):
         )
 
         # about the project
-        self.about_1 = """This software has been developed at the Centre of Wildfire Research of Swansea University (UK) in collaboration with the Research Institute of 
-        Biodiversity (CSIC, Spain) and the Department of Mining Exploitation of the University of Oviedo (Spain). Funding provided by the UK NERC 
+        self.about_1 = """This software has been developed at the Centre of Wildfire Research of Swansea University (UK) in collaboration with the Research Institute of
+        Biodiversity (CSIC, Spain) and the Department of Mining Exploitation of the University of Oviedo (Spain). Funding provided by the UK NERC
         project (NE/T001194/1):"""
         self.about_2 = """and by the Spanish Knowledge Generation project (PID2021-126790NB-I00):"""
 
