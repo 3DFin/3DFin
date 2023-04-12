@@ -87,12 +87,13 @@ sort-import = "isort --check-only --diff --color code/"
 all = ["check-static", "format", "sort-import"]
 
 [tool.ruff]
-select = ["E", "F", "B"] # TODO Add D
+select = ["E", "F", "B", "I"]
 target-version = "py310"
-# Ignore import errors for now.
-# TODO: Ignore Line too long error in comments or check them manually
 line-length = 88
-ignore = ["F405", "F403", "E501"]
+# TODO: for now we ignore "Line too long error (E501)" 
+# because our comments are too longs
+# Black will take care of the line lenght in code anyway
+ignore = ["E501"]
 
 [tool.black]
 line-length = 88

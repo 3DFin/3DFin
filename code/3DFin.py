@@ -88,8 +88,8 @@ def fin_processing(fin_app: Application, params: dict):
     Y_field = 1  # Which column contains Y field  - NON MODIFIABLE
     Z_field = 2  # Which column contains Z field  - NON MODIFIABLE
 
-    Z0_field = 3  # Which column contains Z0 field  - NON MODIFIABLE
-    tree_id_field = 4  # Which column contains tree ID field  - NON MODIFIABLE
+    # Z0_field = 3  # Which column contains Z0 field  - Unused - NON MODIFIABLE
+    # tree_id_field = 4  # Which column contains tree ID field  - Unused - NON MODIFIABLE
     n_digits = 5  # Number of digits for voxel encoding.
 
     # --- Import file --- #
@@ -436,7 +436,9 @@ def fin_processing(fin_app: Application, params: dict):
     las_tree_locations.x = tree_locations[:, 0]
     las_tree_locations.y = tree_locations[:, 1]
     las_tree_locations.z = tree_locations[:, 2]
-    las_tree_locations.add_extra_dim(laspy.ExtraBytesParams(name="diameters", type=np.float64))
+    las_tree_locations.add_extra_dim(
+        laspy.ExtraBytesParams(name="diameters", type=np.float64)
+    )
     las_tree_locations.diameters = dbh_values[:, 0]
 
     las_tree_locations.write(filename_las[:-4] + "_tree_locator.las")

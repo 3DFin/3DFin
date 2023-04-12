@@ -5,8 +5,9 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import ttk
 
-from .tooltip import ToolTip
 from PIL import Image, ImageTk
+
+from .tooltip import ToolTip
 
 
 class Application(tk.Tk):
@@ -110,7 +111,7 @@ class Application(tk.Tk):
         self.section_wid = tk.StringVar()
 
         ### Expert parameters
-        # Stem identification 
+        # Stem identification
         self.res_xy_stripe = tk.StringVar()
         self.res_z_stripe = tk.StringVar()
         self.number_of_points = tk.StringVar()
@@ -311,7 +312,9 @@ class Application(tk.Tk):
         # All parameters are in m or points
         # -------------------------------------------------------------------------------------------------
 
-        params["basic"]["z0_name"] = (
+        params["basic"][
+            "z0_name"
+        ] = (
             self.z0_name.get()
         )  # Name of the Z0 field in the LAS file containing the cloud.
         # If the normalized heights are stored in the Z coordinate of the .LAS file: field_name_z0 = "z" (lowercase)
@@ -401,7 +404,7 @@ class Application(tk.Tk):
 
         params["expert"]["verticality_scale_stems"] = float(
             self.verticality_scale_stems.get()
-        )   # DBSCAN minimum number of points during stem identification
+        )  # DBSCAN minimum number of points during stem identification
         params["expert"]["verticality_thresh_stems"] = float(
             self.verticality_thresh_stems.get()
         )  # Verticality threshold durig stem identification
@@ -1648,7 +1651,9 @@ class Application(tk.Tk):
 
         # Copyright notice #
         copyright_1_lab = ttk.Label(
-            self.scrollable_info, text=self.copyright_info_1, font=("Helvetica", 10, "bold")
+            self.scrollable_info,
+            text=self.copyright_info_1,
+            font=("Helvetica", 10, "bold"),
         )
         copyright_1_lab.grid(row=1, column=1, columnspan=3)
 
@@ -1834,7 +1839,7 @@ class Application(tk.Tk):
         """
         self.mainloop()
         return self.get_parameters()
-    
+
     def run_callback_and_destroy(self):
         """
         This method runs the processing callback and eventually destroys the GUI application
