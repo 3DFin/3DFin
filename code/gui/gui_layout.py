@@ -247,7 +247,7 @@ class Application(tk.Tk):
             # Other parameters
             self.res_ground.set("0.15")
             self.min_points_ground.set("2")
-            self.res_cloth.set("2")
+            self.res_cloth.set("0.7")
 
         else:
             print("Configuration file found. Default parameters have been established.")
@@ -1542,7 +1542,7 @@ class Application(tk.Tk):
             res_cloth_info,
             text="Initial cloth grid resolution to generate the DTM that\n"
             "be used to compute normalized heights.\n"
-            "Default value: 0.5.",
+            "Default value: 0.7.",
         )
 
         def open_warning():
