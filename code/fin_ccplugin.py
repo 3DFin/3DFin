@@ -3,7 +3,6 @@ import timeit
 import dendromatics as dm
 import numpy as np
 import pycc
-import ctypes
 from gui.gui_layout import Application
 
 
@@ -321,7 +320,7 @@ class CCPluginFinProcessing:
             Y_c,
             R,
             check_circle,
-            second_time,
+            _,
             sector_perct,
             n_points_in,
         ) = dm.compute_sections(
@@ -473,6 +472,8 @@ def _create_app_and_run(plugin_functor: CCPluginFinProcessing):
     # TODO: we do not know how it's handled in other OSes.
     import ctypes
     import platform
+    import tempfile
+    import os
 
     awareness_code = ctypes.c_int()
     if platform.system() == "Windows" and (
@@ -483,8 +484,20 @@ def _create_app_and_run(plugin_functor: CCPluginFinProcessing):
             ctypes.windll.user32.SetThreadDpiAwarenessContext(
                 ctypes.wintypes.HANDLE(-1)
             )
-    fin_app = Application(plugin_functor)
-    fin_app.run()
+    # A quick fix for the fact that CSF write a file in cwd
+    current_cwd = os.getcwd()
+    try:
+        csf_temp_dir = tempfile.TemporaryDirectory()
+        print(f"setting current working directory to {csf_temp_dir.name}")
+        os.chdir(csf_temp_dir.name)
+        fin_app = Application(plugin_functor)
+        fin_app.run()
+    # except:
+    # ...
+    finally:
+        print(f"cleaning and setting back current working directory to default")
+        os.chdir(current_cwd)
+        csf_temp_dir.cleanup()
 
 
 def main_cloudcompare():
@@ -513,7 +526,7 @@ def main_cloudcompare():
     plugin_functor = CCPluginFinProcessing(cc, point_cloud, z0_name)
 
     cc.freezeUI(True)
-    #TODO: catch exceptions into modals.
+    # TODO: catch exceptions into modals.
     pycc.RunInThread(_create_app_and_run, plugin_functor)
     cc.freezeUI(False)
     cc.updateUI()
