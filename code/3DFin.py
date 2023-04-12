@@ -515,7 +515,7 @@ def fin_processing(fin_app: Application, params: dict):
         )
 
         # Description to be added to each excel sheet.
-        info_diameters = """Diameter of every section (S) of every tree (T). 
+        info_diameters = """Diameter of every section (S) of every tree (T).
             Units are meters.
             """
         info_X_c = (

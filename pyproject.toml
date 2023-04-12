@@ -87,7 +87,7 @@ sort-import = "isort --check-only --diff --color code/"
 all = ["check-static", "format", "sort-import"]
 
 [tool.ruff]
-select = ["E", "F", "B", "I", "D"]
+select = ["E", "W", "YTT", "PTH", "NPY", "RET", "PYI", "Q", "F", "B", "I", "D"]
 target-version = "py310"
 line-length = 88
 # TODO: for now we ignore "Line too long error (E501)" 

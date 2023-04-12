@@ -4,7 +4,7 @@ import sys
 import tkinter as tk
 from pathlib import Path
 from tkinter import ttk
-from typing import Any, Callable, Dict, TypeVar
+from typing import Any, Callable, Dict
 
 from PIL import Image, ImageTk
 
@@ -572,18 +572,18 @@ class Application(tk.Tk):
         )
 
         #### Text displaying info
-        insert_text1 = """This program implements an algorithm to detect the trees present in a ground-based 
+        insert_text1 = """This program implements an algorithm to detect the trees present in a ground-based
         3D point cloud from a forest plot, and compute individual tree parameters: tree height,
-        tree location, diameters along the stem (including DBH), and stem axis. 
+        tree location, diameters along the stem (including DBH), and stem axis.
 
         It takes a .LAS/.LAZ file as input, which may contain extra fields (.LAS standard
-        or not). Also, the input point cloud can come from terrestrial photogrammetry, 
-        TLS or mobile (e.g. hand-held) LS, a combination of those, and/or a combination 
-        of those with UAV-(LS or SfM), or ALS. 
+        or not). Also, the input point cloud can come from terrestrial photogrammetry,
+        TLS or mobile (e.g. hand-held) LS, a combination of those, and/or a combination
+        of those with UAV-(LS or SfM), or ALS.
 
         After all computations are done, it outputs several .LAS files containing resulting
-        point clouds and a XLSX file storing tabular data. Optionally, tabular data may be 
-        output as text files instead of the Excel spreadsheet if preferred. 
+        point clouds and a XLSX file storing tabular data. Optionally, tabular data may be
+        output as text files instead of the Excel spreadsheet if preferred.
 
 
         Further details may be found in next tabs and in the documentation.
@@ -825,12 +825,12 @@ class Application(tk.Tk):
 
         #### Text displaying info ###
         insert_text2 = """If the results obtained by just tweaking basic parameters do not meet your expectations,
-        you might want to modify these. 
+        you might want to modify these.
 
         You can get a brief description of what they do by hovering the mouse over the info icon
         right before each parameter. However, keep in mind that a thorough understanding is
         advisable before changing these. For that, you can get a better grasp of what the algo-
-        rithm does in the attached documentation. You can easily access it through the 
+        rithm does in the attached documentation. You can easily access it through the
         Documentation button in the bottom-left corner.
         """
 
@@ -861,7 +861,7 @@ class Application(tk.Tk):
             column=1, row=9, columnspan=15, sticky="W", padx=20, pady=5
         )
 
-        sections_text = """A) Sections along the stem B) Detail of computed sections showing the distance 
+        sections_text = """A) Sections along the stem B) Detail of computed sections showing the distance
         between them and their width C) Circle fitting to the points of a section.
         """
         ttk.Label(self.advanced_tab, text=sections_text).grid(
@@ -1626,16 +1626,16 @@ class Application(tk.Tk):
         csic_project = """‘Advancing carbon emission estimations from wildfires applying artificial intelligence to 3D terrestrial point clouds’"""
 
         ### TEAM MEMBERS ###
-        carloscabo = """Carlos Cabo (carloscabo.uniovi@gmail.com). PhD in Geomatics. 'Maria Zambrano' Research Fellow at Department of 
-        Mining Exploitation, University of Oviedo and Honorary Appointment at Science and Engineering Faculty, Swansea 
+        carloscabo = """Carlos Cabo (carloscabo.uniovi@gmail.com). PhD in Geomatics. 'Maria Zambrano' Research Fellow at Department of
+        Mining Exploitation, University of Oviedo and Honorary Appointment at Science and Engineering Faculty, Swansea
         University. Research fields: Spatial analysis, cartography, geomatics."""
 
         diegolaino = """Diego Laino (diegolainor@gmail.com). PhD student in Natural Resources Engineering at Department of Mining Exploit-
         ation, University of Oviedo. Assist. Researcher at Centre for Wildfire Research, Geography Department, Swansea Univer-
         sity. Research fields: deep learning, remote sensing, forestry."""
 
-        crissantin = """Cristina Santin (c.santin@csic.es). Research fellow at the Research Institute of Biodiversity (CSIC-University of Oviedo 
-        - Principality of Asturias, Spain) and Honorary Assoc. Professor at the Biosciences Department of Swansea University. 
+        crissantin = """Cristina Santin (c.santin@csic.es). Research fellow at the Research Institute of Biodiversity (CSIC-University of Oviedo
+        - Principality of Asturias, Spain) and Honorary Assoc. Professor at the Biosciences Department of Swansea University.
         Research fields: environmental impacts of wildfires."""
 
         stefandoerr = """Stefan Doerr (s.doerr@swansea.ac.uk). PhD in Geography. Full Professor at the Geography Department, Swansea Univer-
@@ -1643,15 +1643,15 @@ class Application(tk.Tk):
         wildfires, landscape carbon dynamics, soils, water quality, ecosystem services."""
 
         celestinoordonez = """Celestino Ordonez (ordonezcelestino@uniovi.es). PhD in Mine Engineering. Full professor at Department of Mining Ex-
-        ploitation, University of Oviedo. Main researcher at GEOGRAPH research group. Research fields: Spatial analysis, laser 
+        ploitation, University of Oviedo. Main researcher at GEOGRAPH research group. Research fields: Spatial analysis, laser
         scanning, photogrammetry."""
 
-        tadasnikonovas = """Tadas Nikonovas (tadas.nikonovas@swansea.ac.uk). PhD in Geography. Office Researcher at Centre for Wildfire Research, 
-        Geography Department, Swansea University. Research fields: Global fire activity, atmospheric emissions, fire occurrence 
+        tadasnikonovas = """Tadas Nikonovas (tadas.nikonovas@swansea.ac.uk). PhD in Geography. Office Researcher at Centre for Wildfire Research,
+        Geography Department, Swansea University. Research fields: Global fire activity, atmospheric emissions, fire occurrence
         modelling."""
 
-        covadongaprendes = """Covadonga Prendes (cprendes@cetemas.es). PhD in Geomatics. Forest engineer and researcher at CETEMAS (Forest and 
-        Wood Technology Research Centre Foundation). Geomatics research group. Research fields: LiDAR, sustainable forestry 
+        covadongaprendes = """Covadonga Prendes (cprendes@cetemas.es). PhD in Geomatics. Forest engineer and researcher at CETEMAS (Forest and
+        Wood Technology Research Centre Foundation). Geomatics research group. Research fields: LiDAR, sustainable forestry
         development, spatial analysis. """
 
         ### SCROLLBAR ###
@@ -1771,7 +1771,7 @@ class Application(tk.Tk):
 
         ttk.Label(self.scrollable_info, image=self.covadonga_img).grid(row=17, column=1)
 
-        f = open(self._get_resource_path("License.txt"), "r")
+        f = Path.open(self._get_resource_path("License.txt"), "r")
         gnu_license = f.read()
 
         #### license button ####
@@ -1896,8 +1896,8 @@ class Application(tk.Tk):
         )
 
         # about the project
-        self.about_1 = """This software has been developed at the Centre of Wildfire Research of Swansea University (UK) in collaboration with the Research Institute of 
-        Biodiversity (CSIC, Spain) and the Department of Mining Exploitation of the University of Oviedo (Spain). Funding provided by the UK NERC 
+        self.about_1 = """This software has been developed at the Centre of Wildfire Research of Swansea University (UK) in collaboration with the Research Institute of
+        Biodiversity (CSIC, Spain) and the Department of Mining Exploitation of the University of Oviedo (Spain). Funding provided by the UK NERC
         project (NE/T001194/1):"""
         self.about_2 = """and by the Spanish Knowledge Generation project (PID2021-126790NB-I00):"""
 
