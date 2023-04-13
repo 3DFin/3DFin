@@ -1,0 +1,23 @@
+name: check style and static analysis
+
+on: [push, pull_request]
+
+concurrency:
+  group: check-style-${{ github.head_ref }}
+
+jobs:
+  build:
+    name: check style and static analysis
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Get latest pip
+      run: python -m pip install --upgrade pip
+
+    - name: Install Hatch
+      run: python -m pip install hatch
+    
+    - name: Build standalone
+      run: hatch run lint:check-all
