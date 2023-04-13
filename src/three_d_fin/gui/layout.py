@@ -8,7 +8,7 @@ from typing import Any, Callable, Dict, Optional
 
 from PIL import Image, ImageTk
 
-from .tooltip import ToolTip
+from three_d_fin.gui.tooltip import ToolTip
 
 
 class Application(tk.Tk):
@@ -50,7 +50,7 @@ class Application(tk.Tk):
         try:
             base_path = sys._MEIPASS
         except Exception:
-            base_path = Path(__file__).absolute().parents[2] / "files"
+            base_path = Path(__file__).absolute().parents[1] / "assets"
         return str(base_path / Path(relative_path))
 
     def _preload_images(self) -> None:
@@ -1793,7 +1793,9 @@ class Application(tk.Tk):
 
                 # Link a scrollbar to the canvas
                 license_vsb = ttk.Scrollbar(
-                    license_frame_canvas, orient="vertical", command=license_canvas.yview
+                    license_frame_canvas,
+                    orient="vertical",
+                    command=license_canvas.yview,
                 )
                 license_vsb.grid(row=0, column=1, sticky="ns")
                 license_canvas.configure(yscrollcommand=license_vsb.set)
@@ -1816,7 +1818,9 @@ class Application(tk.Tk):
                 ).grid(row=2, column=1, sticky="W")
 
                 # Create canvas window to hold the buttons_frame.
-                license_canvas.create_window((0, 0), window=license_scrollable, anchor="nw")
+                license_canvas.create_window(
+                    (0, 0), window=license_scrollable, anchor="nw"
+                )
 
                 # Update buttons frames idle tasks to let tkinter calculate buttons sizes
                 license_scrollable.update_idletasks()
