@@ -28,7 +28,7 @@ _Figure 1. The algorithm requires height-normalized point clouds. A) Original po
 In this first step, the user selects a stripe, defined this as a subset of the original cloud delimited by a lower height ( $Z_{h(low)}$ ) and an upper height ( $Z_{h(high)}$ ), which will narrow down a region where it is expected to only encounter stems. The points within the stripe will be voxelated and their verticality will be computed, based on fixed radius neighbourhoods. Then, they will be filtered based on their verticality value. After this, the remaining points will be clustered using the DBSCAN algorithm (Ester et al., 1996). These procedures will be repeated iteratively a user-defined number of times. At this stage, the potential stems are referred as ‘voxel groups’. Figure 2 illustrates this step of the algorithm.
 
 
-![](src/three_d_fin/assets/stripe_and_groups.jpg?raw=true)
+![](src/three_d_fin/assets/stripe_and_groups.jpg)
 
 _Figure 2. Stripe on the height-normalized point cloud, and candidate voxel groups. Points in the stripe in red, and voxel groups in random colours. From (Cabo et al. 2018)._
 
@@ -39,7 +39,7 @@ _Figure 2. Stripe on the height-normalized point cloud, and candidate voxel grou
 Once the voxel groups have been computed and properly peeled-off, they are isolated and enumerated, and then, their axes are identified using PCA (PCA1 direction). These axes will be henceforth considered as stem axes. This allows to group points based on their distance to those axes, thus assigning each point to a tree. This is illustrated in Figure 3. 
 
 
-![](src/three_d_fin/assets/individualized_trees.jpg?raw=true)
+![](src/three_d_fin/assets/individualized_trees.jpg)
 
 _Figure 3. Isolated trees. Note that ground and understory points are assigned as well to the closest axis. From (Cabo et al. 2018)._
 
@@ -47,7 +47,7 @@ _Figure 3. Isolated trees. Note that ground and understory points are assigned a
 During this step of the algorithm the tree height is computed as well. For this, and, for each tree, the points that are under a certain distance to the stem axis are selected, voxelated again using a higher resolution and clustered with DBSCAN algorithm. From the points that belong to the main cluster (the one that englobes the tree), the highest point is selected, and its height is considered as the tree height. This allows to exclude from the search of the highest point those that could belong to other trees or any noise that happened to be above the tree whilst being scanned. Figure 4 illustrates this.
 
 
-![](src/three_d_fin/assets/tree_height.jpg?raw=true)
+![](src/three_d_fin/assets/tree_height.jpg)
 
 _Figure 4. Total tree height (TH) computation. Note that it avoids isolated point clusters that may not belong to the tree. From (Cabo et al. 2018)._
 
