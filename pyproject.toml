@@ -71,10 +71,16 @@ dependencies = [
 ]
 [tool.hatch.envs.lint.scripts]
 # static analysis with ruff
-check-static = "ruff check src/three_d_fin/"
-format = "black --check --diff --color src/three_d_fin/"
-sort-import = "isort --check-only --diff --color src/three_d_fin/"
-all = ["check-static", "format", "sort-import"]
+check-static = "ruff check {args:.}"
+check-format = "black --check --diff --color {args:.}"
+fix-static = "ruff --fix {args:.}"
+fix-format = "black {args:.}"
+check-all = ["check-static", "check-format"]
+fix-all = [
+  "fix-static",
+  "fix-format",
+  "check-all",
+]
 
 [tool.ruff]
 select = ["E", "W", "YTT", "PTH", "NPY", "RET", "PYI", "Q", "F", "B", "I", "D"]
