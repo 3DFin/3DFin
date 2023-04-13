@@ -1,12 +1,13 @@
 name: check style and static analysis
 
-on: push
+on: [push, pull_request]
 
 concurrency:
   group: check-style-${{ github.head_ref }}
 
 jobs:
-  build: check style and static analysis
+  build:
+    name: check style and static analysis
     runs-on: windows-latest
 
     steps:
