@@ -5,10 +5,11 @@ import dendromatics as dm
 import laspy
 import numpy as np
 import pandas as pd
-from gui.gui_layout import Application
+
+from three_d_fin.gui.layout import Application
 
 
-def fin_processing(fin_app: Application, params: dict):
+def fin_callback(fin_app: Application, params: dict):
     """3DFIN main algorithm.
 
     -----------------------------------------------------------------------------
@@ -679,6 +680,7 @@ def fin_processing(fin_app: Application, params: dict):
     input("Press enter to close the program...")
 
 
-if __name__ == "__main__":
-    fin_app = Application(fin_processing)
+def process():
+    """3DFin GUI instanciation and processing."""
+    fin_app = Application(fin_callback)
     _ = fin_app.run()
