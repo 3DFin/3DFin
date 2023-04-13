@@ -3,13 +3,11 @@ from tkinter import filedialog
 
 import dendromatics as dm
 import laspy
-
+import numpy as np
+import pandas as pd
 
 from three_d_fin.gui.layout import Application
 
-
-import numpy as np
-import pandas as pd
 
 def fin_callback(fin_app: Application, params: dict):
     """3DFIN main algorithm.
