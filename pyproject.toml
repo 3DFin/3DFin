@@ -37,7 +37,7 @@ dependencies = [
 dynamic = ["version"]
 
 [tool.hatch.version]
-path = "code/__about__.py"
+path = "src/three_d_fin/__about__.py"
 
 [project.urls]
 Documentation = "https://github.com/3DFIN/3DFIN#README.md"
@@ -45,23 +45,13 @@ Issues = "https://github.com/3DFIN/3DFIN/issues"
 Source = "https://github.com/3DFIN/3DFIN"
 
 [project.gui-scripts]
-gui = "3dfin.cli:todo.function"
+3DFin = "three_d_fin.gui.processing:process"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/three_d_fin"]
 
 [tool.hatch.metadata]
 allow-direct-references = true
-
-[tool.hatch.envs.default]
-dependencies = [
-  "pytest",
-  "pytest-cov",
-]
-
-[tool.hatch.build]
-include = [
-  "code/*.py",
-  "code/gui/*.py",
-  "files/*",
-]
 
 [tool.hatch.envs.pyinstaller]
 dependencies = [
@@ -81,9 +71,9 @@ dependencies = [
 ]
 [tool.hatch.envs.lint.scripts]
 # static analysis with ruff
-check-static = "ruff check code/"
-format = "black --check --diff --color code/"
-sort-import = "isort --check-only --diff --color code/"
+check-static = "ruff check src/three_d_fin/"
+format = "black --check --diff --color src/three_d_fin/"
+sort-import = "isort --check-only --diff --color src/three_d_fin/"
 all = ["check-static", "format", "sort-import"]
 
 [tool.ruff]
@@ -96,7 +86,7 @@ line-length = 88
 ignore = ["E501", 
 # Ignore docstring in public package and module
   "D100", "D104",
-# Blank line bedore class
+# Blank line before class
   "D203",
 # multiline summary second line
   "D213"
