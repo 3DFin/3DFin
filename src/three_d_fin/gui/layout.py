@@ -11,6 +11,7 @@ import laspy
 from PIL import Image, ImageTk
 
 from three_d_fin.gui.tooltip import ToolTip
+from three_d_fin.__about__ import __version__
 
 
 class Application(tk.Tk):
@@ -1930,7 +1931,8 @@ class Application(tk.Tk):
         self._generate_parameters()
 
         self.iconbitmap(default=self._get_resource_path("icon_window.ico"))
-        self.title("3DFIN")
+        
+        self.title(f"3DFIN v{__version__}")
         self.option_add("Helvetica", "12")
         self.resizable(False, False)
         self.geometry("810x660+0+0")
