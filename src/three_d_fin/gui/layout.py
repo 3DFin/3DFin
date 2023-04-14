@@ -10,8 +10,8 @@ from typing import Any, Callable, Dict, Optional
 import laspy
 from PIL import Image, ImageTk
 
-from three_d_fin.gui.tooltip import ToolTip
 from three_d_fin.__about__ import __version__
+from three_d_fin.gui.tooltip import ToolTip
 
 
 class Application(tk.Tk):
@@ -22,7 +22,8 @@ class Application(tk.Tk):
         processing_callback: Callable[
             [Optional["Application"], Dict[str, Dict[str, Any]]], None
         ],
-        file_externally_defined=False,
+        file_externally_defined: bool = False,
+        cloud_fields: Optional[list[str]] = None,
     ):
         """Construct the 3DFIN GUI Application.
 
@@ -30,14 +31,20 @@ class Application(tk.Tk):
         ----------
         processing_callback : Callable[[Application|None, Dict[str, Dict[str, Any]]]
             Callback/Functor that is responsible for the computing logic.
-        it is triggered by the "compute" button of the GUI.
+            It is triggered by the "compute" button of the GUI.
         file_externally_defined : bool
-            Wheteher or not the file/filename is already defined by a third party.
-            if True, I/O input and buttons will be disabled
+            Whether or not the file/filename was already defined by a third party.
+            if True, input_las input and buttons will be disabled.
+        cloud_fields : Optional[list[str]]
+            List of candidates fields for the Z0 field. If present (not None),
+            the z0_entry will be turned into a dropdown menu. If present but void,
+            height normalization radio buttons will be disabled.
+            TODO: we can imagine, no z0 fields and z == z0
         """
         tk.Tk.__init__(self)
-        self.file_externally_defined = file_externally_defined
         self.processing_callback = processing_callback
+        self.file_externally_defined = file_externally_defined
+        self.cloud_fields = cloud_fields
         self._bootstrap()
 
     def _get_resource_path(self, relative_path: str) -> str:
@@ -545,9 +552,17 @@ class Application(tk.Tk):
             column=2, row=5, columnspan=3, sticky="W"
         )
 
-        # Z0 field name entry
-        z0_entry = ttk.Entry(self.basic_tab, width=7, textvariable=self.z0_name)
-        z0_entry.grid(column=3, row=7, sticky="EW")
+        # Z0 field name
+        # It can be and entry or a dropdown (optionmenu)
+        if self.cloud_fields is None:
+            z0_entry = ttk.Entry(self.basic_tab, width=7, textvariable=self.z0_name)
+            z0_entry.grid(column=3, row=7, sticky="EW")
+        else:
+            # Try to find the default field
+            z0_entry = ttk.OptionMenu(self.basic_tab, self.z0_name, *self.cloud_fields)
+            z0_entry.grid(column=3, row=7, columnspan=2, sticky="EW")
+            self.z0_name.set(self.cloud_fields[0])
+
         z0_entry.configure(state="disabled")
 
         # Stripe upper limit entry
@@ -685,6 +700,10 @@ class Application(tk.Tk):
             command=disable_denoising,
         )
         normalized_button_2.grid(column=3, row=2, sticky="EW")
+
+        if self.cloud_fields is not None and not self.cloud_fields:
+            normalized_button_1.configure(state=tk.DISABLED)
+            normalized_button_2.configure(state=tk.DISABLED)
 
         # Create the optionmenu widget and passing the options_list and value_inside to it.
         clean_button_1 = ttk.Radiobutton(
@@ -1914,7 +1933,7 @@ class Application(tk.Tk):
             or not output_dir.is_dir()
             or not os.access(
                 output_dir, os.W_OK
-            )  # os.access won't work well under Windows, we have still to mess with exceptions
+            )  # os.access won't work well under Windows, we still have to mess with exceptions
         ):
             _show_error("Invalid output directory")
             return
@@ -1931,7 +1950,7 @@ class Application(tk.Tk):
         self._generate_parameters()
 
         self.iconbitmap(default=self._get_resource_path("icon_window.ico"))
-        
+
         self.title(f"3DFIN v{__version__}")
         self.option_add("Helvetica", "12")
         self.resizable(False, False)
