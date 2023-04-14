@@ -65,6 +65,9 @@ class Application(tk.Tk):
 
         TODO: Add license loading too.
         """
+        self.logo_png = ImageTk.PhotoImage(
+            Image.open(self._get_resource_path("3dfin_logo.png"))
+        )
         self.sections_img = ImageTk.PhotoImage(
             Image.open(self._get_resource_path("section_details.png"))
         )
@@ -582,10 +585,7 @@ class Application(tk.Tk):
         ttk.Label(self.basic_tab, text="0 - 5").grid(column=4, row=10, sticky="W")
 
         #### Adding logo
-        logo_png = ImageTk.PhotoImage(
-            Image.open(self._get_resource_path("3dfin_logo.png"))
-        )
-        ttk.Label(self.basic_tab, image=logo_png).grid(
+        ttk.Label(self.basic_tab, image=self.logo_png).grid(
             column=6, row=1, rowspan=2, columnspan=2, sticky="NS"
         )
 
