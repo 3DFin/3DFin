@@ -1,5 +1,5 @@
 import timeit
-from tkinter import filedialog
+from pathlib import Path
 
 import dendromatics as dm
 import laspy
@@ -92,8 +92,10 @@ def fin_callback(fin_app: Application, params: dict):
     # tree_id_field = 4  # Which column contains tree ID field  - Unused - NON MODIFIABLE
     n_digits = 5  # Number of digits for voxel encoding.
 
-    # --- Import file --- #
-    filename_las = filedialog.askopenfilename()
+    filename_las = params["misc"]["input_las"]
+    basename_las = Path(params["misc"]["input_las"]).stem
+    basepath_output = str(Path(params["misc"]["output_dir"]) / Path(basename_las))
+    print(basepath_output)
 
     print(fin_app.copyright_info_1)
     print(fin_app.copyright_info_2)
@@ -284,7 +286,7 @@ def fin_callback(fin_app: Application, params: dict):
 
     las_stripe.add_extra_dim(laspy.ExtraBytesParams(name="tree_ID", type=np.int32))
     las_stripe.tree_ID = clust_stripe[:, -1]
-    las_stripe.write(filename_las[:-4] + "_stripe.las")
+    las_stripe.write(basepath_output + "_stripe.las")
 
     # Whole cloud including new fields
     entr.add_extra_dim(laspy.ExtraBytesParams(name="dist_axes", type=np.float64))
@@ -295,7 +297,7 @@ def fin_callback(fin_app: Application, params: dict):
     if params["misc"]["is_noisy"]:
         entr.add_extra_dim(laspy.ExtraBytesParams(name="Z0", type=np.float64))
         entr.Z0 = z0_values
-    entr.write(filename_las[:-4] + "_tree_ID_dist_axes.las")
+    entr.write(basepath_output + "_tree_ID_dist_axes.las")
     elapsed_las = timeit.default_timer() - t_las
     print("Total time:", "   %.2f" % elapsed_las, "s")
 
@@ -312,7 +314,7 @@ def fin_callback(fin_app: Application, params: dict):
     las_tree_heights.deviated = tree_heights[
         :, 4
     ]  # vertical deviation binary indicator
-    las_tree_heights.write(filename_las[:-4] + "_tree_heights.las")
+    las_tree_heights.write(basepath_output + "_tree_heights.las")
 
     # stem extraction and curation
     print("---------------------------------------------")
@@ -441,7 +443,7 @@ def fin_callback(fin_app: Application, params: dict):
     )
     las_tree_locations.diameters = dbh_values[:, 0]
 
-    las_tree_locations.write(filename_las[:-4] + "_tree_locator.las")
+    las_tree_locations.write(basepath_output + "_tree_locator.las")
 
     # -------------------------------------------------------------------------------------------------------------
     # Exporting results
@@ -557,8 +559,10 @@ def fin_callback(fin_app: Application, params: dict):
         df_info_dbh_and_heights = pd.Series(info_dbh_and_heights)
         df_info_cloud_size = pd.Series(info_cloud_size)
 
+        xls_filename = basepath_output + ".xlsx"
+
         # Creating an instance of a excel writer
-        writer = pd.ExcelWriter(filename_las[:-4] + ".xlsx", engine="xlsxwriter")
+        writer = pd.ExcelWriter(xls_filename, engine="xlsxwriter")
 
         # Writing the descriptions
 
@@ -651,18 +655,18 @@ def fin_callback(fin_app: Application, params: dict):
         writer.close()
 
     else:
-        np.savetxt(filename_las[:-4] + "_diameters.txt", R * 2, fmt=("%.3f"))
-        np.savetxt(filename_las[:-4] + "_X_c.txt", X_c, fmt=("%.3f"))
-        np.savetxt(filename_las[:-4] + "_Y_c.txt", Y_c, fmt=("%.3f"))
-        np.savetxt(filename_las[:-4] + "_check_circle.txt", check_circle, fmt=("%.3f"))
-        np.savetxt(filename_las[:-4] + "_n_points_in.txt", n_points_in, fmt=("%.3f"))
-        np.savetxt(filename_las[:-4] + "_sector_perct.txt", sector_perct, fmt=("%.3f"))
-        np.savetxt(filename_las[:-4] + "_outliers.txt", outliers, fmt=("%.3f"))
+        np.savetxt(basepath_output + "_diameters.txt", R * 2, fmt=("%.3f"))
+        np.savetxt(basepath_output + "_X_c.txt", X_c, fmt=("%.3f"))
+        np.savetxt(basepath_output + "_Y_c.txt", Y_c, fmt=("%.3f"))
+        np.savetxt(basepath_output + "_check_circle.txt", check_circle, fmt=("%.3f"))
+        np.savetxt(basepath_output + "_n_points_in.txt", n_points_in, fmt=("%.3f"))
+        np.savetxt(basepath_output + "_sector_perct.txt", sector_perct, fmt=("%.3f"))
+        np.savetxt(basepath_output + "_outliers.txt", outliers, fmt=("%.3f"))
         np.savetxt(
-            filename_las[:-4] + "_dbh_and_heights.txt", dbh_and_heights, fmt=("%.3f")
+            basepath_output + "_dbh_and_heights.txt", dbh_and_heights, fmt=("%.3f")
         )
         np.savetxt(
-            filename_las[:-4] + "_sections.txt", np.column_stack(sections), fmt=("%.3f")
+            basepath_output + "_sections.txt", np.column_stack(sections), fmt=("%.3f")
         )
 
     elapsed_las2 = timeit.default_timer() - t_las2

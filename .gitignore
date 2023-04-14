@@ -163,3 +163,5 @@ cython_debug/
 # Added
 code/.Rhistory
 .vscode/
+# Avoid to commit a cloth_nodes by running the 3DFIN alg in the root of this repos
+cloth_nodes.txt

@@ -1,11 +1,13 @@
 import configparser
+import os
 import subprocess
 import sys
 import tkinter as tk
 from pathlib import Path
-from tkinter import ttk
+from tkinter import filedialog, messagebox, ttk
 from typing import Any, Callable, Dict, Optional
 
+import laspy
 from PIL import Image, ImageTk
 
 from three_d_fin.gui.tooltip import ToolTip
@@ -19,6 +21,7 @@ class Application(tk.Tk):
         processing_callback: Callable[
             [Optional["Application"], Dict[str, Dict[str, Any]]], None
         ],
+        file_externally_defined=False,
     ):
         """Construct the 3DFIN GUI Application.
 
@@ -27,8 +30,12 @@ class Application(tk.Tk):
         processing_callback : Callable[[Application|None, Dict[str, Dict[str, Any]]]
             Callback/Functor that is responsible for the computing logic.
         it is triggered by the "compute" button of the GUI.
+        file_externally_defined : bool
+            Wheteher or not the file/filename is already defined by a third party.
+            if True, I/O input and buttons will be disabled
         """
         tk.Tk.__init__(self)
+        self.file_externally_defined = file_externally_defined
         self.processing_callback = processing_callback
         self._bootstrap()
 
@@ -185,6 +192,9 @@ class Application(tk.Tk):
         self.is_noisy_var = tk.BooleanVar()
         # Variable to keep track of the option selected in excel_button_1
         self.txt_var = tk.BooleanVar()
+        # I/O related parameters
+        self.output_dir_var = tk.StringVar(value=Path.home())
+        self.input_las_var = tk.StringVar()
 
         ### Reading config file only if it is available under name '3DFINconfig.ini'
         my_file = Path("3DFINconfig.ini")
@@ -341,6 +351,8 @@ class Application(tk.Tk):
         params["misc"]["is_normalized"] = self.is_normalized_var.get()
         params["misc"]["is_noisy"] = self.is_noisy_var.get()
         params["misc"]["txt"] = self.txt_var.get()
+        params["misc"]["input_las"] = self.input_las_var.get()
+        params["misc"]["output_dir"] = self.output_dir_var.get()
 
         # -------------------------------------------------------------------------------------------------
         # BASIC PARAMETERS. These are the parameters to be checked (and changed if needed) for each dataset/plot
@@ -1871,10 +1883,46 @@ class Application(tk.Tk):
         self.mainloop()
         return self.get_parameters()
 
-    def run_callback_and_destroy(self) -> None:
-        """Run the processing callback and destroy the GUI application."""
-        self.processing_callback(self, self.get_parameters())
-        self.destroy()
+    def validate_and_run_processing_callback(self) -> None:
+        """Validate I/O entries and run the processing callback."""
+
+        # define a lambda to popu error for convenience
+        def _show_error(error_msg):
+            return messagebox.showerror(
+                parent=self, title="3DFIN Error", message=error_msg
+            )
+
+        # TODO: it would be good to make a sanity check on parameters as well
+        params = self.get_parameters()
+        # If the file is defined in the GUI we check its validity
+        if not self.file_externally_defined:
+            input_las = Path(params["misc"]["input_las"])
+            if not input_las.exists() or not input_las.is_file():
+                _show_error("Input file does not exists")
+                return
+            try:
+                laspy.open(input_las, read_evlrs=False)
+            except laspy.LaspyException:
+                _show_error("Invalid las file")
+                return
+
+        # We check the validity of the current output directory
+        output_dir = Path(params["misc"]["output_dir"])
+        if (
+            not output_dir.exists()
+            or not output_dir.is_dir()
+            or not os.access(
+                output_dir, os.W_OK
+            )  # os.access won't work well under Windows, we have still to mess with exceptions
+        ):
+            _show_error("Invalid output directory")
+            return
+
+        # Change button caption
+        self.compute_button["text"] = "Processing..."
+        # TODO: handle exception in processing here
+        self.processing_callback(self, params)
+        self.compute_button["text"] = "Compute"
 
     def _bootstrap(self):
         """Create the GUI."""
@@ -1885,9 +1933,7 @@ class Application(tk.Tk):
         self.title("3DFIN")
         self.option_add("Helvetica", "12")
         self.resizable(False, False)
-        self.geometry("810x632+0+0")
-        self.columnconfigure(0, weight=1)
-        self.rowconfigure(0, weight=1)
+        self.geometry("810x660+0+0")
 
         ### Define here some infos and copyrights
         # Copyrights
@@ -1906,35 +1952,125 @@ class Application(tk.Tk):
         self.about_2 = """and by the Spanish Knowledge Generation project (PID2021-126790NB-I00):"""
 
         ### Creating the tabs
-        self.note = tk.ttk.Notebook(self)
-        self.note.grid(column=0, row=0, sticky="NEWS")
+        self.note = ttk.Notebook(self)
         self._create_basic_tab()
         self._create_advanced_tab()
         self._create_expert_tab()
         self._create_about_tab()
+        self.note.pack(side=tk.TOP)
 
-        tk.Button(
-            self,
-            text="Select file & compute",
+        ### Creating a frame at the bottom with I/O interactions
+        bottom_frame = tk.Frame(self)
+
+        def _ask_output_dir():
+            """Ask for a proper output directory."""
+            output_dir = filedialog.askdirectory(
+                parent=self,
+                title="3DFIN output directory",
+                initialdir=self.output_dir_var.get(),
+            )
+            # If the dialog was not closed/cancel
+            if output_dir != "" and not None:
+                self.output_dir_var.set(Path(output_dir).resolve())
+
+        def _ask_input_file():
+            """Ask for a proper input las file.
+
+            Current selected file is checked for validity (existence and type)
+            in order to setup the initial dir and the initial file in
+            the dialog. If a file is selected then it is checked to be a valid
+            Las file before adding its path to the related input field.
+            the output directory is changed accordingly (default to input las file
+            parent directory)
+            """
+            initial_path = Path(self.input_las_var.get())
+            is_initial_file = (
+                True if initial_path.exists() and initial_path.is_file() else False
+            )
+            initial_dir = (
+                initial_path.parent.resolve() if is_initial_file else Path.home()
+            )
+            initial_file = initial_path.resolve() if is_initial_file else ""
+            las_file = filedialog.askopenfilename(
+                parent=self,
+                title="3DFIN input file",
+                filetypes=[("las files", ".las .Las .Laz .laz")],
+                initialdir=initial_dir,
+                initialfile=initial_file,
+            )
+            # If the dialog was not closed/cancel
+            if las_file != "" and not None:
+                try:
+                    laspy.open(las_file, read_evlrs=False)
+                except laspy.LaspyException:
+                    messagebox.showerror(
+                        parent=self, title="3DFIN Error", message="Invalid las file"
+                    )
+                    return
+                self.input_las_var.set(Path(las_file).resolve())
+                self.output_dir_var.set(Path(las_file).parent.resolve())
+
+        self.label_file = ttk.Label(
+            bottom_frame,
+            text="Input file",
+        )
+        self.label_file.grid(column=0, row=0, sticky="W", padx=(5, 0))
+
+        self.label_directory = ttk.Label(bottom_frame, text="Output directory")
+        self.label_directory.grid(column=2, row=0, sticky="W")
+
+        self.input_file_entry = ttk.Entry(
+            bottom_frame, width=30, textvariable=self.input_las_var
+        )
+        self.input_file_entry.grid(column=0, row=1, sticky="W", padx=5)
+
+        self.input_file_button = ttk.Button(
+            bottom_frame, text="Select file", command=_ask_input_file
+        )
+        self.input_file_button.grid(column=1, row=1, sticky="W", padx=(5, 15))
+
+        # If the file is defined by a third party and will be provided in the callback
+        # by another mean than input in the GUI, we do not want to show field related
+        # to Las input.
+        if self.file_externally_defined:
+            self.label_file.grid_forget()
+            self.input_file_button.grid_forget()
+            self.input_file_entry.grid_forget()
+
+        self.output_dir_entry = ttk.Entry(
+            bottom_frame, width=30, textvariable=self.output_dir_var
+        )
+        self.output_dir_entry.grid(column=2, row=1, sticky="W")
+
+        self.output_dir_button = ttk.Button(
+            bottom_frame, text="Select directory", command=_ask_output_dir
+        )
+        self.output_dir_button.grid(column=3, row=1, sticky="W", padx=(5, 20))
+
+        self.compute_button = tk.Button(
+            bottom_frame,
+            text="Compute",
             bg="light green",
-            width=30,
+            width=25,
             font=("Helvetica", 10, "bold"),
             cursor="hand2",
-            command=self.run_callback_and_destroy,
-        ).grid(sticky="S")
+            command=self.validate_and_run_processing_callback,
+        )
+        self.compute_button.grid(row=1, column=5, sticky="N")
 
         ### Adding a hyperlink to the documentation
         link1 = ttk.Label(
-            self,
+            bottom_frame,
             text=" Documentation",
             font=("Helvetica", 11),
             foreground="blue",
             cursor="hand2",
         )
-        link1.grid(sticky="NW")
+        link1.grid(row=3, column=0, sticky="NW", columnspan=4)
         link1.bind(
             "<Button-1>",
-            lambda e: subprocess.Popen(
+            lambda: subprocess.Popen(
                 self._get_resource_path("documentation.pdf"), shell=True
             ),
         )
+        bottom_frame.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
