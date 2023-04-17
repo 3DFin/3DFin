@@ -141,59 +141,59 @@ class Application(tk.Tk):
         it fallback to default parameters hardcoded here.
         """
         ### Basic parameters
-        self.z0_name = tk.StringVar()
-        self.upper_limit = tk.StringVar()
-        self.lower_limit = tk.StringVar()
-        self.number_of_iterations = tk.StringVar()
+        self.z0_name = tk.StringVar(value="Z0")
+        self.upper_limit = tk.StringVar(value="3.5")
+        self.lower_limit = tk.StringVar(value="0.7")
+        self.number_of_iterations = tk.StringVar(value="2")
 
         ### Advanced parameters
-        self.maximum_diameter = tk.StringVar()
-        self.stem_search_diameter = tk.StringVar()
-        self.minimum_height = tk.StringVar()
-        self.maximum_height = tk.StringVar()
-        self.section_len = tk.StringVar()
-        self.section_wid = tk.StringVar()
+        self.maximum_diameter = tk.StringVar(value="1.0")
+        self.stem_search_diameter = tk.StringVar(value="2.0")
+        self.minimum_height = tk.StringVar(value="0.3")
+        self.maximum_height = tk.StringVar(value="25")
+        self.section_len = tk.StringVar(value="0.2")
+        self.section_wid = tk.StringVar(value="0.05")
 
         ### Expert parameters
         # Stem identification
-        self.res_xy_stripe = tk.StringVar()
-        self.res_z_stripe = tk.StringVar()
-        self.number_of_points = tk.StringVar()
-        self.verticality_scale_stripe = tk.StringVar()
-        self.verticality_thresh_stripe = tk.StringVar()
-        self.height_range = tk.StringVar()
+        self.res_xy_stripe = tk.StringVar(value="0.02")
+        self.res_z_stripe = tk.StringVar(value="0.02")
+        self.number_of_points = tk.StringVar(value="1000")
+        self.verticality_scale_stripe = tk.StringVar(value="0.1")
+        self.verticality_thresh_stripe = tk.StringVar(value="0.7")
+        self.height_range = tk.StringVar(value="0.7")
 
         # Stem extraction and Tree individualization
-        self.res_xy = tk.StringVar()
-        self.res_z = tk.StringVar()
-        self.minimum_points = tk.StringVar()
-        self.verticality_scale_stems = tk.StringVar()
-        self.verticality_thresh_stems = tk.StringVar()
-        self.maximum_d = tk.StringVar()
-        self.distance_to_axis = tk.StringVar()
-        self.res_heights = tk.StringVar()
-        self.maximum_dev = tk.StringVar()
+        self.res_xy = tk.StringVar(value="0.035")
+        self.res_z = tk.StringVar(value="0.035")
+        self.minimum_points = tk.StringVar(value="20")
+        self.verticality_scale_stems = tk.StringVar(value="0.1")
+        self.verticality_thresh_stems = tk.StringVar(value="0.7")
+        self.maximum_d = tk.StringVar(value="15")
+        self.distance_to_axis = tk.StringVar(value="1.5")
+        self.res_heights = tk.StringVar(value="0.3")
+        self.maximum_dev = tk.StringVar(value="25")
 
         # Extracting sections
-        self.number_points_section = tk.StringVar()
-        self.diameter_proportion = tk.StringVar()
-        self.minimum_diameter = tk.StringVar()
-        self.point_threshold = tk.StringVar()
-        self.point_distance = tk.StringVar()
-        self.number_sectors = tk.StringVar()
-        self.m_number_sectors = tk.StringVar()
-        self.circle_width = tk.StringVar()
+        self.number_points_section = tk.StringVar(value="80")
+        self.diameter_proportion = tk.StringVar(value="0.5")
+        self.minimum_diameter = tk.StringVar(value="0.06")
+        self.point_threshold = tk.StringVar(value="5")
+        self.point_distance = tk.StringVar(value="0.02")
+        self.number_sectors = tk.StringVar(value="16")
+        self.m_number_sectors = tk.StringVar(value="9")
+        self.circle_width = tk.StringVar(value="0.02")
 
         # Drawing circles and axes
-        self.circa = tk.StringVar()
-        self.p_interval = tk.StringVar()
-        self.axis_downstep = tk.StringVar()
-        self.axis_upstep = tk.StringVar()
+        self.circa = tk.StringVar(value="200")
+        self.p_interval = tk.StringVar(value="0.01")
+        self.axis_downstep = tk.StringVar(value="0.5")
+        self.axis_upstep = tk.StringVar(value="10")
 
         # Other parameters
-        self.res_ground = tk.StringVar()
-        self.min_points_ground = tk.StringVar()
-        self.res_cloth = tk.StringVar()
+        self.res_ground = tk.StringVar(value="0.15")
+        self.min_points_ground = tk.StringVar(value="2")
+        self.res_cloth = tk.StringVar(value="0.7")
 
         # TODO: misc parameters. These parameters have no entry in the option file
         # but they are needed for processing and exposed in the GUI
@@ -212,66 +212,10 @@ class Application(tk.Tk):
 
         try:
             my_abs_path = my_file.resolve(strict=True)
-
         except FileNotFoundError:
-            ### Basic parameters
-            self.z0_name.set("Z0")
-            self.upper_limit.set("3.5")
-            self.lower_limit.set("0.7")
-            self.number_of_iterations.set("2")
-
-            ### Advanced parameters
-            self.maximum_diameter.set("1.0")
-            self.stem_search_diameter.set("2.0")
-            self.minimum_height.set("0.3")
-            self.maximum_height.set("25")
-            self.section_len.set("0.2")
-            self.section_wid.set("0.05")
-
-            ### Expert parameters
-
-            # Stem identification
-            self.res_xy_stripe.set("0.02")
-            self.res_z_stripe.set("0.02")
-            self.number_of_points.set("1000")
-            self.verticality_scale_stripe.set("0.1")
-            self.verticality_thresh_stripe.set("0.7")
-            self.height_range.set("0.7")
-
-            # Stem extraction and Tree individualization
-            self.res_xy.set("0.035")
-            self.res_z.set("0.035")
-            self.minimum_points.set("20")
-            self.verticality_scale_stems.set("0.1")
-            self.verticality_thresh_stems.set("0.7")
-            self.maximum_d.set("15")
-            self.distance_to_axis.set("1.5")
-            self.res_heights.set("0.3")
-            self.maximum_dev.set("25")
-
-            # Extracting sections
-            self.number_points_section.set("80")
-            self.diameter_proportion.set("0.5")
-            self.minimum_diameter.set("0.06")
-            self.point_threshold.set("5")
-            self.point_distance.set("0.02")
-            self.number_sectors.set("16")
-            self.m_number_sectors.set("9")
-            self.circle_width.set("0.02")
-
-            # Drawing circles and axes
-            self.circa.set("200")
-            self.p_interval.set("0.01")
-            self.axis_downstep.set("0.5")
-            self.axis_upstep.set("10")
-
-            # Other parameters
-            self.res_ground.set("0.15")
-            self.min_points_ground.set("2")
-            self.res_cloth.set("0.7")
-
+            pass
         else:
-            print("Configuration file found. Default parameters have been established.")
+            print("Configuration file found. Setting default parameters from the file")
 
             ### Reading the config file
             config = configparser.ConfigParser()
