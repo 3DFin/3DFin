@@ -5,7 +5,7 @@ import sys
 import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Optional
 
 import laspy
 from PIL import Image, ImageTk
@@ -20,7 +20,7 @@ class Application(tk.Tk):
     def __init__(
         self,
         processing_callback: Callable[
-            [Optional["Application"], Dict[str, Dict[str, Any]]], None
+            [Optional["Application"], dict[str, dict[str, Any]]], None
         ],
         file_externally_defined: bool = False,
         cloud_fields: Optional[list[str]] = None,
@@ -29,7 +29,7 @@ class Application(tk.Tk):
 
         Parameters
         ----------
-        processing_callback : Callable[[Application|None, Dict[str, Dict[str, Any]]]
+        processing_callback : Callable[[Application|None, dict[str, dict[str, Any]]]
             Callback/Functor that is responsible for the computing logic.
             It is triggered by the "compute" button of the GUI.
         file_externally_defined : bool
@@ -341,18 +341,18 @@ class Application(tk.Tk):
             self.min_points_ground.set(config["expert"]["min_points_ground"])
             self.res_cloth.set(config["expert"]["res_cloth"])
 
-    def get_parameters(self) -> Dict[str, Dict[str, Any]]:
+    def get_parameters(self) -> dict[str, dict[str, Any]]:
         """Get parameters from widgets and return them organized in a dictionnary.
 
         Returns
         -------
-        options : Dict[str, Dict[str, Any]]
+        options : dict[str, dict[str, Any]]
             Dictionary of parameters. It is organised followinf the 3DFINconfig.ini file:
             Each parameters are sorted in sub-dict ("basic", "expert", "advanced").
             TODO: A "misc" subsection enclose all parameters needed by 3DFIN but not
             defined in the the config file.
         """
-        params: Dict[str, Dict[str, Any]] = {}
+        params: dict[str, dict[str, Any]] = {}
         params["misc"] = {}
         params["basic"] = {}
         params["expert"] = {}
@@ -1892,12 +1892,13 @@ class Application(tk.Tk):
         # Set the canvas scrolling region
         canvas.config(scrollregion=canvas.bbox("all"))
 
-    def run(self) -> Dict[str, Dict[str, Any]]:
+
+    def run(self) -> dict[str, dict[str, Any]]:
         """Run the GUI main loop and return the parameters when it quits.
 
         Returns
         -------
-        options : Dict[str, Dict[str, Any]]
+        options : dict[str, dict[str, Any]]
             parameters from the GUI
         """
         self.mainloop()
