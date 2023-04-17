@@ -3,6 +3,7 @@ import platform
 import tempfile
 import timeit
 from pathlib import Path
+from typing import Any
 
 import dendromatics as dm
 import numpy as np
@@ -47,7 +48,7 @@ class CCPluginFinProcessing:
 
     @classmethod
     def write_sf(
-        cls, point_cloud: pycc.ccPointCloud, scalar_field: np.array, name: str
+        cls, point_cloud: pycc.ccPointCloud, scalar_field: np.ndarray, name: str
     ):
         """Write a scalar field on a pycc.PointCloud.
 
@@ -55,7 +56,7 @@ class CCPluginFinProcessing:
         ----------
         point_cloud : pycc.ccPointCloud
             Point cloud targetted by the 3DFin processing.
-        scalar_field : np.array
+        scalar_field : np.ndarray
             Numpy vector discribing the scalar field.
         name: str
             Name of the scalar_field to write
@@ -65,14 +66,14 @@ class CCPluginFinProcessing:
         sf_array[:] = scalar_field.astype(np.float32)[:]
         point_cloud.getScalarField(idx_sf).computeMinAndMax()
 
-    def __call__(self, fin_app: Application, params: dict[str, dict[str, any]]):
+    def __call__(self, fin_app: Application, params: dict[str, dict[str, Any]]):
         """3DFin processing.
 
         Parameters
         ----------
         fin_app : Application
             Current 3DFin application.
-        params : dict[str, dict[str, any]]
+        params : dict[str, dict[str, Any]]
             Processing parameters.
         """
         # -------------------------------------------------------------------------------------------------
@@ -92,15 +93,15 @@ class CCPluginFinProcessing:
         print(
             "See License at the bottom of 'About' tab for more details or visit <https://www.gnu.org/licenses/>"
         )
-
-        t_t = timeit.default_timer()
         basepath_output = str(
             Path(params["misc"]["output_dir"]) / Path(self.point_cloud.getName())
         )
-
         print(f"Output path is set to {basepath_output}")
+
+        t_t = timeit.default_timer()
+
         if params["misc"]["is_normalized"]:
-            print(f"Using scalar field {params['basic']['z0_name']} (normalize height)")
+            print(f"Using scalar field {params['basic']['z0_name']} (normalized height)")
             # convert CC file
             coords = np.c_[
                 self.point_cloud.points(),
@@ -832,6 +833,7 @@ def main_cloudcompare():
     scalar_fields: list[str] = []
     for i in range(point_cloud.getNumberOfScalarFields()):
         scalar_fields.append(point_cloud.getScalarFieldName(i))
+
 
     # TODO: detect if a user already have computed something on this cloud (based on scalar field and entities in the DBTree)
     # and propose to force recompute (erase) or suggest to duplicate the point cloud.
