@@ -668,7 +668,7 @@ class Application(tk.Tk):
             child.grid_configure(padx=5, pady=5)
 
         #### Adding radio buttons
-        def enable_denoising():
+        def _enable_denoising():
             z0_entry.configure(state="normal")
             z0_entry.update()
             clean_button_1.configure(state="disabled")
@@ -676,7 +676,7 @@ class Application(tk.Tk):
             clean_button_2.configure(state="disabled")
             clean_button_2.update()
 
-        def disable_denoising():
+        def _disable_denoising():
             z0_entry.configure(state="disabled")
             z0_entry.update()
             clean_button_1.configure(state="normal")
@@ -689,7 +689,7 @@ class Application(tk.Tk):
             text="Yes",
             variable=self.is_normalized_var,
             value=True,
-            command=enable_denoising,
+            command=_enable_denoising,
         )
         normalized_button_1.grid(column=2, row=2, sticky="EW")
         normalized_button_2 = ttk.Radiobutton(
@@ -697,7 +697,7 @@ class Application(tk.Tk):
             text="No",
             variable=self.is_normalized_var,
             value=False,
-            command=disable_denoising,
+            command=_disable_denoising,
         )
         normalized_button_2.grid(column=3, row=2, sticky="EW")
 
@@ -1577,7 +1577,7 @@ class Application(tk.Tk):
             "Default value: 0.7.",
         )
 
-        def open_warning():
+        def _open_warning():
             """Logic triggered by the warning button."""
             new = tk.Toplevel(self)
             new.geometry("700x380")
@@ -1646,7 +1646,7 @@ class Application(tk.Tk):
             width=12,
             font=("Helvetica", 10, "bold"),
             cursor="hand2",
-            command=open_warning,
+            command=_open_warning,
         ).grid(column=9, row=1, columnspan=2, sticky="E")
 
     def _create_about_tab(self) -> None:
@@ -1804,7 +1804,7 @@ class Application(tk.Tk):
 
         ttk.Label(self.scrollable_info, image=self.covadonga_img).grid(row=17, column=1)
 
-        def open_license():
+        def _open_license():
             """Load the licence and display it in a frame."""
             with Path(self._get_resource_path("License.txt")).open("r") as f:
                 gnu_license = f.read()
@@ -1875,7 +1875,7 @@ class Application(tk.Tk):
             width=8,
             font=("Helvetica", 10, "bold"),
             cursor="hand2",
-            command=open_license,
+            command=_open_license,
         ).grid(row=19, column=1, columnspan=3)
 
         for child in self.scrollable_info.winfo_children():
