@@ -212,9 +212,8 @@ class Application(tk.Tk):
 
         try:
             my_abs_path = my_file.resolve(strict=True)
-
         except FileNotFoundError:
-            print("Configuration file not found.")
+            pass
         else:
             print("Configuration file found. Setting default parameters from the file")
 
