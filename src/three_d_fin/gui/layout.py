@@ -1,13 +1,16 @@
 import configparser
+import os
 import subprocess
 import sys
 import tkinter as tk
 from pathlib import Path
-from tkinter import ttk
-from typing import Any, Callable, Dict, Optional
+from tkinter import filedialog, messagebox, ttk
+from typing import Any, Callable, Optional
 
+import laspy
 from PIL import Image, ImageTk
 
+from three_d_fin.__about__ import __version__
 from three_d_fin.gui.tooltip import ToolTip
 
 
@@ -17,19 +20,31 @@ class Application(tk.Tk):
     def __init__(
         self,
         processing_callback: Callable[
-            [Optional["Application"], Dict[str, Dict[str, Any]]], None
+            [Optional["Application"], dict[str, dict[str, Any]]], None
         ],
+        file_externally_defined: bool = False,
+        cloud_fields: Optional[list[str]] = None,
     ):
         """Construct the 3DFIN GUI Application.
 
         Parameters
         ----------
-        processing_callback : Callable[[Application|None, Dict[str, Dict[str, Any]]]
+        processing_callback : Callable[[Application|None, dict[str, dict[str, Any]]]
             Callback/Functor that is responsible for the computing logic.
-        it is triggered by the "compute" button of the GUI.
+            It is triggered by the "compute" button of the GUI.
+        file_externally_defined : bool
+            Whether or not the file/filename was already defined by a third party.
+            if True, input_las input and buttons will be disabled.
+        cloud_fields : Optional[list[str]]
+            List of candidates fields for the Z0 field. If present (not None),
+            the z0_entry will be turned into a dropdown menu. If present but void,
+            height normalization radio buttons will be disabled.
+            TODO: we can imagine, no z0 fields and z == z0
         """
         tk.Tk.__init__(self)
         self.processing_callback = processing_callback
+        self.file_externally_defined = file_externally_defined
+        self.cloud_fields = cloud_fields
         self._bootstrap()
 
     def _get_resource_path(self, relative_path: str) -> str:
@@ -58,6 +73,9 @@ class Application(tk.Tk):
 
         TODO: Add license loading too.
         """
+        self.logo_png = ImageTk.PhotoImage(
+            Image.open(self._get_resource_path("3dfin_logo.png"))
+        )
         self.sections_img = ImageTk.PhotoImage(
             Image.open(self._get_resource_path("section_details.png"))
         )
@@ -185,6 +203,9 @@ class Application(tk.Tk):
         self.is_noisy_var = tk.BooleanVar()
         # Variable to keep track of the option selected in excel_button_1
         self.txt_var = tk.BooleanVar()
+        # I/O related parameters
+        self.output_dir_var = tk.StringVar(value=Path.home())
+        self.input_las_var = tk.StringVar()
 
         ### Reading config file only if it is available under name '3DFINconfig.ini'
         my_file = Path("3DFINconfig.ini")
@@ -320,18 +341,18 @@ class Application(tk.Tk):
             self.min_points_ground.set(config["expert"]["min_points_ground"])
             self.res_cloth.set(config["expert"]["res_cloth"])
 
-    def get_parameters(self) -> Dict[str, Dict[str, Any]]:
+    def get_parameters(self) -> dict[str, dict[str, Any]]:
         """Get parameters from widgets and return them organized in a dictionnary.
 
         Returns
         -------
-        options : Dict[str, Dict[str, Any]]
+        options : dict[str, dict[str, Any]]
             Dictionary of parameters. It is organised followinf the 3DFINconfig.ini file:
             Each parameters are sorted in sub-dict ("basic", "expert", "advanced").
             TODO: A "misc" subsection enclose all parameters needed by 3DFIN but not
             defined in the the config file.
         """
-        params: Dict[str, Dict[str, Any]] = {}
+        params: dict[str, dict[str, Any]] = {}
         params["misc"] = {}
         params["basic"] = {}
         params["expert"] = {}
@@ -341,6 +362,8 @@ class Application(tk.Tk):
         params["misc"]["is_normalized"] = self.is_normalized_var.get()
         params["misc"]["is_noisy"] = self.is_noisy_var.get()
         params["misc"]["txt"] = self.txt_var.get()
+        params["misc"]["input_las"] = self.input_las_var.get()
+        params["misc"]["output_dir"] = self.output_dir_var.get()
 
         # -------------------------------------------------------------------------------------------------
         # BASIC PARAMETERS. These are the parameters to be checked (and changed if needed) for each dataset/plot
@@ -529,9 +552,17 @@ class Application(tk.Tk):
             column=2, row=5, columnspan=3, sticky="W"
         )
 
-        # Z0 field name entry
-        z0_entry = ttk.Entry(self.basic_tab, width=7, textvariable=self.z0_name)
-        z0_entry.grid(column=3, row=7, sticky="EW")
+        # Z0 field name
+        # It can be and entry or a dropdown (optionmenu)
+        if self.cloud_fields is None:
+            z0_entry = ttk.Entry(self.basic_tab, width=7, textvariable=self.z0_name)
+            z0_entry.grid(column=3, row=7, sticky="EW")
+        else:
+            # Try to find the default field
+            z0_entry = ttk.OptionMenu(self.basic_tab, self.z0_name, *self.cloud_fields)
+            z0_entry.grid(column=3, row=7, columnspan=2, sticky="EW")
+            self.z0_name.set(self.cloud_fields[0])
+
         z0_entry.configure(state="disabled")
 
         # Stripe upper limit entry
@@ -570,10 +601,7 @@ class Application(tk.Tk):
         ttk.Label(self.basic_tab, text="0 - 5").grid(column=4, row=10, sticky="W")
 
         #### Adding logo
-        logo_png = ImageTk.PhotoImage(
-            Image.open(self._get_resource_path("3dfin_logo.png"))
-        )
-        ttk.Label(self.basic_tab, image=logo_png).grid(
+        ttk.Label(self.basic_tab, image=self.logo_png).grid(
             column=6, row=1, rowspan=2, columnspan=2, sticky="NS"
         )
 
@@ -640,7 +668,7 @@ class Application(tk.Tk):
             child.grid_configure(padx=5, pady=5)
 
         #### Adding radio buttons
-        def enable_denoising():
+        def _enable_denoising():
             z0_entry.configure(state="normal")
             z0_entry.update()
             clean_button_1.configure(state="disabled")
@@ -648,7 +676,7 @@ class Application(tk.Tk):
             clean_button_2.configure(state="disabled")
             clean_button_2.update()
 
-        def disable_denoising():
+        def _disable_denoising():
             z0_entry.configure(state="disabled")
             z0_entry.update()
             clean_button_1.configure(state="normal")
@@ -661,7 +689,7 @@ class Application(tk.Tk):
             text="Yes",
             variable=self.is_normalized_var,
             value=True,
-            command=enable_denoising,
+            command=_enable_denoising,
         )
         normalized_button_1.grid(column=2, row=2, sticky="EW")
         normalized_button_2 = ttk.Radiobutton(
@@ -669,9 +697,13 @@ class Application(tk.Tk):
             text="No",
             variable=self.is_normalized_var,
             value=False,
-            command=disable_denoising,
+            command=_disable_denoising,
         )
         normalized_button_2.grid(column=3, row=2, sticky="EW")
+
+        if self.cloud_fields is not None and not self.cloud_fields:
+            normalized_button_1.configure(state=tk.DISABLED)
+            normalized_button_2.configure(state=tk.DISABLED)
 
         # Create the optionmenu widget and passing the options_list and value_inside to it.
         clean_button_1 = ttk.Radiobutton(
@@ -1545,7 +1577,7 @@ class Application(tk.Tk):
             "Default value: 0.7.",
         )
 
-        def open_warning():
+        def _open_warning():
             """Logic triggered by the warning button."""
             new = tk.Toplevel(self)
             new.geometry("700x380")
@@ -1614,7 +1646,7 @@ class Application(tk.Tk):
             width=12,
             font=("Helvetica", 10, "bold"),
             cursor="hand2",
-            command=open_warning,
+            command=_open_warning,
         ).grid(column=9, row=1, columnspan=2, sticky="E")
 
     def _create_about_tab(self) -> None:
@@ -1772,8 +1804,8 @@ class Application(tk.Tk):
 
         ttk.Label(self.scrollable_info, image=self.covadonga_img).grid(row=17, column=1)
 
-        #### license button ####
-        def open_license():
+        def _open_license():
+            """Load the licence and display it in a frame."""
             with Path(self._get_resource_path("License.txt")).open("r") as f:
                 gnu_license = f.read()
                 new = tk.Toplevel(self.scrollable_info)
@@ -1843,7 +1875,7 @@ class Application(tk.Tk):
             width=8,
             font=("Helvetica", 10, "bold"),
             cursor="hand2",
-            command=open_license,
+            command=_open_license,
         ).grid(row=19, column=1, columnspan=3)
 
         for child in self.scrollable_info.winfo_children():
@@ -1860,21 +1892,178 @@ class Application(tk.Tk):
         # Set the canvas scrolling region
         canvas.config(scrollregion=canvas.bbox("all"))
 
-    def run(self) -> Dict[str, Dict[str, Any]]:
+    def _create_bottom_part(self):
+        """Create the bottom part of the window."""
+        bottom_frame = tk.Frame(self)
+
+        def _ask_output_dir():
+            """Ask for a proper output directory."""
+            output_dir = filedialog.askdirectory(
+                parent=self,
+                title="3DFIN output directory",
+                initialdir=self.output_dir_var.get(),
+            )
+            # If the dialog was not closed/cancel
+            if output_dir != "" and not None:
+                self.output_dir_var.set(Path(output_dir).resolve())
+
+        def _ask_input_file():
+            """Ask for a proper input las file.
+
+            Current selected file is checked for validity (existence and type)
+            in order to setup the initial dir and the initial file in
+            the dialog. If a file is selected then it is checked to be a valid
+            Las file before adding its path to the related input field.
+            the output directory is changed accordingly (default to input las file
+            parent directory)
+            """
+            initial_path = Path(self.input_las_var.get())
+            is_initial_file = (
+                True if initial_path.exists() and initial_path.is_file() else False
+            )
+            initial_dir = (
+                initial_path.parent.resolve() if is_initial_file else Path.home()
+            )
+            initial_file = initial_path.resolve() if is_initial_file else ""
+            las_file = filedialog.askopenfilename(
+                parent=self,
+                title="3DFIN input file",
+                filetypes=[("las files", ".las .Las .Laz .laz")],
+                initialdir=initial_dir,
+                initialfile=initial_file,
+            )
+            # If the dialog was not closed/cancel
+            if las_file != "" and not None:
+                try:
+                    laspy.open(las_file, read_evlrs=False)
+                except laspy.LaspyException:
+                    messagebox.showerror(
+                        parent=self, title="3DFIN Error", message="Invalid las file"
+                    )
+                    return
+                self.input_las_var.set(Path(las_file).resolve())
+                self.output_dir_var.set(Path(las_file).parent.resolve())
+
+        self.label_file = ttk.Label(
+            bottom_frame,
+            text="Input file",
+        )
+        self.label_file.grid(row=0, column=0, sticky="W", padx=(5, 0))
+
+        self.label_directory = ttk.Label(bottom_frame, text="Output directory")
+        self.label_directory.grid(row=0, column=2, sticky="W")
+
+        self.input_file_entry = ttk.Entry(
+            bottom_frame, width=30, textvariable=self.input_las_var
+        )
+        self.input_file_entry.grid(row=1, column=0, sticky="W", padx=5)
+
+        self.input_file_button = ttk.Button(
+            bottom_frame, text="Select file", command=_ask_input_file
+        )
+        self.input_file_button.grid(row=1, column=1, sticky="W", padx=(5, 15))
+
+        # If the file is defined by a third party and will be provided in the callback
+        # by another mean than input from the GUI, we do not want to show field related
+        # to Las input.
+        if self.file_externally_defined:
+            self.label_file.grid_forget()
+            self.input_file_button.grid_forget()
+            self.input_file_entry.grid_forget()
+
+        self.output_dir_entry = ttk.Entry(
+            bottom_frame, width=30, textvariable=self.output_dir_var
+        )
+        self.output_dir_entry.grid(row=1, column=2, sticky="W")
+
+        self.output_dir_button = ttk.Button(
+            bottom_frame, text="Select directory", command=_ask_output_dir
+        )
+        self.output_dir_button.grid(row=1, column=3, sticky="W", padx=(5, 20))
+
+        self.compute_button = tk.Button(
+            bottom_frame,
+            text="Compute",
+            bg="light green",
+            width=25,
+            font=("Helvetica", 10, "bold"),
+            cursor="hand2",
+            command=self.validate_and_run_processing_callback,
+        )
+        self.compute_button.grid(column=5, row=1, sticky="N")
+
+        ### Adding a hyperlink to the documentation
+        link1 = ttk.Label(
+            bottom_frame,
+            text=" Documentation",
+            font=("Helvetica", 11),
+            foreground="blue",
+            cursor="hand2",
+        )
+        link1.grid(row=3, column=5, sticky="SE", columnspan=5)
+        link1.bind(
+            "<Button-1>",
+            lambda: subprocess.Popen(
+                self._get_resource_path("documentation.pdf"), shell=True
+            ),
+        )
+        bottom_frame.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
+
+    def run(self) -> dict[str, dict[str, Any]]:
         """Run the GUI main loop and return the parameters when it quits.
 
         Returns
         -------
-        options : Dict[str, Dict[str, Any]]
+        options : dict[str, dict[str, Any]]
             parameters from the GUI
         """
         self.mainloop()
         return self.get_parameters()
 
-    def run_callback_and_destroy(self) -> None:
-        """Run the processing callback and destroy the GUI application."""
-        self.processing_callback(self, self.get_parameters())
-        self.destroy()
+    def validate_and_run_processing_callback(self) -> None:
+        """Validate I/O entries and run the processing callback."""
+
+        # define a lambda to popup error for convenience
+        def _show_error(error_msg):
+            return messagebox.showerror(
+                parent=self, title="3DFIN Error", message=error_msg
+            )
+
+        # TODO: it would be good to make a sanity check on parameters as well
+        params = self.get_parameters()
+        # If the file is defined in the GUI, we check its validity
+        if not self.file_externally_defined:
+            input_las = Path(params["misc"]["input_las"])
+            if not input_las.exists() or not input_las.is_file():
+                _show_error("Input file does not exists")
+                return
+            try:
+                laspy.open(input_las, read_evlrs=False)
+            except laspy.LaspyException:
+                _show_error("Invalid las file")
+                return
+
+        # We check the validity of the current output directory
+        output_dir = Path(params["misc"]["output_dir"])
+        if (
+            not output_dir.exists()
+            or not output_dir.is_dir()
+            or not os.access(
+                output_dir, os.W_OK
+            )  # os.access won't work well under Windows, we still have to mess with exceptions
+        ):
+            _show_error("Invalid output directory")
+            return
+
+        # TODO: Here we could check if the output directory already contains some processing result
+        # to ask if we should overwrite them.
+        # it should be delegated to the processing functor.
+
+        # Change button caption
+        self.compute_button["text"] = "Processing..."
+        # TODO: handle exception in processing here
+        self.processing_callback(self, params)
+        self.compute_button["text"] = "Compute"
 
     def _bootstrap(self):
         """Create the GUI."""
@@ -1882,12 +2071,11 @@ class Application(tk.Tk):
         self._generate_parameters()
 
         self.iconbitmap(default=self._get_resource_path("icon_window.ico"))
-        self.title("3DFIN")
+
+        self.title(f"3DFIN v{__version__}")
         self.option_add("Helvetica", "12")
         self.resizable(False, False)
-        self.geometry("810x632+0+0")
-        self.columnconfigure(0, weight=1)
-        self.rowconfigure(0, weight=1)
+        self.geometry("810x660+0+0")
 
         ### Define here some infos and copyrights
         # Copyrights
@@ -1899,42 +2087,19 @@ class Application(tk.Tk):
             """See LICENSE at the botton of this tab for further details."""
         )
 
-        # about the project
+        # About the project
         self.about_1 = """This software has been developed at the Centre of Wildfire Research of Swansea University (UK) in collaboration with the Research Institute of
         Biodiversity (CSIC, Spain) and the Department of Mining Exploitation of the University of Oviedo (Spain). Funding provided by the UK NERC
         project (NE/T001194/1):"""
         self.about_2 = """and by the Spanish Knowledge Generation project (PID2021-126790NB-I00):"""
 
         ### Creating the tabs
-        self.note = tk.ttk.Notebook(self)
-        self.note.grid(column=0, row=0, sticky="NEWS")
+        self.note = ttk.Notebook(self)
         self._create_basic_tab()
         self._create_advanced_tab()
         self._create_expert_tab()
         self._create_about_tab()
+        self.note.pack(side=tk.TOP)
 
-        tk.Button(
-            self,
-            text="Select file & compute",
-            bg="light green",
-            width=30,
-            font=("Helvetica", 10, "bold"),
-            cursor="hand2",
-            command=self.run_callback_and_destroy,
-        ).grid(sticky="S")
-
-        ### Adding a hyperlink to the documentation
-        link1 = ttk.Label(
-            self,
-            text=" Documentation",
-            font=("Helvetica", 11),
-            foreground="blue",
-            cursor="hand2",
-        )
-        link1.grid(sticky="NW")
-        link1.bind(
-            "<Button-1>",
-            lambda e: subprocess.Popen(
-                self._get_resource_path("documentation.pdf"), shell=True
-            ),
-        )
+        ### Creating a frame at the bottom with I/O interactions
+        self._create_bottom_part()
