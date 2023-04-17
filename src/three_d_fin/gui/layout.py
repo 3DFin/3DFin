@@ -1804,8 +1804,8 @@ class Application(tk.Tk):
 
         ttk.Label(self.scrollable_info, image=self.covadonga_img).grid(row=17, column=1)
 
-        #### license button ####
         def open_license():
+            """Load the licence and display it in a frame."""
             with Path(self._get_resource_path("License.txt")).open("r") as f:
                 gnu_license = f.read()
                 new = tk.Toplevel(self.scrollable_info)
@@ -1892,96 +1892,8 @@ class Application(tk.Tk):
         # Set the canvas scrolling region
         canvas.config(scrollregion=canvas.bbox("all"))
 
-
-    def run(self) -> dict[str, dict[str, Any]]:
-        """Run the GUI main loop and return the parameters when it quits.
-
-        Returns
-        -------
-        options : dict[str, dict[str, Any]]
-            parameters from the GUI
-        """
-        self.mainloop()
-        return self.get_parameters()
-
-    def validate_and_run_processing_callback(self) -> None:
-        """Validate I/O entries and run the processing callback."""
-
-        # define a lambda to popu error for convenience
-        def _show_error(error_msg):
-            return messagebox.showerror(
-                parent=self, title="3DFIN Error", message=error_msg
-            )
-
-        # TODO: it would be good to make a sanity check on parameters as well
-        params = self.get_parameters()
-        # If the file is defined in the GUI we check its validity
-        if not self.file_externally_defined:
-            input_las = Path(params["misc"]["input_las"])
-            if not input_las.exists() or not input_las.is_file():
-                _show_error("Input file does not exists")
-                return
-            try:
-                laspy.open(input_las, read_evlrs=False)
-            except laspy.LaspyException:
-                _show_error("Invalid las file")
-                return
-
-        # We check the validity of the current output directory
-        output_dir = Path(params["misc"]["output_dir"])
-        if (
-            not output_dir.exists()
-            or not output_dir.is_dir()
-            or not os.access(
-                output_dir, os.W_OK
-            )  # os.access won't work well under Windows, we still have to mess with exceptions
-        ):
-            _show_error("Invalid output directory")
-            return
-
-        # Change button caption
-        self.compute_button["text"] = "Processing..."
-        # TODO: handle exception in processing here
-        self.processing_callback(self, params)
-        self.compute_button["text"] = "Compute"
-
-    def _bootstrap(self):
-        """Create the GUI."""
-        self._preload_images()
-        self._generate_parameters()
-
-        self.iconbitmap(default=self._get_resource_path("icon_window.ico"))
-
-        self.title(f"3DFIN v{__version__}")
-        self.option_add("Helvetica", "12")
-        self.resizable(False, False)
-        self.geometry("810x660+0+0")
-
-        ### Define here some infos and copyrights
-        # Copyrights
-        self.copyright_info_1 = (
-            """ 3DFIN: Forest Inventory Copyright (C) 2023 Carlos Cabo & Diego Laino."""
-        )
-        self.copyright_info_2 = """This program comes with ABSOLUTELY NO WARRANTY. This is a free software, and you are welcome to redistribute it under certain conditions."""
-        self.copyright_info_3 = (
-            """See LICENSE at the botton of this tab for further details."""
-        )
-
-        # about the project
-        self.about_1 = """This software has been developed at the Centre of Wildfire Research of Swansea University (UK) in collaboration with the Research Institute of
-        Biodiversity (CSIC, Spain) and the Department of Mining Exploitation of the University of Oviedo (Spain). Funding provided by the UK NERC
-        project (NE/T001194/1):"""
-        self.about_2 = """and by the Spanish Knowledge Generation project (PID2021-126790NB-I00):"""
-
-        ### Creating the tabs
-        self.note = ttk.Notebook(self)
-        self._create_basic_tab()
-        self._create_advanced_tab()
-        self._create_expert_tab()
-        self._create_about_tab()
-        self.note.pack(side=tk.TOP)
-
-        ### Creating a frame at the bottom with I/O interactions
+    def _create_bottom_part(self):
+        """Create the bottom part of the window."""
         bottom_frame = tk.Frame(self)
 
         def _ask_output_dir():
@@ -2036,23 +1948,23 @@ class Application(tk.Tk):
             bottom_frame,
             text="Input file",
         )
-        self.label_file.grid(column=0, row=0, sticky="W", padx=(5, 0))
+        self.label_file.grid(row=0, column=0, sticky="W", padx=(5, 0))
 
         self.label_directory = ttk.Label(bottom_frame, text="Output directory")
-        self.label_directory.grid(column=2, row=0, sticky="W")
+        self.label_directory.grid(row=0, column=2, sticky="W")
 
         self.input_file_entry = ttk.Entry(
             bottom_frame, width=30, textvariable=self.input_las_var
         )
-        self.input_file_entry.grid(column=0, row=1, sticky="W", padx=5)
+        self.input_file_entry.grid(row=1, column=0, sticky="W", padx=5)
 
         self.input_file_button = ttk.Button(
             bottom_frame, text="Select file", command=_ask_input_file
         )
-        self.input_file_button.grid(column=1, row=1, sticky="W", padx=(5, 15))
+        self.input_file_button.grid(row=1, column=1, sticky="W", padx=(5, 15))
 
         # If the file is defined by a third party and will be provided in the callback
-        # by another mean than input in the GUI, we do not want to show field related
+        # by another mean than input from the GUI, we do not want to show field related
         # to Las input.
         if self.file_externally_defined:
             self.label_file.grid_forget()
@@ -2062,12 +1974,12 @@ class Application(tk.Tk):
         self.output_dir_entry = ttk.Entry(
             bottom_frame, width=30, textvariable=self.output_dir_var
         )
-        self.output_dir_entry.grid(column=2, row=1, sticky="W")
+        self.output_dir_entry.grid(row=1, column=2, sticky="W")
 
         self.output_dir_button = ttk.Button(
             bottom_frame, text="Select directory", command=_ask_output_dir
         )
-        self.output_dir_button.grid(column=3, row=1, sticky="W", padx=(5, 20))
+        self.output_dir_button.grid(row=1, column=3, sticky="W", padx=(5, 20))
 
         self.compute_button = tk.Button(
             bottom_frame,
@@ -2078,7 +1990,7 @@ class Application(tk.Tk):
             cursor="hand2",
             command=self.validate_and_run_processing_callback,
         )
-        self.compute_button.grid(row=1, column=5, sticky="N")
+        self.compute_button.grid(column=5, row=1, sticky="N")
 
         ### Adding a hyperlink to the documentation
         link1 = ttk.Label(
@@ -2088,7 +2000,7 @@ class Application(tk.Tk):
             foreground="blue",
             cursor="hand2",
         )
-        link1.grid(row=3, column=0, sticky="NW", columnspan=4)
+        link1.grid(row=3, column=5, sticky="SE", columnspan=5)
         link1.bind(
             "<Button-1>",
             lambda: subprocess.Popen(
@@ -2096,3 +2008,98 @@ class Application(tk.Tk):
             ),
         )
         bottom_frame.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
+
+    def run(self) -> dict[str, dict[str, Any]]:
+        """Run the GUI main loop and return the parameters when it quits.
+
+        Returns
+        -------
+        options : dict[str, dict[str, Any]]
+            parameters from the GUI
+        """
+        self.mainloop()
+        return self.get_parameters()
+
+    def validate_and_run_processing_callback(self) -> None:
+        """Validate I/O entries and run the processing callback."""
+
+        # define a lambda to popup error for convenience
+        def _show_error(error_msg):
+            return messagebox.showerror(
+                parent=self, title="3DFIN Error", message=error_msg
+            )
+
+        # TODO: it would be good to make a sanity check on parameters as well
+        params = self.get_parameters()
+        # If the file is defined in the GUI, we check its validity
+        if not self.file_externally_defined:
+            input_las = Path(params["misc"]["input_las"])
+            if not input_las.exists() or not input_las.is_file():
+                _show_error("Input file does not exists")
+                return
+            try:
+                laspy.open(input_las, read_evlrs=False)
+            except laspy.LaspyException:
+                _show_error("Invalid las file")
+                return
+
+        # We check the validity of the current output directory
+        output_dir = Path(params["misc"]["output_dir"])
+        if (
+            not output_dir.exists()
+            or not output_dir.is_dir()
+            or not os.access(
+                output_dir, os.W_OK
+            )  # os.access won't work well under Windows, we still have to mess with exceptions
+        ):
+            _show_error("Invalid output directory")
+            return
+
+        # TODO: Here we could check if the output directory already contains some processing result
+        # to ask if we should overwrite them.
+        # it should be delegated to the processing functor.
+
+        # Change button caption
+        self.compute_button["text"] = "Processing..."
+        # TODO: handle exception in processing here
+        self.processing_callback(self, params)
+        self.compute_button["text"] = "Compute"
+
+    def _bootstrap(self):
+        """Create the GUI."""
+        self._preload_images()
+        self._generate_parameters()
+
+        self.iconbitmap(default=self._get_resource_path("icon_window.ico"))
+
+        self.title(f"3DFIN v{__version__}")
+        self.option_add("Helvetica", "12")
+        self.resizable(False, False)
+        self.geometry("810x660+0+0")
+
+        ### Define here some infos and copyrights
+        # Copyrights
+        self.copyright_info_1 = (
+            """ 3DFIN: Forest Inventory Copyright (C) 2023 Carlos Cabo & Diego Laino."""
+        )
+        self.copyright_info_2 = """This program comes with ABSOLUTELY NO WARRANTY. This is a free software, and you are welcome to redistribute it under certain conditions."""
+        self.copyright_info_3 = (
+            """See LICENSE at the botton of this tab for further details."""
+        )
+
+        # About the project
+        self.about_1 = """This software has been developed at the Centre of Wildfire Research of Swansea University (UK) in collaboration with the Research Institute of
+        Biodiversity (CSIC, Spain) and the Department of Mining Exploitation of the University of Oviedo (Spain). Funding provided by the UK NERC
+        project (NE/T001194/1):"""
+        self.about_2 = """and by the Spanish Knowledge Generation project (PID2021-126790NB-I00):"""
+
+        ### Creating the tabs
+        self.note = ttk.Notebook(self)
+        self._create_basic_tab()
+        self._create_advanced_tab()
+        self._create_expert_tab()
+        self._create_about_tab()
+        self.note.pack(side=tk.TOP)
+
+        ### Creating a frame at the bottom with I/O interactions
+        self._create_bottom_part()
