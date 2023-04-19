@@ -5,26 +5,14 @@ Welcome to 3DFin: 3D Forest inventory's official repository!
 
 3DFin is a free software for automatic computation of tree parameters in terrestrial point clouds. It offers the users a quick, ease-of-use interface to load their forest plots and generate tree metrics with just a few clicks.
 
-3DFin is available as a standalone program, which can be downloaded in _Download_ and as a _CloudCompare plugin_.
+3DFin is available as a standalone program, which can be downloaded from [Releases](https://github.com/3DFIN/3DFIN/releases/). From there, simply click on __3DFin.exe__.
 
 Be sure to check the [Documentation](https://github.com/3DFIN/3DFIN/blob/main/src/three_d_fin/assets/documentation.pdf), which features detailed explanations on how the program works and an User manual.
 
 
-# Download 
+# Further releases
 
-To download the latest version of 3DFin, simply click on the link below:
-
-_Download_
-
-
-# CloudCompare plugin
-
-3DFin is also available as a plugin in [CloudCompare](https://www.danielgm.net/cc/). CloudCompare is the largest, most used, free software for 3D point cloud visualization and manipulation. 
-
-
-# QGIS plugin
-
-Good news! Soon, 3DFin will also be available as a plugin in [QGIS](https://www.qgis.org/en/site/), the most used free software for GIS data.
+Good news! Soon, 3DFin will also be available as a plugin in [CloudCompare](https://www.danielgm.net/cc/). CloudCompare is the largest, most used, free software for 3D point cloud visualization and manipulation.  It will also be available as a plugin in [QGIS](https://www.qgis.org/en/site/), the most used free software for GIS data.
 
 
 # Acknowledgement
