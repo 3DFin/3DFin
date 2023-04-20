@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "3DFIN"
 description = "Automatic dendrometry and forest inventory for terrestrial point clouds, application package"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 license = "GPL-3.0-or-later"
 keywords = ["lidar", "forestry", "tls"]
 authors = [
@@ -44,7 +44,7 @@ Documentation = "https://github.com/3DFIN/3DFIN#README.md"
 Issues = "https://github.com/3DFIN/3DFIN/issues"
 Source = "https://github.com/3DFIN/3DFIN"
 
-[project.gui-scripts]
+[project.scripts]
 3DFin = "three_d_fin.gui.processing:process"
 
 [tool.hatch.build.targets.wheel]

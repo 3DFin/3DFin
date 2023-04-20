@@ -5,7 +5,7 @@ import sys
 import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Optional
 
 import laspy
 from PIL import Image, ImageTk
@@ -20,7 +20,7 @@ class Application(tk.Tk):
     def __init__(
         self,
         processing_callback: Callable[
-            [Optional["Application"], Dict[str, Dict[str, Any]]], None
+            [Optional["Application"], dict[str, dict[str, Any]]], None
         ],
         file_externally_defined: bool = False,
         cloud_fields: Optional[list[str]] = None,
@@ -29,7 +29,7 @@ class Application(tk.Tk):
 
         Parameters
         ----------
-        processing_callback : Callable[[Application|None, Dict[str, Dict[str, Any]]]
+        processing_callback : Callable[[Application|None, dict[str, dict[str, Any]]]
             Callback/Functor that is responsible for the computing logic.
             It is triggered by the "compute" button of the GUI.
         file_externally_defined : bool
@@ -141,59 +141,59 @@ class Application(tk.Tk):
         it fallback to default parameters hardcoded here.
         """
         ### Basic parameters
-        self.z0_name = tk.StringVar()
-        self.upper_limit = tk.StringVar()
-        self.lower_limit = tk.StringVar()
-        self.number_of_iterations = tk.StringVar()
+        self.z0_name = tk.StringVar(value="Z0")
+        self.upper_limit = tk.StringVar(value="3.5")
+        self.lower_limit = tk.StringVar(value="0.7")
+        self.number_of_iterations = tk.StringVar(value="2")
 
         ### Advanced parameters
-        self.maximum_diameter = tk.StringVar()
-        self.stem_search_diameter = tk.StringVar()
-        self.minimum_height = tk.StringVar()
-        self.maximum_height = tk.StringVar()
-        self.section_len = tk.StringVar()
-        self.section_wid = tk.StringVar()
+        self.maximum_diameter = tk.StringVar(value="1.0")
+        self.stem_search_diameter = tk.StringVar(value="2.0")
+        self.minimum_height = tk.StringVar(value="0.3")
+        self.maximum_height = tk.StringVar(value="25")
+        self.section_len = tk.StringVar(value="0.2")
+        self.section_wid = tk.StringVar(value="0.05")
 
         ### Expert parameters
         # Stem identification
-        self.res_xy_stripe = tk.StringVar()
-        self.res_z_stripe = tk.StringVar()
-        self.number_of_points = tk.StringVar()
-        self.verticality_scale_stripe = tk.StringVar()
-        self.verticality_thresh_stripe = tk.StringVar()
-        self.height_range = tk.StringVar()
+        self.res_xy_stripe = tk.StringVar(value="0.02")
+        self.res_z_stripe = tk.StringVar(value="0.02")
+        self.number_of_points = tk.StringVar(value="1000")
+        self.verticality_scale_stripe = tk.StringVar(value="0.1")
+        self.verticality_thresh_stripe = tk.StringVar(value="0.7")
+        self.height_range = tk.StringVar(value="0.7")
 
         # Stem extraction and Tree individualization
-        self.res_xy = tk.StringVar()
-        self.res_z = tk.StringVar()
-        self.minimum_points = tk.StringVar()
-        self.verticality_scale_stems = tk.StringVar()
-        self.verticality_thresh_stems = tk.StringVar()
-        self.maximum_d = tk.StringVar()
-        self.distance_to_axis = tk.StringVar()
-        self.res_heights = tk.StringVar()
-        self.maximum_dev = tk.StringVar()
+        self.res_xy = tk.StringVar(value="0.035")
+        self.res_z = tk.StringVar(value="0.035")
+        self.minimum_points = tk.StringVar(value="20")
+        self.verticality_scale_stems = tk.StringVar(value="0.1")
+        self.verticality_thresh_stems = tk.StringVar(value="0.7")
+        self.maximum_d = tk.StringVar(value="15")
+        self.distance_to_axis = tk.StringVar(value="1.5")
+        self.res_heights = tk.StringVar(value="0.3")
+        self.maximum_dev = tk.StringVar(value="25")
 
         # Extracting sections
-        self.number_points_section = tk.StringVar()
-        self.diameter_proportion = tk.StringVar()
-        self.minimum_diameter = tk.StringVar()
-        self.point_threshold = tk.StringVar()
-        self.point_distance = tk.StringVar()
-        self.number_sectors = tk.StringVar()
-        self.m_number_sectors = tk.StringVar()
-        self.circle_width = tk.StringVar()
+        self.number_points_section = tk.StringVar(value="80")
+        self.diameter_proportion = tk.StringVar(value="0.5")
+        self.minimum_diameter = tk.StringVar(value="0.06")
+        self.point_threshold = tk.StringVar(value="5")
+        self.point_distance = tk.StringVar(value="0.02")
+        self.number_sectors = tk.StringVar(value="16")
+        self.m_number_sectors = tk.StringVar(value="9")
+        self.circle_width = tk.StringVar(value="0.02")
 
         # Drawing circles and axes
-        self.circa = tk.StringVar()
-        self.p_interval = tk.StringVar()
-        self.axis_downstep = tk.StringVar()
-        self.axis_upstep = tk.StringVar()
+        self.circa = tk.StringVar(value="200")
+        self.p_interval = tk.StringVar(value="0.01")
+        self.axis_downstep = tk.StringVar(value="0.5")
+        self.axis_upstep = tk.StringVar(value="10")
 
         # Other parameters
-        self.res_ground = tk.StringVar()
-        self.min_points_ground = tk.StringVar()
-        self.res_cloth = tk.StringVar()
+        self.res_ground = tk.StringVar(value="0.15")
+        self.min_points_ground = tk.StringVar(value="2")
+        self.res_cloth = tk.StringVar(value="0.7")
 
         # TODO: misc parameters. These parameters have no entry in the option file
         # but they are needed for processing and exposed in the GUI
@@ -212,66 +212,10 @@ class Application(tk.Tk):
 
         try:
             my_abs_path = my_file.resolve(strict=True)
-
         except FileNotFoundError:
-            ### Basic parameters
-            self.z0_name.set("Z0")
-            self.upper_limit.set("3.5")
-            self.lower_limit.set("0.7")
-            self.number_of_iterations.set("2")
-
-            ### Advanced parameters
-            self.maximum_diameter.set("1.0")
-            self.stem_search_diameter.set("2.0")
-            self.minimum_height.set("0.3")
-            self.maximum_height.set("25")
-            self.section_len.set("0.2")
-            self.section_wid.set("0.05")
-
-            ### Expert parameters
-
-            # Stem identification
-            self.res_xy_stripe.set("0.02")
-            self.res_z_stripe.set("0.02")
-            self.number_of_points.set("1000")
-            self.verticality_scale_stripe.set("0.1")
-            self.verticality_thresh_stripe.set("0.7")
-            self.height_range.set("0.7")
-
-            # Stem extraction and Tree individualization
-            self.res_xy.set("0.035")
-            self.res_z.set("0.035")
-            self.minimum_points.set("20")
-            self.verticality_scale_stems.set("0.1")
-            self.verticality_thresh_stems.set("0.7")
-            self.maximum_d.set("15")
-            self.distance_to_axis.set("1.5")
-            self.res_heights.set("0.3")
-            self.maximum_dev.set("25")
-
-            # Extracting sections
-            self.number_points_section.set("80")
-            self.diameter_proportion.set("0.5")
-            self.minimum_diameter.set("0.06")
-            self.point_threshold.set("5")
-            self.point_distance.set("0.02")
-            self.number_sectors.set("16")
-            self.m_number_sectors.set("9")
-            self.circle_width.set("0.02")
-
-            # Drawing circles and axes
-            self.circa.set("200")
-            self.p_interval.set("0.01")
-            self.axis_downstep.set("0.5")
-            self.axis_upstep.set("10")
-
-            # Other parameters
-            self.res_ground.set("0.15")
-            self.min_points_ground.set("2")
-            self.res_cloth.set("0.7")
-
+            pass
         else:
-            print("Configuration file found. Default parameters have been established.")
+            print("Configuration file found. Setting default parameters from the file")
 
             ### Reading the config file
             config = configparser.ConfigParser()
@@ -341,18 +285,18 @@ class Application(tk.Tk):
             self.min_points_ground.set(config["expert"]["min_points_ground"])
             self.res_cloth.set(config["expert"]["res_cloth"])
 
-    def get_parameters(self) -> Dict[str, Dict[str, Any]]:
+    def get_parameters(self) -> dict[str, dict[str, Any]]:
         """Get parameters from widgets and return them organized in a dictionnary.
 
         Returns
         -------
-        options : Dict[str, Dict[str, Any]]
+        options : dict[str, dict[str, Any]]
             Dictionary of parameters. It is organised followinf the 3DFINconfig.ini file:
             Each parameters are sorted in sub-dict ("basic", "expert", "advanced").
             TODO: A "misc" subsection enclose all parameters needed by 3DFIN but not
             defined in the the config file.
         """
-        params: Dict[str, Dict[str, Any]] = {}
+        params: dict[str, dict[str, Any]] = {}
         params["misc"] = {}
         params["basic"] = {}
         params["expert"] = {}
@@ -668,7 +612,7 @@ class Application(tk.Tk):
             child.grid_configure(padx=5, pady=5)
 
         #### Adding radio buttons
-        def enable_denoising():
+        def _enable_denoising():
             z0_entry.configure(state="normal")
             z0_entry.update()
             clean_button_1.configure(state="disabled")
@@ -676,7 +620,7 @@ class Application(tk.Tk):
             clean_button_2.configure(state="disabled")
             clean_button_2.update()
 
-        def disable_denoising():
+        def _disable_denoising():
             z0_entry.configure(state="disabled")
             z0_entry.update()
             clean_button_1.configure(state="normal")
@@ -689,7 +633,7 @@ class Application(tk.Tk):
             text="Yes",
             variable=self.is_normalized_var,
             value=True,
-            command=enable_denoising,
+            command=_enable_denoising,
         )
         normalized_button_1.grid(column=2, row=2, sticky="EW")
         normalized_button_2 = ttk.Radiobutton(
@@ -697,7 +641,7 @@ class Application(tk.Tk):
             text="No",
             variable=self.is_normalized_var,
             value=False,
-            command=disable_denoising,
+            command=_disable_denoising,
         )
         normalized_button_2.grid(column=3, row=2, sticky="EW")
 
@@ -1577,7 +1521,7 @@ class Application(tk.Tk):
             "Default value: 0.7.",
         )
 
-        def open_warning():
+        def _open_warning():
             """Logic triggered by the warning button."""
             new = tk.Toplevel(self)
             new.geometry("700x380")
@@ -1646,7 +1590,7 @@ class Application(tk.Tk):
             width=12,
             font=("Helvetica", 10, "bold"),
             cursor="hand2",
-            command=open_warning,
+            command=_open_warning,
         ).grid(column=9, row=1, columnspan=2, sticky="E")
 
     def _create_about_tab(self) -> None:
@@ -1804,8 +1748,8 @@ class Application(tk.Tk):
 
         ttk.Label(self.scrollable_info, image=self.covadonga_img).grid(row=17, column=1)
 
-        #### license button ####
-        def open_license():
+        def _open_license():
+            """Load the licence and display it in a frame."""
             with Path(self._get_resource_path("License.txt")).open("r") as f:
                 gnu_license = f.read()
                 new = tk.Toplevel(self.scrollable_info)
@@ -1875,7 +1819,7 @@ class Application(tk.Tk):
             width=8,
             font=("Helvetica", 10, "bold"),
             cursor="hand2",
-            command=open_license,
+            command=_open_license,
         ).grid(row=19, column=1, columnspan=3)
 
         for child in self.scrollable_info.winfo_children():
@@ -1892,95 +1836,8 @@ class Application(tk.Tk):
         # Set the canvas scrolling region
         canvas.config(scrollregion=canvas.bbox("all"))
 
-    def run(self) -> Dict[str, Dict[str, Any]]:
-        """Run the GUI main loop and return the parameters when it quits.
-
-        Returns
-        -------
-        options : Dict[str, Dict[str, Any]]
-            parameters from the GUI
-        """
-        self.mainloop()
-        return self.get_parameters()
-
-    def validate_and_run_processing_callback(self) -> None:
-        """Validate I/O entries and run the processing callback."""
-
-        # define a lambda to popu error for convenience
-        def _show_error(error_msg):
-            return messagebox.showerror(
-                parent=self, title="3DFIN Error", message=error_msg
-            )
-
-        # TODO: it would be good to make a sanity check on parameters as well
-        params = self.get_parameters()
-        # If the file is defined in the GUI we check its validity
-        if not self.file_externally_defined:
-            input_las = Path(params["misc"]["input_las"])
-            if not input_las.exists() or not input_las.is_file():
-                _show_error("Input file does not exists")
-                return
-            try:
-                laspy.open(input_las, read_evlrs=False)
-            except laspy.LaspyException:
-                _show_error("Invalid las file")
-                return
-
-        # We check the validity of the current output directory
-        output_dir = Path(params["misc"]["output_dir"])
-        if (
-            not output_dir.exists()
-            or not output_dir.is_dir()
-            or not os.access(
-                output_dir, os.W_OK
-            )  # os.access won't work well under Windows, we still have to mess with exceptions
-        ):
-            _show_error("Invalid output directory")
-            return
-
-        # Change button caption
-        self.compute_button["text"] = "Processing..."
-        # TODO: handle exception in processing here
-        self.processing_callback(self, params)
-        self.compute_button["text"] = "Compute"
-
-    def _bootstrap(self):
-        """Create the GUI."""
-        self._preload_images()
-        self._generate_parameters()
-
-        self.iconbitmap(default=self._get_resource_path("icon_window.ico"))
-
-        self.title(f"3DFIN v{__version__}")
-        self.option_add("Helvetica", "12")
-        self.resizable(False, False)
-        self.geometry("810x660+0+0")
-
-        ### Define here some infos and copyrights
-        # Copyrights
-        self.copyright_info_1 = (
-            """ 3DFIN: Forest Inventory Copyright (C) 2023 Carlos Cabo & Diego Laino."""
-        )
-        self.copyright_info_2 = """This program comes with ABSOLUTELY NO WARRANTY. This is a free software, and you are welcome to redistribute it under certain conditions."""
-        self.copyright_info_3 = (
-            """See LICENSE at the botton of this tab for further details."""
-        )
-
-        # about the project
-        self.about_1 = """This software has been developed at the Centre of Wildfire Research of Swansea University (UK) in collaboration with the Research Institute of
-        Biodiversity (CSIC, Spain) and the Department of Mining Exploitation of the University of Oviedo (Spain). Funding provided by the UK NERC
-        project (NE/T001194/1):"""
-        self.about_2 = """and by the Spanish Knowledge Generation project (PID2021-126790NB-I00):"""
-
-        ### Creating the tabs
-        self.note = ttk.Notebook(self)
-        self._create_basic_tab()
-        self._create_advanced_tab()
-        self._create_expert_tab()
-        self._create_about_tab()
-        self.note.pack(side=tk.TOP)
-
-        ### Creating a frame at the bottom with I/O interactions
+    def _create_bottom_part(self):
+        """Create the bottom part of the window."""
         bottom_frame = tk.Frame(self)
 
         def _ask_output_dir():
@@ -2035,23 +1892,23 @@ class Application(tk.Tk):
             bottom_frame,
             text="Input file",
         )
-        self.label_file.grid(column=0, row=0, sticky="W", padx=(5, 0))
+        self.label_file.grid(row=0, column=0, sticky="W", padx=(5, 0))
 
         self.label_directory = ttk.Label(bottom_frame, text="Output directory")
-        self.label_directory.grid(column=2, row=0, sticky="W")
+        self.label_directory.grid(row=0, column=2, sticky="W")
 
         self.input_file_entry = ttk.Entry(
             bottom_frame, width=30, textvariable=self.input_las_var
         )
-        self.input_file_entry.grid(column=0, row=1, sticky="W", padx=5)
+        self.input_file_entry.grid(row=1, column=0, sticky="W", padx=5)
 
         self.input_file_button = ttk.Button(
             bottom_frame, text="Select file", command=_ask_input_file
         )
-        self.input_file_button.grid(column=1, row=1, sticky="W", padx=(5, 15))
+        self.input_file_button.grid(row=1, column=1, sticky="W", padx=(5, 15))
 
         # If the file is defined by a third party and will be provided in the callback
-        # by another mean than input in the GUI, we do not want to show field related
+        # by another mean than input from the GUI, we do not want to show field related
         # to Las input.
         if self.file_externally_defined:
             self.label_file.grid_forget()
@@ -2061,12 +1918,12 @@ class Application(tk.Tk):
         self.output_dir_entry = ttk.Entry(
             bottom_frame, width=30, textvariable=self.output_dir_var
         )
-        self.output_dir_entry.grid(column=2, row=1, sticky="W")
+        self.output_dir_entry.grid(row=1, column=2, sticky="W")
 
         self.output_dir_button = ttk.Button(
             bottom_frame, text="Select directory", command=_ask_output_dir
         )
-        self.output_dir_button.grid(column=3, row=1, sticky="W", padx=(5, 20))
+        self.output_dir_button.grid(row=1, column=3, sticky="W", padx=(5, 20))
 
         self.compute_button = tk.Button(
             bottom_frame,
@@ -2077,7 +1934,7 @@ class Application(tk.Tk):
             cursor="hand2",
             command=self.validate_and_run_processing_callback,
         )
-        self.compute_button.grid(row=1, column=5, sticky="N")
+        self.compute_button.grid(column=5, row=1, sticky="N")
 
         ### Adding a hyperlink to the documentation
         link1 = ttk.Label(
@@ -2087,7 +1944,7 @@ class Application(tk.Tk):
             foreground="blue",
             cursor="hand2",
         )
-        link1.grid(row=3, column=0, sticky="NW", columnspan=4)
+        link1.grid(row=3, column=5, sticky="SE", columnspan=5)
         link1.bind(
             "<Button-1>",
             lambda: subprocess.Popen(
@@ -2095,3 +1952,98 @@ class Application(tk.Tk):
             ),
         )
         bottom_frame.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
+
+    def run(self) -> dict[str, dict[str, Any]]:
+        """Run the GUI main loop and return the parameters when it quits.
+
+        Returns
+        -------
+        options : dict[str, dict[str, Any]]
+            parameters from the GUI
+        """
+        self.mainloop()
+        return self.get_parameters()
+
+    def validate_and_run_processing_callback(self) -> None:
+        """Validate I/O entries and run the processing callback."""
+
+        # define a lambda to popup error for convenience
+        def _show_error(error_msg):
+            return messagebox.showerror(
+                parent=self, title="3DFIN Error", message=error_msg
+            )
+
+        # TODO: it would be good to make a sanity check on parameters as well
+        params = self.get_parameters()
+        # If the file is defined in the GUI, we check its validity
+        if not self.file_externally_defined:
+            input_las = Path(params["misc"]["input_las"])
+            if not input_las.exists() or not input_las.is_file():
+                _show_error("Input file does not exists")
+                return
+            try:
+                laspy.open(input_las, read_evlrs=False)
+            except laspy.LaspyException:
+                _show_error("Invalid las file")
+                return
+
+        # We check the validity of the current output directory
+        output_dir = Path(params["misc"]["output_dir"])
+        if (
+            not output_dir.exists()
+            or not output_dir.is_dir()
+            or not os.access(
+                output_dir, os.W_OK
+            )  # os.access won't work well under Windows, we still have to mess with exceptions
+        ):
+            _show_error("Invalid output directory")
+            return
+
+        # TODO: Here we could check if the output directory already contains some processing result
+        # to ask if we should overwrite them.
+        # it should be delegated to the processing functor.
+
+        # Change button caption
+        self.compute_button["text"] = "Processing..."
+        # TODO: handle exception in processing here
+        self.processing_callback(self, params)
+        self.compute_button["text"] = "Compute"
+
+    def _bootstrap(self):
+        """Create the GUI."""
+        self._preload_images()
+        self._generate_parameters()
+
+        self.iconbitmap(default=self._get_resource_path("icon_window.ico"))
+
+        self.title(f"3DFIN v{__version__}")
+        self.option_add("Helvetica", "12")
+        self.resizable(False, False)
+        self.geometry("810x660+0+0")
+
+        ### Define here some infos and copyrights
+        # Copyrights
+        self.copyright_info_1 = (
+            """ 3DFIN: Forest Inventory Copyright (C) 2023 Carlos Cabo & Diego Laino."""
+        )
+        self.copyright_info_2 = """This program comes with ABSOLUTELY NO WARRANTY. This is a free software, and you are welcome to redistribute it under certain conditions."""
+        self.copyright_info_3 = (
+            """See LICENSE at the botton of this tab for further details."""
+        )
+
+        # About the project
+        self.about_1 = """This software has been developed at the Centre of Wildfire Research of Swansea University (UK) in collaboration with the Research Institute of
+        Biodiversity (CSIC, Spain) and the Department of Mining Exploitation of the University of Oviedo (Spain). Funding provided by the UK NERC
+        project (NE/T001194/1):"""
+        self.about_2 = """and by the Spanish Knowledge Generation project (PID2021-126790NB-I00):"""
+
+        ### Creating the tabs
+        self.note = ttk.Notebook(self)
+        self._create_basic_tab()
+        self._create_advanced_tab()
+        self._create_expert_tab()
+        self._create_about_tab()
+        self.note.pack(side=tk.TOP)
+
+        ### Creating a frame at the bottom with I/O interactions
+        self._create_bottom_part()
