@@ -3,8 +3,8 @@ import os
 import subprocess
 import sys
 import tkinter as tk
+from inspect import cleandoc
 from pathlib import Path
-from textwrap import dedent
 from tkinter import filedialog, messagebox, ttk
 from typing import Any, Callable, Optional
 
@@ -575,7 +575,7 @@ class Application(tk.Tk):
             column=5, row=1, rowspan=10, sticky="NS"
         )
 
-        ttk.Label(self.basic_tab, text=dedent(insert_text1)).grid(
+        ttk.Label(self.basic_tab, text=cleandoc(insert_text1)).grid(
             column=6, row=3, rowspan=8, columnspan=2, sticky="NW"
         )
 
@@ -832,7 +832,7 @@ class Application(tk.Tk):
             text="Advanced parameters",
             font=("Helvetica", 10, "bold"),
         ).grid(column=6, row=1, rowspan=8, sticky="N")
-        ttk.Label(self.advanced_tab, text=dedent(insert_text2)).grid(
+        ttk.Label(self.advanced_tab, text=cleandoc(insert_text2)).grid(
             column=6, row=2, rowspan=8, sticky="NW"
         )
 
@@ -848,7 +848,7 @@ class Application(tk.Tk):
         sections_text = """A) Sections along the stem B) Detail of computed sections showing the distance
         between them and their width C) Circle fitting to the points of a section.
         """
-        ttk.Label(self.advanced_tab, text=dedent(sections_text)).grid(
+        ttk.Label(self.advanced_tab, text=cleandoc(sections_text)).grid(
             column=1, row=10, columnspan=15, sticky="NW", padx=20, pady=5
         )
 
@@ -860,7 +860,7 @@ class Application(tk.Tk):
         validate the fitted circles, such as measuring
         the point distribution along the sections."""
 
-        ttk.Label(self.advanced_tab, text=dedent(sectors_text)).grid(
+        ttk.Label(self.advanced_tab, text=cleandoc(sectors_text)).grid(
             column=1, row=10, columnspan=15, sticky="NE", padx=20, pady=5
         )
 
@@ -1672,7 +1672,7 @@ class Application(tk.Tk):
         copyright_3_lab.grid(row=3, column=1, columnspan=3)
 
         # About the project #
-        about_1_lab = ttk.Label(self.scrollable_info, text=dedent(self.about_1))
+        about_1_lab = ttk.Label(self.scrollable_info, text=cleandoc(self.about_1))
         about_1_lab.grid(row=4, column=1, columnspan=3, sticky="W")
 
         nerc_project_lab = ttk.Label(
@@ -1716,27 +1716,32 @@ class Application(tk.Tk):
         )
         team_lab.grid(row=11, column=1, columnspan=3)
 
-        carloscabo_lab = ttk.Label(self.scrollable_info, text=dedent(carloscabo))
+        carloscabo_lab = ttk.Label(self.scrollable_info, text=cleandoc(carloscabo))
         carloscabo_lab.grid(row=11, column=2, columnspan=2, sticky="W")
 
-        diegolaino_lab = ttk.Label(self.scrollable_info, text=dedent(diegolaino))
+        diegolaino_lab = ttk.Label(self.scrollable_info, text=cleandoc(diegolaino))
         diegolaino_lab.grid(row=12, column=2, columnspan=2, sticky="W")
 
-        covadongaprendes_lab = ttk.Label(self.scrollable_info, text=dedent(covadongaprendes))
+        covadongaprendes_lab = ttk.Label(
+            self.scrollable_info, text=cleandoc(covadongaprendes)
+        )
         covadongaprendes_lab.grid(row=13, column=2, columnspan=2, sticky="W")
 
-        crissantin_lab = ttk.Label(self.scrollable_info, text=dedent(crissantin))
+        crissantin_lab = ttk.Label(self.scrollable_info, text=cleandoc(crissantin))
         crissantin_lab.grid(row=14, column=2, columnspan=2, sticky="W")
 
-        stefandoerr_lab = ttk.Label(self.scrollable_info, text=dedent(stefandoerr))
+        stefandoerr_lab = ttk.Label(self.scrollable_info, text=cleandoc(stefandoerr))
         stefandoerr_lab.grid(row=15, column=2, columnspan=2, sticky="W")
 
-        celestinoordonez_lab = ttk.Label(self.scrollable_info, text=dedent(celestinoordonez))
+        celestinoordonez_lab = ttk.Label(
+            self.scrollable_info, text=cleandoc(celestinoordonez)
+        )
         celestinoordonez_lab.grid(row=16, column=2, columnspan=2, sticky="W")
 
-        tadasnikonovas_lab = ttk.Label(self.scrollable_info, text=dedent(tadasnikonovas))
+        tadasnikonovas_lab = ttk.Label(
+            self.scrollable_info, text=cleandoc(tadasnikonovas)
+        )
         tadasnikonovas_lab.grid(row=17, column=2, columnspan=2, sticky="W")
-
 
         ttk.Label(self.scrollable_info, image=self.carlos_img).grid(row=11, column=1)
 
@@ -1751,7 +1756,6 @@ class Application(tk.Tk):
         ttk.Label(self.scrollable_info, image=self.celestino_img).grid(row=16, column=1)
 
         ttk.Label(self.scrollable_info, image=self.tadas_img).grid(row=17, column=1)
-
 
         def _open_license():
             """Load the licence and display it in a frame."""
