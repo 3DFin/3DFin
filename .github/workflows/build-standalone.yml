@@ -1,6 +1,9 @@
 name: build standalone application
 
-on: push
+on:
+  push:
+    tags:
+      - v*
 
 permissions:
   contents: write
@@ -14,41 +17,26 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-    - name: Add private key
-      uses: webfactory/ssh-agent@v0.7.0
-      with:
-        ssh-private-key: |
-                        ${{ secrets.DENDROMATICS_GITHUB_DEPLOY_KEY }}
+      - name: Add private key
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.DENDROMATICS_GITHUB_DEPLOY_KEY }}
 
-    - name: Install Hatch
-      run: python -m pip install hatch
-    
-    - name: Build standalone
-      run: hatch run pyinstaller:build
+      - name: Install Hatch
+        run: python -m pip install hatch
 
-    - uses: actions/upload-artifact@v3
-      with:
-        name: artifacts
-        path: dist/3DFin.exe
-        if-no-files-found: error
+      - name: Build standalone
+        run: hatch run pyinstaller:build
 
-  publish:
-    name: Publish release
-    needs:
-    - build
-    runs-on: windows-latest
-
-    steps:
-    - uses: actions/download-artifact@v3
-      with:
-        name: artifacts
-        path: dist
-
-    - name: Release
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: |
-          dist/3DFin.exe
+      - name: Add to release page
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            dist/3DFin.exe
