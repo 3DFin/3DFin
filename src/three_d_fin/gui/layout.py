@@ -20,9 +20,7 @@ class Application(tk.Tk):
 
     def __init__(
         self,
-        processing_callback: Callable[
-            [dict[str, dict[str, Any]]], None
-        ],
+        processing_callback: Callable[[dict[str, dict[str, Any]]], None],
         file_externally_defined: bool = False,
         cloud_fields: Optional[list[str]] = None,
     ):
