@@ -28,11 +28,12 @@ classifiers = [
 ]
 dependencies = [
   "laspy",
+  "lazrs",
   "numpy",
   "pandas",
   "XlsxWriter",
   "Pillow",
-  "dendromatics @ git+https://github.com/3DFIN/dendromatics@temp_merge_gui"
+  "dendromatics @ git+https://github.com/3DFIN/dendromatics@v0.0.1"
 ]
 dynamic = ["version"]
 
@@ -67,7 +68,6 @@ detached = true
 dependencies = [
   "ruff>=0.0.261",
   "black>=23.3.0",
-  "isort>=5.12.0"
 ]
 [tool.hatch.envs.lint.scripts]
 # static analysis with ruff
