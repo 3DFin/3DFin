@@ -11,7 +11,7 @@ from typing import Any, Callable, Optional
 import laspy
 from PIL import Image, ImageTk
 
-from three_d_fin.__about__ import __version__
+from three_d_fin import __about__
 from three_d_fin.gui.tooltip import ToolTip
 
 
@@ -1658,19 +1658,25 @@ class Application(tk.Tk):
         # Copyright notice #
         copyright_1_lab = ttk.Label(
             self.scrollable_info,
-            text=self.copyright_info_1,
+            text=__about__.__copyright_info_1__,
             font=("Helvetica", 10, "bold"),
         )
         copyright_1_lab.grid(row=1, column=1, columnspan=3)
 
-        copyright_2_lab = ttk.Label(self.scrollable_info, text=self.copyright_info_2)
+        copyright_2_lab = ttk.Label(
+            self.scrollable_info, text=__about__.__copyright_info_2__
+        )
         copyright_2_lab.grid(row=2, column=1, columnspan=3)
 
-        copyright_3_lab = ttk.Label(self.scrollable_info, text=self.copyright_info_3)
+        copyright_3_lab = ttk.Label(
+            self.scrollable_info, text=__about__.__copyright_info_3__
+        )
         copyright_3_lab.grid(row=3, column=1, columnspan=3)
 
         # About the project #
-        about_1_lab = ttk.Label(self.scrollable_info, text=cleandoc(self.about_1))
+        about_1_lab = ttk.Label(
+            self.scrollable_info, text=cleandoc(__about__.__about_1__)
+        )
         about_1_lab.grid(row=4, column=1, columnspan=3, sticky="W")
 
         nerc_project_lab = ttk.Label(
@@ -1678,7 +1684,7 @@ class Application(tk.Tk):
         )
         nerc_project_lab.grid(row=5, column=1, columnspan=3)
 
-        about_2_lab = ttk.Label(self.scrollable_info, text=self.about_2)
+        about_2_lab = ttk.Label(self.scrollable_info, text=__about__.__about_2__)
         about_2_lab.grid(row=6, column=1, columnspan=3, sticky="W")
 
         csic_project_lab = ttk.Label(
@@ -2008,15 +2014,6 @@ class Application(tk.Tk):
 
         # TODO: Here we could check if the output directory already contains some processing result
         # to ask if we should overwrite them.
-        # it should be delegated to the processing functor.
-
-        # Print copyright info
-        # Todo, it coulld be mooved at startup
-        print(self.copyright_info_1)
-        print(self.copyright_info_2)
-        print(
-            "See License at the bottom of 'About' tab for more details or visit <https://www.gnu.org/licenses/>"
-        )
 
         # Change button caption
         self.compute_button["text"] = "Processing..."
@@ -2031,26 +2028,10 @@ class Application(tk.Tk):
 
         self.iconbitmap(default=self._get_resource_path("icon_window.ico"))
 
-        self.title(f"3DFIN v{__version__}")
+        self.title(f"3DFIN v{__about__.__version__}")
         self.option_add("Helvetica", "12")
         self.resizable(False, False)
         self.geometry("810x660+0+0")
-
-        ### Define here some infos and copyrights
-        # Copyrights
-        self.copyright_info_1 = (
-            """ 3DFIN: Forest Inventory Copyright (C) 2023 Carlos Cabo & Diego Laino."""
-        )
-        self.copyright_info_2 = """This program comes with ABSOLUTELY NO WARRANTY. This is a free software, and you are welcome to redistribute it under certain conditions."""
-        self.copyright_info_3 = (
-            """See LICENSE at the botton of this tab for further details."""
-        )
-
-        # About the project
-        self.about_1 = """This software has been developed at the Centre of Wildfire Research of Swansea University (UK) in collaboration with the Research Institute of
-        Biodiversity (CSIC, Spain) and the Department of Mining Exploitation of the University of Oviedo (Spain). Funding provided by the UK NERC
-        project (NE/T001194/1):"""
-        self.about_2 = """and by the Spanish Knowledge Generation project (PID2021-126790NB-I00):"""
 
         ### Creating the tabs
         self.note = ttk.Notebook(self)

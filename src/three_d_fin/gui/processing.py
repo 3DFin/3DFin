@@ -10,6 +10,7 @@ import laspy
 import numpy as np
 import pandas as pd
 
+from three_d_fin import __about__
 from three_d_fin.gui.layout import Application
 
 
@@ -866,7 +867,7 @@ def _validate_config(config: configparser.ConfigParser) -> dict[str, dict[str, A
 
 
 def launch_application() -> int:
-    """Parse the command line application and launch the GUI or the CLI application.
+    """Parse the command line and launch the GUI or the CLI application.
 
     Main entry point for the 3DFin application:
         - Launch the GUI if the command is called without aguments.
@@ -883,13 +884,20 @@ def launch_application() -> int:
     EXIT_SUCCESS = 0
 
     parser = argparse.ArgumentParser(
-        prog="3DFin",
-        description="3D Forest inventory cli application",
+        prog=f"3DFin",
+        description=f"""
+        {__about__.__copyright_info_1__}
+        {__about__.__copyright_info_2__}
+        {__about__.__license_msg__}
+        """,   
     )
+    parser.add_argument("--version", '-v', action="version", version=__about__.__version__)
 
     # Create a subparser for cli subcommand
     subparsers = parser.add_subparsers(dest="subcommand")
-    cli_subparser = subparsers.add_parser("cli", help="launch the app in command line mode")
+    cli_subparser = subparsers.add_parser(
+        "cli", help="launch the app in command line mode"
+    )
     cli_subparser.add_argument("input_file", help="Las or Laz input file")
     cli_subparser.add_argument(
         "output_directory", help="output directory where to put the results"
@@ -908,11 +916,16 @@ def launch_application() -> int:
         action="store_true",
         help="Denoise the data, if outliers below ground level are expected",
     )
+    cli_subparser.add_argument("--version", '-v', action="version", version=__about__.__version__)
 
     cli_parse = parser.parse_args()
 
+    print(__about__.__copyright_info_1__)
+    print(__about__.__copyright_info_2__)
+    print(__about__.__license_msg__)
     # No subcommand, launch GUI
     if cli_parse.subcommand is None:
+
         fin_app = Application(fin_callback)
         _ = fin_app.run()
         # TODO it's always sucess for now but we should do exception handling
