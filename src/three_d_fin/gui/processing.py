@@ -878,20 +878,22 @@ def launch_application() -> int:
     Returns
     -------
     exit_code : int
-        POSIX minimal exit_code (0 = SUCCESS, 1 = ERROR)
+        POSIX minimal exit code (0 = SUCCESS, 1 = ERROR)
     """
     EXIT_ERROR = 1
     EXIT_SUCCESS = 0
 
     parser = argparse.ArgumentParser(
-        prog=f"3DFin",
+        prog="3DFin",
         description=f"""
         {__about__.__copyright_info_1__}
         {__about__.__copyright_info_2__}
         {__about__.__license_msg__}
-        """,   
+        """,
     )
-    parser.add_argument("--version", '-v', action="version", version=__about__.__version__)
+    parser.add_argument(
+        "--version", "-v", action="version", version=__about__.__version__
+    )
 
     # Create a subparser for cli subcommand
     subparsers = parser.add_subparsers(dest="subcommand")
@@ -916,7 +918,9 @@ def launch_application() -> int:
         action="store_true",
         help="Denoise the data, if outliers below ground level are expected",
     )
-    cli_subparser.add_argument("--version", '-v', action="version", version=__about__.__version__)
+    cli_subparser.add_argument(
+        "--version", "-v", action="version", version=__about__.__version__
+    )
 
     cli_parse = parser.parse_args()
 
@@ -925,7 +929,6 @@ def launch_application() -> int:
     print(__about__.__license_msg__)
     # No subcommand, launch GUI
     if cli_parse.subcommand is None:
-
         fin_app = Application(fin_callback)
         _ = fin_app.run()
         # TODO it's always sucess for now but we should do exception handling
