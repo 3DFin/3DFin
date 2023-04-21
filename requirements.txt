@@ -1,6 +1,0 @@
-laspy
-numpy
-pandas
-Pillow
-scikit_learn
-scipy
