@@ -203,7 +203,6 @@ def fin_callback(fin_app: Application, params: dict):
         dtm = dm.clean_cloth(cloth_nodes)
 
         # Exporting the DTM
-
         las_dtm_points = laspy.create(point_format=2, file_version="1.2")
         las_dtm_points.x = dtm[:, 0]
         las_dtm_points.y = dtm[:, 1]
@@ -387,7 +386,7 @@ def fin_callback(fin_app: Application, params: dict):
 
     t_las2 = timeit.default_timer()
 
-    coords = dm.generate_circles_cloud(
+    coords = dm.draw_circles(
         X_c,
         Y_c,
         R,
@@ -397,6 +396,7 @@ def fin_callback(fin_app: Application, params: dict):
         n_points_in,
         tree_vector,
         outliers,
+        basepath_output + "_circ.las",
         params["expert"]["minimum_diameter"],
         params["advanced"]["maximum_diameter"],
         params["expert"]["point_threshold"],
@@ -405,68 +405,15 @@ def fin_callback(fin_app: Application, params: dict):
         params["expert"]["circa_points"],
     )
 
-    # backported draw function from dendromatics
-    # LAS file containing circle coordinates.
-    las_circ = laspy.create(point_format=2, file_version="1.2")
-    las_circ.x = coords[:, 0]
-    las_circ.y = coords[:, 1]
-    las_circ.z = coords[:, 2]
-
-    # All extra fields.
-
-    # las_circ.add_extra_dim(laspy.ExtraBytesParams(name = "check", type = np.int32))
-    # las_circ.check = coords[:, 3]
-
-    las_circ.add_extra_dim(laspy.ExtraBytesParams(name="tree_ID", type=np.int32))
-    las_circ.tree_ID = coords[:, 4]
-
-    las_circ.add_extra_dim(
-        laspy.ExtraBytesParams(name="sector_occupancy_percent", type=np.float64)
-    )
-    las_circ.sector_occupancy_percent = coords[:, 5]
-
-    las_circ.add_extra_dim(
-        laspy.ExtraBytesParams(name="pts_inner_circle", type=np.int32)
-    )
-    las_circ.pts_inner_circle = coords[:, 6]
-
-    las_circ.add_extra_dim(laspy.ExtraBytesParams(name="Z0", type=np.float64))
-    las_circ.Z0 = coords[:, 7]
-
-    las_circ.add_extra_dim(laspy.ExtraBytesParams(name="Diameter", type=np.float64))
-    las_circ.Diameter = coords[:, 8]
-
-    las_circ.add_extra_dim(laspy.ExtraBytesParams(name="outlier_prob", type=np.float64))
-    las_circ.outlier_prob = coords[:, 9]
-
-    las_circ.add_extra_dim(laspy.ExtraBytesParams(name="quality", type=np.int32))
-    las_circ.quality = coords[:, 10]
-
-    las_circ.write(basepath_output + "_circ.las")
-
-    axes_points, tilt = dm.generate_axis_cloud(
+    dm.draw_axes(
         tree_vector,
+        basepath_output + "_axes.las",
         params["expert"]["axis_downstep"],
         params["expert"]["axis_upstep"],
         params["basic"]["lower_limit"],
         params["basic"]["upper_limit"],
         params["expert"]["p_interval"],
-        X_field,
-        Y_field,
-        Z_field,
     )
-
-    # backported from dendromatics
-    las_axes = laspy.create(point_format=2, file_version="1.2")
-    las_axes.x = axes_points[:, X_field]
-    las_axes.y = axes_points[:, Y_field]
-    las_axes.z = axes_points[:, Z_field]
-    las_axes.add_extra_dim(
-        laspy.ExtraBytesParams(name="tilting_degree", type=np.float64)
-    )
-    las_axes.tilting_degree = tilt
-
-    las_axes.write(basepath_output + "_axes.las")
 
     dbh_values, tree_locations = dm.tree_locator(
         sections,
