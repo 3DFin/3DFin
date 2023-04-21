@@ -1956,7 +1956,7 @@ class Application(tk.Tk):
         link1.grid(row=3, column=5, sticky="SE", columnspan=5)
         link1.bind(
             "<Button-1>",
-            lambda: subprocess.Popen(
+            lambda _: subprocess.Popen(
                 self._get_resource_path("documentation.pdf"), shell=True
             ),
         )
