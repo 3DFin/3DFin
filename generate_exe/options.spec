@@ -31,6 +31,7 @@ a = Analysis(
         ("../src/three_d_fin/assets/spain_logo_1.png", "."),
         ("../src/three_d_fin/assets/csic_logo_1.png", "."),
         ("../src/three_d_fin/assets/swansea_logo_1.png", "."),
+        ("../src/three_d_fin/assets/cetemas_logo_1.png", "."),
         ("../src/three_d_fin/assets/License.txt", "."),
     ],
     hiddenimports=[
