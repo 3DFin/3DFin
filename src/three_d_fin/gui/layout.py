@@ -21,7 +21,7 @@ class Application(tk.Tk):
     def __init__(
         self,
         processing_callback: Callable[
-            [Optional["Application"], dict[str, dict[str, Any]]], None
+            [dict[str, dict[str, Any]]], None
         ],
         file_externally_defined: bool = False,
         cloud_fields: Optional[list[str]] = None,
@@ -30,7 +30,7 @@ class Application(tk.Tk):
 
         Parameters
         ----------
-        processing_callback : Callable[[Application|None, dict[str, dict[str, Any]]]
+        processing_callback : Callable[[dict[str, dict[str, Any]]]
             Callback/Functor that is responsible for the computing logic.
             It is triggered by the "compute" button of the GUI.
         file_externally_defined : bool
@@ -208,7 +208,7 @@ class Application(tk.Tk):
         # Variable to keep track of the option selected in excel_button_1
         self.txt_var = tk.BooleanVar()
         # I/O related parameters
-        self.output_dir_var = tk.StringVar(value=Path.home())
+        self.output_dir_var = tk.StringVar(value=str(Path.home()))
         self.input_las_var = tk.StringVar()
 
         ### Reading config file only if it is available under name '3DFINconfig.ini'
@@ -1858,7 +1858,7 @@ class Application(tk.Tk):
             )
             # If the dialog was not closed/cancel
             if output_dir != "" and not None:
-                self.output_dir_var.set(Path(output_dir).resolve())
+                self.output_dir_var.set(str(Path(output_dir).resolve()))
 
         def _ask_input_file():
             """Ask for a proper input las file.
@@ -1877,7 +1877,7 @@ class Application(tk.Tk):
             initial_dir = (
                 initial_path.parent.resolve() if is_initial_file else Path.home()
             )
-            initial_file = initial_path.resolve() if is_initial_file else ""
+            initial_file = str(initial_path.resolve()) if is_initial_file else ""
             las_file = filedialog.askopenfilename(
                 parent=self,
                 title="3DFIN input file",
@@ -1894,8 +1894,8 @@ class Application(tk.Tk):
                         parent=self, title="3DFIN Error", message="Invalid las file"
                     )
                     return
-                self.input_las_var.set(Path(las_file).resolve())
-                self.output_dir_var.set(Path(las_file).parent.resolve())
+                self.input_las_var.set(str(Path(las_file).resolve()))
+                self.output_dir_var.set(str(Path(las_file).parent.resolve()))
 
         self.label_file = ttk.Label(
             bottom_frame,
@@ -2012,10 +2012,18 @@ class Application(tk.Tk):
         # to ask if we should overwrite them.
         # it should be delegated to the processing functor.
 
+        # Print copyright info
+        # Todo, it coulld be mooved at startup
+        print(self.copyright_info_1)
+        print(self.copyright_info_2)
+        print(
+            "See License at the bottom of 'About' tab for more details or visit <https://www.gnu.org/licenses/>"
+        )
+
         # Change button caption
         self.compute_button["text"] = "Processing..."
         # TODO: handle exception in processing here
-        self.processing_callback(self, params)
+        self.processing_callback(params)
         self.compute_button["text"] = "Compute"
 
     def _bootstrap(self):

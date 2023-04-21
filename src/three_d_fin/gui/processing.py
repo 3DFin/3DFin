@@ -9,7 +9,7 @@ import pandas as pd
 from three_d_fin.gui.layout import Application
 
 
-def fin_callback(fin_app: Application, params: dict):
+def fin_callback(params: dict):
     """3DFIN main algorithm.
 
     -----------------------------------------------------------------------------
@@ -96,12 +96,6 @@ def fin_callback(fin_app: Application, params: dict):
     basename_las = Path(params["misc"]["input_las"]).stem
     basepath_output = str(Path(params["misc"]["output_dir"]) / Path(basename_las))
     print(basepath_output)
-
-    print(fin_app.copyright_info_1)
-    print(fin_app.copyright_info_2)
-    print(
-        "See License at the bottom of 'About' tab for more details or visit <https://www.gnu.org/licenses/>"
-    )
 
     t_t = timeit.default_timer()
 
