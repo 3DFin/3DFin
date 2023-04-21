@@ -677,8 +677,6 @@ def fin_callback(fin_app: Application, params: dict):
     print("Total time:", "   %.2f" % elapsed_t, "s")
     print("nº of trees:", X_c.shape[0])
 
-    input("Press enter to close the program...")
-
 
 def process():
     """3DFin GUI instanciation and processing."""
