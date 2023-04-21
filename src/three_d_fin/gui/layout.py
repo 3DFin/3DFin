@@ -3,6 +3,7 @@ import os
 import subprocess
 import sys
 import tkinter as tk
+from inspect import cleandoc
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 from typing import Any, Callable, Optional
@@ -99,6 +100,9 @@ class Application(tk.Tk):
         )
         self.uniovi_logo_img = ImageTk.PhotoImage(
             Image.open(self._get_resource_path("uniovi_logo_1.png"))
+        )
+        self.cetemas_logo_img = ImageTk.PhotoImage(
+            Image.open(self._get_resource_path("cetemas_logo_1.png"))
         )
         self.carlos_img = ImageTk.PhotoImage(
             Image.open(self._get_resource_path("carlos_pic_1.jpg"))
@@ -291,7 +295,7 @@ class Application(tk.Tk):
         Returns
         -------
         options : dict[str, dict[str, Any]]
-            Dictionary of parameters. It is organised followinf the 3DFINconfig.ini file:
+            Dictionary of parameters. It is organised following the 3DFINconfig.ini file:
             Each parameters are sorted in sub-dict ("basic", "expert", "advanced").
             TODO: A "misc" subsection enclose all parameters needed by 3DFIN but not
             defined in the the config file.
@@ -571,7 +575,7 @@ class Application(tk.Tk):
             column=5, row=1, rowspan=10, sticky="NS"
         )
 
-        ttk.Label(self.basic_tab, text=insert_text1).grid(
+        ttk.Label(self.basic_tab, text=cleandoc(insert_text1)).grid(
             column=6, row=3, rowspan=8, columnspan=2, sticky="NW"
         )
 
@@ -582,10 +586,6 @@ class Application(tk.Tk):
         ttk.Label(self.basic_tab, image=self.img_stripe).grid(
             column=1, row=12, columnspan=4, sticky="N"
         )
-
-        ttk.Label(
-            self.basic_tab, text="Region where one should expect mostly stems."
-        ).grid(column=1, row=13, columnspan=4, sticky="N")
 
         ttk.Label(
             self.basic_tab, text="Original cloud", font=("Helvetica", 10, "bold")
@@ -603,13 +603,17 @@ class Application(tk.Tk):
             column=7, row=12, columnspan=1, sticky="N"
         )
 
+        for child in self.basic_tab.winfo_children():
+            child.grid_configure(padx=5, pady=5)
+
+        ttk.Label(
+            self.basic_tab, text="Region where one should expect mostly stems."
+        ).grid(column=1, row=13, columnspan=4, sticky="N")
+
         ttk.Label(
             self.basic_tab,
             text="The algorithm requires a height-normalized point cloud, such as the one above.",
         ).grid(column=6, row=13, columnspan=2, sticky="N")
-
-        for child in self.basic_tab.winfo_children():
-            child.grid_configure(padx=5, pady=5)
 
         #### Adding radio buttons
         def _enable_denoising():
@@ -813,7 +817,7 @@ class Application(tk.Tk):
         right before each parameter. However, keep in mind that a thorough understanding is
         advisable before changing these. For that, you can get a better grasp of what the algo-
         rithm does in the attached documentation. You can easily access it through the
-        Documentation button in the bottom-left corner.
+        Documentation button in the bottom-right corner.
         """
 
         ttk.Separator(self.advanced_tab, orient="vertical").grid(
@@ -828,7 +832,7 @@ class Application(tk.Tk):
             text="Advanced parameters",
             font=("Helvetica", 10, "bold"),
         ).grid(column=6, row=1, rowspan=8, sticky="N")
-        ttk.Label(self.advanced_tab, text=insert_text2).grid(
+        ttk.Label(self.advanced_tab, text=cleandoc(insert_text2)).grid(
             column=6, row=2, rowspan=8, sticky="NW"
         )
 
@@ -844,7 +848,7 @@ class Application(tk.Tk):
         sections_text = """A) Sections along the stem B) Detail of computed sections showing the distance
         between them and their width C) Circle fitting to the points of a section.
         """
-        ttk.Label(self.advanced_tab, text=sections_text).grid(
+        ttk.Label(self.advanced_tab, text=cleandoc(sections_text)).grid(
             column=1, row=10, columnspan=15, sticky="NW", padx=20, pady=5
         )
 
@@ -856,7 +860,7 @@ class Application(tk.Tk):
         validate the fitted circles, such as measuring
         the point distribution along the sections."""
 
-        ttk.Label(self.advanced_tab, text=sectors_text).grid(
+        ttk.Label(self.advanced_tab, text=cleandoc(sectors_text)).grid(
             column=1, row=10, columnspan=15, sticky="NE", padx=20, pady=5
         )
 
@@ -1668,7 +1672,7 @@ class Application(tk.Tk):
         copyright_3_lab.grid(row=3, column=1, columnspan=3)
 
         # About the project #
-        about_1_lab = ttk.Label(self.scrollable_info, text=self.about_1)
+        about_1_lab = ttk.Label(self.scrollable_info, text=cleandoc(self.about_1))
         about_1_lab.grid(row=4, column=1, columnspan=3, sticky="W")
 
         nerc_project_lab = ttk.Label(
@@ -1684,23 +1688,22 @@ class Application(tk.Tk):
         )
         csic_project_lab.grid(row=7, column=1, columnspan=3)
 
-        ttk.Label(self.scrollable_info, image=self.nerc_logo_img).grid(
+        ttk.Label(self.scrollable_info, image=self.csic_logo_img).grid(
             row=8, column=1, columnspan=3, sticky="W"
         )
-
-        ttk.Label(self.scrollable_info, image=self.swansea_logo_img).grid(
+        ttk.Label(self.scrollable_info, image=self.spain_logo_img).grid(
+            row=8, column=1, columnspan=3
+        )
+        ttk.Label(self.scrollable_info, image=self.nerc_logo_img).grid(
             row=8, column=1, columnspan=3, sticky="E"
         )
-
-        ttk.Label(self.scrollable_info, image=self.spain_logo_img).grid(
+        ttk.Label(self.scrollable_info, image=self.cetemas_logo_img).grid(
             row=9, column=1, columnspan=3, sticky="W"
         )
-
-        ttk.Label(self.scrollable_info, image=self.csic_logo_img).grid(
+        ttk.Label(self.scrollable_info, image=self.uniovi_logo_img).grid(
             row=9, column=1, columnspan=3
         )
-
-        ttk.Label(self.scrollable_info, image=self.uniovi_logo_img).grid(
+        ttk.Label(self.scrollable_info, image=self.swansea_logo_img).grid(
             row=9, column=1, columnspan=3, sticky="E"
         )
 
@@ -1713,40 +1716,46 @@ class Application(tk.Tk):
         )
         team_lab.grid(row=11, column=1, columnspan=3)
 
-        carloscabo_lab = ttk.Label(self.scrollable_info, text=carloscabo)
+        carloscabo_lab = ttk.Label(self.scrollable_info, text=cleandoc(carloscabo))
         carloscabo_lab.grid(row=11, column=2, columnspan=2, sticky="W")
 
-        diegolaino_lab = ttk.Label(self.scrollable_info, text=diegolaino)
+        diegolaino_lab = ttk.Label(self.scrollable_info, text=cleandoc(diegolaino))
         diegolaino_lab.grid(row=12, column=2, columnspan=2, sticky="W")
 
-        crissantin_lab = ttk.Label(self.scrollable_info, text=crissantin)
-        crissantin_lab.grid(row=13, column=2, columnspan=2, sticky="W")
+        covadongaprendes_lab = ttk.Label(
+            self.scrollable_info, text=cleandoc(covadongaprendes)
+        )
+        covadongaprendes_lab.grid(row=13, column=2, columnspan=2, sticky="W")
 
-        stefandoerr_lab = ttk.Label(self.scrollable_info, text=stefandoerr)
-        stefandoerr_lab.grid(row=14, column=2, columnspan=2, sticky="W")
+        crissantin_lab = ttk.Label(self.scrollable_info, text=cleandoc(crissantin))
+        crissantin_lab.grid(row=14, column=2, columnspan=2, sticky="W")
 
-        celestinoordonez_lab = ttk.Label(self.scrollable_info, text=celestinoordonez)
-        celestinoordonez_lab.grid(row=15, column=2, columnspan=2, sticky="W")
+        stefandoerr_lab = ttk.Label(self.scrollable_info, text=cleandoc(stefandoerr))
+        stefandoerr_lab.grid(row=15, column=2, columnspan=2, sticky="W")
 
-        tadasnikonovas_lab = ttk.Label(self.scrollable_info, text=tadasnikonovas)
-        tadasnikonovas_lab.grid(row=16, column=2, columnspan=2, sticky="W")
+        celestinoordonez_lab = ttk.Label(
+            self.scrollable_info, text=cleandoc(celestinoordonez)
+        )
+        celestinoordonez_lab.grid(row=16, column=2, columnspan=2, sticky="W")
 
-        covadongaprendes_lab = ttk.Label(self.scrollable_info, text=covadongaprendes)
-        covadongaprendes_lab.grid(row=17, column=2, columnspan=2, sticky="W")
+        tadasnikonovas_lab = ttk.Label(
+            self.scrollable_info, text=cleandoc(tadasnikonovas)
+        )
+        tadasnikonovas_lab.grid(row=17, column=2, columnspan=2, sticky="W")
 
         ttk.Label(self.scrollable_info, image=self.carlos_img).grid(row=11, column=1)
 
         ttk.Label(self.scrollable_info, image=self.diego_img).grid(row=12, column=1)
 
-        ttk.Label(self.scrollable_info, image=self.cris_img).grid(row=13, column=1)
+        ttk.Label(self.scrollable_info, image=self.covadonga_img).grid(row=13, column=1)
 
-        ttk.Label(self.scrollable_info, image=self.stefan_img).grid(row=14, column=1)
+        ttk.Label(self.scrollable_info, image=self.cris_img).grid(row=14, column=1)
 
-        ttk.Label(self.scrollable_info, image=self.celestino_img).grid(row=15, column=1)
+        ttk.Label(self.scrollable_info, image=self.stefan_img).grid(row=15, column=1)
 
-        ttk.Label(self.scrollable_info, image=self.tadas_img).grid(row=16, column=1)
+        ttk.Label(self.scrollable_info, image=self.celestino_img).grid(row=16, column=1)
 
-        ttk.Label(self.scrollable_info, image=self.covadonga_img).grid(row=17, column=1)
+        ttk.Label(self.scrollable_info, image=self.tadas_img).grid(row=17, column=1)
 
         def _open_license():
             """Load the licence and display it in a frame."""
