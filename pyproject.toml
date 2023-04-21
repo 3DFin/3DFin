@@ -67,7 +67,6 @@ detached = true
 dependencies = [
   "ruff>=0.0.261",
   "black>=23.3.0",
-  "isort>=5.12.0"
 ]
 [tool.hatch.envs.lint.scripts]
 # static analysis with ruff
