@@ -46,7 +46,7 @@ Issues = "https://github.com/3DFIN/3DFIN/issues"
 Source = "https://github.com/3DFIN/3DFIN"
 
 [project.scripts]
-3DFin = "three_d_fin.gui.processing:process"
+3DFin = "three_d_fin.processing:launch_application"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/three_d_fin"]
