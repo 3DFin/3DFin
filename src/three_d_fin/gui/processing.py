@@ -886,10 +886,9 @@ def launch_application() -> int:
     parser = argparse.ArgumentParser(
         prog="3DFin",
         description=f"""
-        {__about__.__copyright_info_1__}
-        {__about__.__copyright_info_2__}
-        {__about__.__license_msg__}
-        """,
+            {__about__.__copyright_info_1__}
+            {__about__.__copyright_info_2__}
+            {__about__.__license_msg__}""",
     )
     parser.add_argument(
         "--version", "-v", action="version", version=__about__.__version__
