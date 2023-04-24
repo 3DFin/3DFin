@@ -7,6 +7,11 @@ class ToolTip(object):
     See https://stackoverflow.com/questions/3221956/how-do-i-display-tooltips-in-tkinter
     """
 
+    x: int = 0
+    y: int = 0
+    widget: tk.Widget
+    tipwindow: tk.Toplevel | None
+    
     def __init__(self, widget: tk.Widget):
         """ToolTip Constructor.
 
@@ -17,10 +22,8 @@ class ToolTip(object):
         widget : tk.Widget
             Widget documented by the ToolTip instance.
         """
-        self.widget = widget
-        self.tipwindow = None
-        self.id = None
-        self.x = self.y = 0
+        self.widget: tk.Widget = widget
+        self.tipwindow : tk.Toplevel | None = None
 
     def showtip(self, text: str) -> None:
         """Display text in tooltip window.

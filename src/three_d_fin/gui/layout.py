@@ -614,7 +614,7 @@ class Application(tk.Tk):
         ).grid(column=6, row=13, columnspan=2, sticky="N")
 
         #### Adding radio buttons
-        def _enable_denoising():
+        def _enable_denoising() -> None:
             z0_entry.configure(state="normal")
             z0_entry.update()
             clean_button_1.configure(state="disabled")
@@ -622,7 +622,7 @@ class Application(tk.Tk):
             clean_button_2.configure(state="disabled")
             clean_button_2.update()
 
-        def _disable_denoising():
+        def _disable_denoising() -> None:
             z0_entry.configure(state="disabled")
             z0_entry.update()
             clean_button_1.configure(state="normal")
@@ -1523,7 +1523,7 @@ class Application(tk.Tk):
             "Default value: 0.7.",
         )
 
-        def _open_warning():
+        def _open_warning() -> None:
             """Logic triggered by the warning button."""
             new = tk.Toplevel(self)
             new.geometry("700x380")
@@ -1761,7 +1761,7 @@ class Application(tk.Tk):
 
         ttk.Label(self.scrollable_info, image=self.tadas_img).grid(row=17, column=1)
 
-        def _open_license():
+        def _open_license() -> None:
             """Load the licence and display it in a frame."""
             with Path(self._get_resource_path("License.txt")).open("r") as f:
                 gnu_license = f.read()
@@ -1849,11 +1849,11 @@ class Application(tk.Tk):
         # Set the canvas scrolling region
         canvas.config(scrollregion=canvas.bbox("all"))
 
-    def _create_bottom_part(self):
+    def _create_bottom_part(self) -> None:
         """Create the bottom part of the window."""
         bottom_frame = tk.Frame(self)
 
-        def _ask_output_dir():
+        def _ask_output_dir() -> None:
             """Ask for a proper output directory."""
             output_dir = filedialog.askdirectory(
                 parent=self,
@@ -1864,7 +1864,7 @@ class Application(tk.Tk):
             if output_dir != "" and not None:
                 self.output_dir_var.set(str(Path(output_dir).resolve()))
 
-        def _ask_input_file():
+        def _ask_input_file() -> None:
             """Ask for a proper input las file.
 
             Current selected file is checked for validity (existence and type)
@@ -1981,7 +1981,7 @@ class Application(tk.Tk):
         """Validate I/O entries and run the processing callback."""
 
         # define a lambda to popup error for convenience
-        def _show_error(error_msg):
+        def _show_error(error_msg: str) -> str:
             return messagebox.showerror(
                 parent=self, title="3DFIN Error", message=error_msg
             )
@@ -2021,7 +2021,7 @@ class Application(tk.Tk):
         self.processing_callback(params)
         self.compute_button["text"] = "Compute"
 
-    def _bootstrap(self):
+    def _bootstrap(self) -> None:
         """Create the GUI."""
         self._preload_images()
         self._generate_parameters()
