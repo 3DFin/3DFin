@@ -68,10 +68,10 @@ class ValidationError(Exception):
 class ParameterState(Enum):
     """Enum compiling authorized states for Parameter."""
 
-    VALID = 1
-    INVALID = 2
+    VALID = 0
+    INVALID = 1
     NOT_VALIDATED = (
-        3  # not used yet but could be usefull if we implement lazy evaluations
+        2  # Not really used yet but could be usefull if we implement lazy evaluations
     )
 
 
@@ -206,14 +206,39 @@ class Config:
             param.from_string(dict_like[param.category.value][param_name])
         return config
 
+    def get_params(self) -> list[tuple[str, Parameter[T]]]:
+        """Get all parameters defined in the class.
+
+        It could have been defined in a dict or in a list of parameters. All
+        representation has its pro and cons. This implementation with parameters
+        included as direct members of the class seems to ofer the best match for our use
+        case for now.
+        """
+        return inspect.getmembers(  # type: ignore[valid-type]
+            self, lambda member: isinstance(member, Parameter)
+        )
+
+    def check_validity(self) -> bool:
+        """Return the current config validity.
+
+        Returns
+        -------
+            is_valid : bool
+                A boolean reflecting the current validity of the configuration
+        """
+        is_valid: bool = True
+        for param in self.get_params():
+            is_valid |= param[1].state == ParameterState.VALID
+        return is_valid
+
 
 class FinConfig(Config):
     """A dedicated 3DFin configuration class."""
 
     # Name of the Z0 field in the LAS file containing the cloud.
     z0_name = Parameter[str](OptionCategory.BASIC, None, "Z0")
-    # Upper and lower limits (vertical) of the stripe where it should be reasonable to find stems with minimum presence of shrubs or branches.
 
+    # Upper and lower limits (vertical) of the stripe where it should be reasonable to find stems with minimum presence of shrubs or branches.
     # TODO: in fact it is not hard limits here so we maybe have to relax the bounds
     upper_limit = Parameter[float](
         OptionCategory.BASIC,
@@ -223,41 +248,58 @@ class FinConfig(Config):
     lower_limit = Parameter[float](
         OptionCategory.BASIC,
         [NumBoundValidator(operator.ge, 0.3), NumBoundValidator(operator.le, 1.3)],
-        1.2,
+        0.7,
     )
-
-    # params["basic"]["number_of_iterations"] = int(
-    #     config.get("basic", "number_of_iterations")
-    # )  # Number of iterations of 'peeling off branches'.
-    # # Values between 0 (no branch peeling/cleaning) and 5 (very extreme branch peeling/cleaning)
+    # Number of iterations of 'peeling off branches'.
+    # Values between 0 (no branch peeling/cleaning) and 5 (very extreme branch peeling/cleaning)
+    number_of_iterations = Parameter[int](
+        OptionCategory.BASIC,
+        [NumBoundValidator(operator.ge, 0), NumBoundValidator(operator.le, 5)],
+        2,
+    )
 
     # # -------------------------------------------------------------------------------------------------
     # # Advanced PARAMETERS. They should only be modified when no good results are obtained tweaking basic parameters.
     # # They require a deeper knowledge of how the algorithm and the implementation work
     # # -------------------------------------------------------------------------------------------------
 
-    # params["advanced"]["stem_search_diameter"] = (
-    #     float(config.get("advanced", "stem_search_diameter")) / 2
-    # )  # Points within this distance from tree axes will be considered as potential stem points.
-    # # Values between maximum diameter and 1 (exceptionally greater than 1: very large diameters and/or intricate stems)
+    # Points within this distance from tree axes will be considered as potential stem points.
+    # Values between maximum diameter and 1 (exceptionally greater than 1: very large diameters and/or intricate stems)
 
-    # params["advanced"]["maximum_diameter"] = (
-    #     float(config.get("advanced", "maximum_diameter")) / 2
-    # )  # Maximum radius expected for any section during circle fitting.
+    # Maximum radius expected for any section during circle fitting.
+    # TODO: dendromatics needs radius from this input
+    maximum_diameter = Parameter[float](
+        OptionCategory.ADVANCED, [NumBoundValidator(operator.gt, 0.0)], 2.0
+    )
 
-    # params["advanced"]["minimum_height"] = float(
-    #     config.get("advanced", "minimum_height")
-    # )  # Lowest height
-    # params["advanced"]["maximum_height"] = float(
-    #     config.get("advanced", "maximum_height")
-    # )  # highest height
+    # TODO: dendromatics needs radius from this input
+    stem_search_diameter = Parameter[float](
+        OptionCategory.ADVANCED, [NumBoundValidator(operator.gt, 0.0)], 1.0
+    )
 
-    # params["advanced"]["section_len"] = float(
-    #     config.get("advanced", "section_len")
-    # )  # sections are this long (z length)
-    # params["advanced"]["section_wid"] = float(
-    #     config.get("advanced", "section_wid")
-    # )  # sections are this wide
+    # Lowest height
+    minimum_height = Parameter[float](
+        OptionCategory.ADVANCED, [NumBoundValidator(operator.gt, 0.0)], 0.3
+    )
+
+    # highest height
+    maximum_height = Parameter[float](
+        OptionCategory.ADVANCED,
+        [
+            NumBoundValidator(operator.gt, 0.0),
+        ],
+        25.0,
+    )
+
+    # sections are this long (z length)
+    section_len = Parameter[float](
+        OptionCategory.ADVANCED, [NumBoundValidator(operator.gt, 0.0)], 0.2
+    )
+
+    # sections are this wide
+    section_wid = Parameter[float](
+        OptionCategory.ADVANCED, [NumBoundValidator(operator.gt, 0.0)], 0.05
+    )
 
     # # -------------------------------------------------------------------------------------------------
     # # EXPERT PARAMETERS. They should only be modified when no good results are obtained peaking basic parameters.
@@ -265,115 +307,139 @@ class FinConfig(Config):
     # # *Stored in the main script in this version.
     # # -------------------------------------------------------------------------------------------------
 
-    # # -------------------------------------------------------------------------------------------------
-    # # Stem identification within the stripe
-    # # -------------------------------------------------------------------------------------------------
-    # params["expert"]["res_xy_stripe"] = float(
-    #     config.get("expert", "res_xy_stripe")
-    # )  # (x, y)voxel resolution during stem identification
-    # params["expert"]["res_z_stripe"] = float(
-    #     config.get("expert", "res_z_stripe")
-    # )  # (z) voxel resolution during stem identification
+    ### Stem identification whithin the stripe
+    # (x, y) voxel resolution during stem extraction
+    res_xy_stripe = Parameter[float](
+        OptionCategory.EXPERT, [NumBoundValidator(operator.gt, 0.0)], 0.02
+    )
 
-    # params["expert"]["number_of_points"] = int(
-    #     config.get("expert", "number_of_points")
-    # )  # minimum number of points per stem within the stripe (DBSCAN clustering).
-    # # Values, normally between 500 and 3000
+    # (z) voxel resolution during stem extraction
+    res_z_stripe = Parameter[float](
+        OptionCategory.EXPERT, [NumBoundValidator(operator.gt, 0.0)], 0.02
+    )
 
-    # params["expert"]["verticality_scale_stripe"] = float(
-    #     config.get("expert", "verticality_scale_stripe")
-    # )  # Vicinity radius for PCA during stem extraction
-    # params["expert"]["verticality_thresh_stripe"] = float(
-    #     config.get("expert", "verticality_thresh_stripe")
-    # )  # Verticality threshold durig stem extraction
+    # minimum number of points per stem within the stripe (DBSCAN clustering).
+    number_of_points = Parameter[int](
+        OptionCategory.EXPERT, [NumBoundValidator(operator.gt, 0)], 1000
+    )
 
-    # # -------------------------------------------------------------------------------------------------
-    # # Tree individualization.
-    # # -------------------------------------------------------------------------------------------------
-    # params["expert"]["res_xy"] = float(
-    #     config.get("expert", "res_xy")
-    # )  # (x, y) voxel resolution during tree individualization
-    # params["expert"]["res_z"] = float(
-    #     config.get("expert", "res_z")
-    # )  # (z) voxel resolution during tree individualization
+    # Vicinity radius for PCA during stem extraction
+    verticality_scale_stripe = Parameter[float](
+        OptionCategory.EXPERT, [NumBoundValidator(operator.gt, 0.0)], 0.1
+    )
 
-    # params["expert"]["minimum_points"] = int(
-    #     config.get("expert", "minimum_points")
-    # )  # Minimum number of points within a stripe to consider it as a potential tree during tree individualization
+    # Verticality threshold during stem extraction
+    verticality_thresh_stripe = Parameter[float](
+        OptionCategory.EXPERT, [NumBoundValidator(operator.gt, 0.0)], 0.7
+    )
 
-    # params["expert"]["verticality_scale_stems"] = float(
-    #     config.get("expert", "verticality_scale_stems")
-    # )  # DBSCAN minimum number of points during stem identification
-    # params["expert"]["verticality_thresh_stems"] = float(
-    #     config.get("expert", "verticality_thresh_stems")
-    # )  # Verticality threshold durig stem identification
+    # only stems where points extend vertically throughout this range are considered.
+    height_range = Parameter[float](
+        OptionCategory.EXPERT, [NumBoundValidator(operator.gt, 0.0)], 0.7
+    )
 
-    # params["expert"]["height_range"] = float(
-    #     config.get("expert", "height_range")
-    # )  # only stems where points extend vertically throughout this range are considered.
-    # params["expert"]["maximum_d"] = float(
-    #     config.get("expert", "maximum_d")
-    # )  # Points that are closer than d_max to an axis are assigned to that axis during individualize_trees process.
+    # Points that are closer than d_max to an axis are assigned to that axis during individualize_trees process.
+    maximum_d = Parameter[float](
+        OptionCategory.EXPERT, [NumBoundValidator(operator.gt, 0.0)], 15
+    )
 
-    # params["expert"]["distance_to_axis"] = float(
-    #     config.get("expert", "distance_to_axis")
-    # )  # Points within this distance from tree axes will be used to find tree height
-    # params["expert"]["res_heights"] = float(
-    #     config.get("expert", "res_heights")
-    # )  # Resolution for the voxelization while computing tree heights
-    # params["expert"]["maximum_dev"] = float(
-    #     config.get("expert", "maximum_dev")
-    # )  # Maximum degree of vertical deviation from the axis
+    # Points within this distance from tree axes will be used to find tree height
+    distance_to_axis = Parameter[float](
+        OptionCategory.EXPERT, [NumBoundValidator(operator.gt, 0.0)], 1.5
+    )
 
-    # # -------------------------------------------------------------------------------------------------
-    # # Extracting sections.
-    # # -------------------------------------------------------------------------------------------------
-    # params["expert"]["number_points_section"] = int(
-    #     config.get("expert", "number_points_section")
-    # )  # Minimum number of points in a section to be considered
-    # params["expert"]["diameter_proportion"] = float(
-    #     config.get("expert", "diameter_proportion")
-    # )  # Proportion, regarding the circumference fit by fit_circle, that the inner circumference radius will have as length
-    # params["expert"]["minimum_diameter"] = (
-    #     float(config.get("expert", "minimum_diameter")) / 2
-    # )  # Minimum radius expected for any section circle fitting.
-    # params["expert"]["point_threshold"] = int(
-    #     config.get("expert", "point_threshold")
-    # )  # Number of points inside the inner circle
-    # params["expert"]["point_distance"] = float(
-    #     config.get("expert", "point_distance")
-    # )  # Maximum distance among points to be considered within the same cluster.
-    # params["expert"]["number_sectors"] = int(
-    #     config.get("expert", "number_sectors")
-    # )  # Number of sectors in which the circumference will be divided
-    # params["expert"]["m_number_sectors"] = int(
-    #     config.get("expert", "m_number_sectors")
-    # )  # Minimum number of sectors that must be occupied.
-    # params["expert"]["circle_width"] = float(
-    #     config.get("expert", "circle_width")
-    # )  # Width, in centimeters, around the circumference to look for points
+    # Resolution for the voxelization while computing tree heights
+    res_heights = Parameter[float](
+        OptionCategory.EXPERT, [NumBoundValidator(operator.gt, 0.0)], 0.3
+    )
 
-    # # -------------------------------------------------------------------------------------------------
-    # # Drawing circles.
-    # # -------------------------------------------------------------------------------------------------
-    # params["expert"]["circa_points"] = int(config.get("expert", "circa"))
+    # Maximum degree of vertical deviation from the axis
+    maximum_dev = Parameter[float](
+        OptionCategory.EXPERT, [NumBoundValidator(operator.gt, 0.0)], 25.0
+    )
 
-    # # -------------------------------------------------------------------------------------------------
-    # # Drawing axes.
-    # # -------------------------------------------------------------------------------------------------
-    # params["expert"]["p_interval"] = float(config.get("expert", "p_interval"))
-    # params["expert"]["axis_downstep"] = float(config.get("expert", "axis_downstep"))
-    # params["expert"]["axis_upstep"] = float(
-    #     config.get("expert", "axis_upstep")
-    # )  # From the stripe centroid, how much (upwards direction) will the drawn axes extend.
+    ### Extracting sections ###
+    # Minimum number of points in a section to be considered
+    number_points_section = Parameter[int](
+        OptionCategory.EXPERT, [NumBoundValidator(operator.gt, 0)], 80
+    )
+    # Proportion, regarding the circumference fit by fit_circle, that the inner circumference radius will have as length
+    diameter_proportion = Parameter[float](
+        OptionCategory.EXPERT,
+        [NumBoundValidator(operator.gt, 0.0), NumBoundValidator(operator.le, 1.0)],
+        0.5,
+    )
+    # Minimum diameter expected for any section circle fitting.
+    minimum_diameter = Parameter[float](
+        OptionCategory.EXPERT,
+        [NumBoundValidator(operator.gt, 0.0), NumBoundValidator(operator.le, 1.0)],
+        0.06,
+    )
 
-    # # -------------------------------------------------------------------------------------------------
-    # # Height normalization
-    # # -------------------------------------------------------------------------------------------------
-    # params["expert"]["res_ground"] = float(config.get("expert", "res_ground"))
-    # params["expert"]["min_points_ground"] = int(
-    #     config.get("expert", "min_points_ground")
-    # )
-    # params["expert"]["res_cloth"] = float(config.get("expert", "res_cloth"))
+    # Number of points inside the inner circle
+    point_threshold = Parameter[int](
+        OptionCategory.EXPERT, [NumBoundValidator(operator.gt, 0)], 5
+    )
 
-    # return params
+    # Maximum distance among points to be considered within the same cluster.
+    point_distance = Parameter[float](
+        OptionCategory.EXPERT,
+        [NumBoundValidator(operator.gt, 0.0), NumBoundValidator(operator.le, 1.0)],
+        0.02,
+    )
+    # Number of sectors in which the circumference will be divided
+    number_sectors = Parameter[int](
+        OptionCategory.EXPERT, [NumBoundValidator(operator.gt, 0)], 16
+    )
+    # Minimum number of sectors that must be occupied.
+    m_number_sectors = Parameter[int](
+        OptionCategory.EXPERT, [NumBoundValidator(operator.gt, 0)], 9
+    )
+    # Width, in meters, around the circumference to look for points
+    circle_width = Parameter[float](
+        OptionCategory.EXPERT,
+        [NumBoundValidator(operator.gt, 0.0), NumBoundValidator(operator.le, 1.0)],
+        0.02,
+    )
+
+    ### Drawing circles and axes ###
+    # Number of points used to draw the sections in the _circ LAS file
+    circa = Parameter[int](
+        OptionCategory.EXPERT, [NumBoundValidator(operator.gt, 0)], 200
+    )
+    # Distance between points used to draw axes in the _axes LAS file
+    p_interval = Parameter[float](
+        OptionCategory.EXPERT,
+        [NumBoundValidator(operator.gt, 0.0)],
+        0.01,
+    )
+    # From the stripe centroid, how much (downwards direction) will the drawn axes extend.
+    axis_downstep = Parameter[float](
+        OptionCategory.EXPERT,
+        [NumBoundValidator(operator.gt, 0.0)],
+        0.05,
+    )
+    # From the stripe centroid, how much (upwards direction) will the drawn axes extend.
+    axis_upstep = Parameter[float](
+        OptionCategory.EXPERT,
+        [NumBoundValidator(operator.gt, 0.0)],
+        10.0,
+    )
+    ### Height-normalization ###
+    # Voxel resolution for cloth simulation and denoising process
+    res_ground = Parameter[float](
+        OptionCategory.EXPERT,
+        [NumBoundValidator(operator.gt, 0.0)],
+        0.15,
+    )
+    # During the cleanning process, DBSCAN clusters whith size smaller than this value
+    # will be considered as noise
+    min_points_ground = Parameter[int](
+        OptionCategory.EXPERT, [NumBoundValidator(operator.gt, 0)], 2
+    )
+    # Resolution of cloth grid
+    res_cloth = Parameter[float](
+        OptionCategory.EXPERT,
+        [NumBoundValidator(operator.gt, 0.0)],
+        0.7,
+    )

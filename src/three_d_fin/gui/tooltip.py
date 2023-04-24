@@ -11,7 +11,7 @@ class ToolTip(object):
     y: int = 0
     widget: tk.Widget
     tipwindow: tk.Toplevel | None
-    
+
     def __init__(self, widget: tk.Widget):
         """ToolTip Constructor.
 
@@ -23,7 +23,7 @@ class ToolTip(object):
             Widget documented by the ToolTip instance.
         """
         self.widget: tk.Widget = widget
-        self.tipwindow : tk.Toplevel | None = None
+        self.tipwindow: tk.Toplevel | None = None
 
     def showtip(self, text: str) -> None:
         """Display text in tooltip window.

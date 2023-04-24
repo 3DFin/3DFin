@@ -34,12 +34,37 @@ def test_config_creation() -> None:
     #    a = TestConfigFail()
 
 
+def test_3dFin_consistancy() -> None:
+    """Test configuration consistancy.
+
+    Test consistancy between the 3DFin file embedded in the package folder and
+    the FinConfig class definition
+    """
+    config_parser = configparser.ConfigParser()
+
+    config_parser.read(Path("src/three_d_fin/3DFINconfig.ini").resolve())
+    fin_file_config = FinConfig.from_dict_like(config_parser)
+    assert fin_file_config.check_validity() is True
+
+    fin_default_config = FinConfig()
+    assert fin_default_config.check_validity() is True
+
+    for param_file, param_default in zip(
+        fin_file_config.get_params(), fin_default_config.get_params(), strict=True
+    ):
+        assert param_file[1].value == param_default[1].value
+
+
 def test_from_dict() -> None:
-    """Test instanciation from dictLike object."""
+    """Test instanciation from dictLike object.
+
+    Check a config is modified by the loaded config
+    """
     config_parser = configparser.ConfigParser()
 
     config_parser.read(Path("tests/lowerlimitchange.ini").resolve())
     fin_parameters = FinConfig.from_dict_like(config_parser)
+
     assert fin_parameters.lower_limit.value == float(
         config_parser["basic"]["lower_limit"]
     )
