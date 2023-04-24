@@ -4,6 +4,8 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Any, Callable, Generic, Mapping, Self, TypeVar, cast
 
+from three_d_fin.processing.configuration import Parameter  # forward declaration
+
 T = TypeVar("T", str, float, int, bool)
 
 N = TypeVar("N", float, int)
@@ -37,7 +39,7 @@ class NumBoundValidator(Validator[N]):
         Parameters
         ----------
         bound : N
-            Bound the value will be checked.
+            value will be checke against this Bound
         operator_callback:  Callable[[N, N], bool
             Callback that will use int conjonction with value and bound to create the
             predicate.
@@ -48,9 +50,43 @@ class NumBoundValidator(Validator[N]):
     def validate(self, value: N) -> None:
         """Validate a value.
 
-        Validate against predicate.
+        Validate against the predicate.
         """
         if not self.operator_callback(value, self.bound):
+            raise ValidationError("Invalid bound check")
+
+
+class DepBoundValidator(Validator[N]):
+    """Check for numeric bounds against another Parameter."""
+
+    dependency: Parameter[N]
+    operator_callback: Callable[[N, N], bool]
+
+    def __init__(
+        self, operator_callback: Callable[[N, N], bool], dependency: Parameter[N]
+    ) -> None:
+        """Construct the validator.
+
+        Parameters
+        ----------
+        dependency : N
+            Bound the value will be checked.
+        operator_callback:  Callable[[N, N], bool
+            Callback that will use int conjonction with value and dependency to create the
+            predicate.
+        """
+        self.dependency = dependency
+        self.operator_callback = operator_callback
+
+    def validate(self, value: N) -> None:
+        """Validate a value.
+
+        Validate against the predicate.
+        """
+        # TODO check dependency validity
+        if self.dependency.state != ParameterState.VALID:
+            raise ValidationError("Dependency in invalid state")
+        if not self.operator_callback(value, self.dependency.value()):
             raise ValidationError("Invalid bound check")
 
 
@@ -99,7 +135,7 @@ class Parameter(Generic[T]):
     It also belongs to a Category to be used in conjunction with configParser
     """
 
-    value: T
+    __value: T
     validators: list[Validator[T]] | None
     category: OptionCategory
     state: ParameterState = ParameterState.NOT_VALIDATED
@@ -127,7 +163,7 @@ class Parameter(Generic[T]):
         self.from_value(default)
         # Check if default is set according to validators, else raise an exception
         if self.state == ParameterState.INVALID:
-            raise Exception
+            raise Exception()
 
     def from_string(self, str_value: str) -> None:
         """Assign a Parameter value from a string representation.
@@ -140,11 +176,11 @@ class Parameter(Generic[T]):
             str_value : str
         """
         try:
-            if isinstance(self.value, float):
+            if isinstance(self.__value, float):
                 temp_value = float(str_value)
-            elif isinstance(self.value, int):
+            elif isinstance(self.__value, int):
                 temp_value = int(str_value)
-            elif isinstance(self.value, bool):
+            elif isinstance(self.__value, bool):
                 temp_value = bool(str_value)
             else:
                 temp_value = str_value
@@ -182,7 +218,11 @@ class Parameter(Generic[T]):
                     self.state = ParameterState.INVALID
                     self.error_msgs.append(e.msg)
         # We won't let value uninitialized, so we assign it anyway
-        self.value = value
+        self.__value = value
+
+    def value(self) -> T:
+        """Getter for encapsulated value."""
+        return self.__value
 
 
 class Config:
@@ -290,6 +330,7 @@ class FinConfig(Config):
         OptionCategory.ADVANCED,
         [
             NumBoundValidator(operator.gt, 0.0),
+            DepBoundValidator(operator.gt, minimum_height)
         ],
         25.0,
     )

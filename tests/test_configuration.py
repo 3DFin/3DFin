@@ -2,6 +2,7 @@ import configparser
 import operator
 from pathlib import Path
 
+import pytest
 from three_d_fin.processing.configuration import (
     Config,
     FinConfig,
@@ -25,19 +26,20 @@ def test_config_creation() -> None:
 
     TestConfig()
 
-    # class TestConfigFail(Config):
-    #     dumb_parameter: Parameter[float] = Parameter[float](
-    #         OptionCategory.BASIC, [NumBoundValidator(operator.gt, 1.0)], 0.0
-    #     )
+    with pytest.raises(Exception):
 
-    # with pytest.raises(Exception):
-    #    a = TestConfigFail()
+        class TestConfigFail(Config):
+            dumb_parameter: Parameter[float] = Parameter[float](
+                OptionCategory.BASIC, [NumBoundValidator(operator.gt, 1.0)], 0.0
+            )
+
+        TestConfigFail()
 
 
-def test_3dFin_consistancy() -> None:
-    """Test configuration consistancy.
+def test_3dFin_consistency() -> None:
+    """Test configuration consistency.
 
-    Test consistancy between the 3DFin file embedded in the package folder and
+    Test consistency between the 3DFin file embedded in the package folder and
     the FinConfig class definition
     """
     config_parser = configparser.ConfigParser()
@@ -52,7 +54,19 @@ def test_3dFin_consistancy() -> None:
     for param_file, param_default in zip(
         fin_file_config.get_params(), fin_default_config.get_params(), strict=True
     ):
-        assert param_file[1].value == param_default[1].value
+        assert param_file[1].value() == param_default[1].value()
+
+    fin_default_config.axis_downstep.from_value(-1.0)
+    assert fin_default_config.check_validity() is False
+    
+    # restore
+    fin_default_config.axis_downstep.from_value(fin_file_config.axis_downstep.value())
+    assert fin_default_config.check_validity() is True
+
+    # test dependency
+    fin_default_config.maximum_height(fin_default_config.minimum_height() - 0.1)
+    assert fin_default_config.check_validity() is False
+
 
 
 def test_from_dict() -> None:
@@ -65,6 +79,6 @@ def test_from_dict() -> None:
     config_parser.read(Path("tests/lowerlimitchange.ini").resolve())
     fin_parameters = FinConfig.from_dict_like(config_parser)
 
-    assert fin_parameters.lower_limit.value == float(
+    assert fin_parameters.lower_limit.value() == float(
         config_parser["basic"]["lower_limit"]
     )
