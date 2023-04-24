@@ -171,7 +171,9 @@ class Parameter(Generic[T]):
         self.state = (
             ParameterState.NOT_VALIDATED
         )  # not very usefull, but semantically fair.
-        if self.validators is not None:
+        if self.validators is None:
+            self.state = ParameterState.VALID
+        else:
             for validator in self.validators:
                 try:
                     validator.validate(value)
@@ -179,6 +181,7 @@ class Parameter(Generic[T]):
                 except ValidationError as e:
                     self.state = ParameterState.INVALID
                     self.error_msgs.append(e.msg)
+        # We won't let value uninitialized, so we assign it anyway
         self.value = value
 
 
@@ -228,7 +231,7 @@ class Config:
         """
         is_valid: bool = True
         for param in self.get_params():
-            is_valid |= param[1].state == ParameterState.VALID
+            is_valid &= param[1].state == ParameterState.VALID
         return is_valid
 
 
