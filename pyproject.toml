@@ -33,7 +33,7 @@ dependencies = [
   "pandas",
   "XlsxWriter",
   "Pillow",
-  "dendromatics @ git+https://github.com/3DFIN/dendromatics@v0.0.1"
+  "dendromatics @ git+https://github.com/3DFIN/dendromatics@temp_csf_reference"
 ]
 dynamic = ["version"]
 
