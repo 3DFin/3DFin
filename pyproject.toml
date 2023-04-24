@@ -54,6 +54,33 @@ packages = ["src/three_d_fin"]
 [tool.hatch.metadata]
 allow-direct-references = true
 
+[tool.hatch.envs.default]
+dependencies = [
+  "pytest",
+  "pytest-cov",
+]
+
+[tool.hatch.envs.default.scripts]
+cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=src/three_d_fin/processing --cov=tests {args}"
+no-cov = "cov --no-cov {args}"
+
+[[tool.hatch.envs.test.matrix]]
+python = ["38", "39", "310", "311"]
+
+[tool.coverage.run]
+branch = true
+parallel = true
+omit = [
+    "src/three_d_fin/__about__.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
+
 [tool.hatch.envs.pyinstaller]
 dependencies = [
   "pyinstaller"
@@ -68,9 +95,11 @@ detached = true
 dependencies = [
   "ruff>=0.0.261",
   "black>=23.3.0",
+  "mypy>=1.2.0"
 ]
 [tool.hatch.envs.lint.scripts]
 # static analysis with ruff
+check-type = "mypy --strict {args:./src/three_d_fin/processing/configuration.py}"
 check-static = "ruff check {args:.}"
 check-format = "black --check --diff --color {args:.}"
 fix-static = "ruff --fix {args:.}"

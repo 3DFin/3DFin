@@ -472,7 +472,7 @@ def fin_callback(params: dict):
         quality = np.where(mask, quality, 1)
 
         # Function to convert data to pandas DataFrames
-        def to_pandas(data):
+        def to_pandas(data: np.ndarray) -> pd.DataFrame:
             # Covers np.arrays of shape == 2 (almost every case)
             if len(data.shape) == 2:
                 df = pd.DataFrame(
