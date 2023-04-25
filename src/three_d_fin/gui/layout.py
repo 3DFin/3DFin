@@ -210,33 +210,38 @@ class Application(tk.Tk):
         self.output_dir = tk.StringVar(value=str(Path.home()))
         self.input_file = tk.StringVar()
 
-        ### Reading config file only if it is available under name '3DFINconfig.ini'
-        my_file = Path("3DFINconfig.ini")
-
         try:
-            config_file_path = my_file.resolve(strict=True)
-        except FileNotFoundError:
-            config = FinConfiguration()
-        else:
-            config = FinConfiguration.From_config_file(config_file_path)
+            ### Reading config file only if it is available under name '3DFINconfig.ini'
+            config_file_path = Path("3DFINconfig.ini")
+            config = FinConfiguration.From_config_file(
+                config_file_path.resolve(strict=True)
+            )
             print("Configuration file found. Setting default parameters from the file")
+        except ValidationError:
+            print("Configuration file error")
+            # TODO dispatch to error modals
+            config = FinConfiguration()
+        except FileNotFoundError:
+            # no error message in this case, fallback to default parameters
+            config = FinConfiguration()
 
+        # params and tk.Variable instances have the same name, we take advantage of that.
         config_dict = config.dict()
-        # params and tk.Variable instances should have the same name, take advantage of that.
         for config_section in config_dict:
-            if config_section != "misc":
+            if (
+                config_section != "misc"
+            ):  # we do not take account of the misc section if available
                 for key_param, value_param in config_dict[config_section].items():
                     getattr(self, key_param).set(value_param)
 
-    def get_parameters(self) -> dict[str, dict[str, Any]]:
+    def get_parameters(self) -> dict[str, dict[str, str]]:
         """Get parameters from widgets and return them organized in a dictionnary.
 
         Returns
         -------
-        options : dict[str, dict[str, Any]]
+        options : dict[str, dict[str, str]]
             Dictionary of parameters. It is organised following the 3DFINconfig.ini file:
-            Each parameters are sorted in sub-dict ("basic", "expert", "advanced").
-            TODO: A "misc" subsection enclose all parameters needed by 3DFIN but not
+            Each parameters are sorted in sub-dict ("basic", "expert", "advanced", "misc").
         """
         config_dict: dict[str, dict[str, str]] = {}
         for category_name, category_field in FinConfiguration.__fields__.items():
@@ -246,7 +251,7 @@ class Application(tk.Tk):
             config_dict[category_name] = category_dict
         if (
             self.file_externally_defined
-        ):  # if the file is define elsewhere, no need to define it
+        ):  # if the file is defined elsewhere, no need to define it
             config_dict["misc"]["input_file"] = None
         return config_dict
 
@@ -1758,16 +1763,16 @@ class Application(tk.Tk):
             )
 
         # If the file is defined in the GUI, we check its validity
-        if not self.file_externally_defined:
-            input_las = Path(params["misc"]["input_file"])
-            if not input_las.exists() or not input_las.is_file():
-                _show_error("Input file does not exists")
-                return
-            try:
-                laspy.open(input_las, read_evlrs=False)
-            except laspy.LaspyException:
-                _show_error("Invalid las file")
-                return
+        # if not self.file_externally_defined:
+        #     input_las = Path(params["misc"]["input_file"])
+        #     if not input_las.exists() or not input_las.is_file():
+        #         _show_error("Input file does not exists")
+        #         return
+        #     try:
+        #         laspy.open(input_las, read_evlrs=False)
+        #     except laspy.LaspyException:
+        #         _show_error("Invalid las file")
+        #         return
 
         # We check the validity of the current output directory
         output_dir = Path(params["misc"]["output_dir"])
@@ -1781,18 +1786,30 @@ class Application(tk.Tk):
             _show_error("Invalid output directory")
             return
 
-        # TODO: Here we could check if the output directory already contains some compatible processing result
-        # to ask if we should overwrite them.
+        # TODO: Here we could check if the output directory already contains some compatible processing results
+        # to ask if we want to overwrite them.
 
-        # pydantic checks, we check the validity of the data
+        # Pydantic checks, we check the validity of the data
         try:
             typed_param = FinConfiguration.parse_obj(
                 params
-            ).dict()  # coerce dict[str, [str, str]] to dict[str, [str, Any]]
+            ).dict()  # Coerce dict[str, [str, str]] to dict[str, [str, Any]]
         except ValidationError as validation_errors:
-            _show_error(
-                str(validation_errors)
-            )  # for now we display very basic messages that should no be very usefull for end user
+            final_msg: str = "Invalid Parameters:\n\n"
+            schema = FinConfiguration.schema()
+            for error in validation_errors.errors():
+                error_loc: list[str] = error["loc"]
+                # try to get the human readable value for the field (in title attribute)
+                # Here we use this introspection instead of following properties -> allOf -> ref
+                ref = (
+                    FinConfiguration.__fields__[error_loc[0]].type_().__class__.__name__
+                )
+                field_title = schema["definitions"][ref]["properties"][error_loc[1]][
+                    "title"
+                ]
+                final_msg = final_msg + f"{field_title} \n"
+                final_msg = final_msg + f"""\t -> {error["msg"]} "\n"""
+            _show_error(final_msg)
             return
 
         # Change button caption

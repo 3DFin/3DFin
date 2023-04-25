@@ -200,7 +200,7 @@ def fin_callback(params: dict):
         las_dtm_points.y = dtm[:, 1]
         las_dtm_points.z = dtm[:, 2]
 
-        las_dtm_points.write(basename_las + "_dtm_points.las")
+        las_dtm_points.write(basepath_output + "_dtm_points.las")
 
         elapsed = timeit.default_timer() - t
         print("        ", "%.2f" % elapsed, "s: exporting the DTM")
@@ -313,7 +313,7 @@ def fin_callback(params: dict):
     print("---------------------------------------------")
 
     xyz0_coords = assigned_cloud[
-        (assigned_cloud[:, 5] < params["advanced"]["stem_search_diameter"]) / 2.0
+        (assigned_cloud[:, 5] < (params["advanced"]["stem_search_diameter"]) / 2.0)
         & (assigned_cloud[:, 3] > params["advanced"]["minimum_height"])
         & (
             assigned_cloud[:, 3]
