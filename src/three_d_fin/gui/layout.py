@@ -244,7 +244,9 @@ class Application(tk.Tk):
             for category_param in category_field.type_().__fields__:
                 category_dict[category_param] = getattr(self, category_param).get()
             config_dict[category_name] = category_dict
-        if self.file_externally_defined: #if the file is define elsewhere, no need to define it
+        if (
+            self.file_externally_defined
+        ):  # if the file is define elsewhere, no need to define it
             config_dict["misc"]["input_file"] = None
         return config_dict
 

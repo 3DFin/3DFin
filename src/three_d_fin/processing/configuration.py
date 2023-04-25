@@ -13,14 +13,10 @@ from pydantic import (
     validator,
 )
 
-# class FromTkObjectVariable(BaseModel):
-#     @classmethod
-#     def From_Tk_Object_variables(cls, tk_object):
-#         # introspect current class field and get
-#         for field_name = cls.__fields__
-
 
 class BasicParameters(BaseModel):
+    """Handle the "basic" parameters section."""
+
     # Name of the Z0 field in the LAS file containing the cloud.
     z0_name: str = "Z0"
     # Upper limit (vertical) of the stripe where it should be reasonable to find trunks with minimum presence of shrubs or branchs.
@@ -32,6 +28,7 @@ class BasicParameters(BaseModel):
 
     @validator("lower_limit")
     def less_than_higher(cls, v, values):
+        """Validate lower_limit field againt upper_limit value."""
         if "upper_limit" in values and v >= values["upper_limit"]:
             raise ValueError(
                 f"""lower_limit ({v}) should be lower than upper_limit ({values["upper_limit"]})"""
@@ -40,6 +37,8 @@ class BasicParameters(BaseModel):
 
 
 class AdvancedParameters(BaseModel):
+    """Handle the "advanced" parameters section."""
+
     # Maximum diameter expected for any section during circle fitting.
     maximum_diameter: PositiveFloat = 1.0
     # Points within this distance from tree axes will be considered as potential stem points.
@@ -54,7 +53,7 @@ class AdvancedParameters(BaseModel):
     section_wid: PositiveFloat = 0.05
 
     @validator("maximum_height")
-    def less_than_higher(cls, v, values):
+    def more_than_mini(cls, v, values):
         """Validate maximum_height field again minimum_height value."""
         if "minimum_height" in values and v <= values["minimum_height"]:
             raise ValueError(
@@ -64,6 +63,8 @@ class AdvancedParameters(BaseModel):
 
 
 class ExpertParameters(BaseModel):
+    """Handle the "expert" parameters section."""
+
     ### Stem identification whithin the stripe ###
     # (x, y) voxel resolution during stem extraction
     res_xy_stripe: PositiveFloat = 0.02
@@ -133,22 +134,41 @@ class ExpertParameters(BaseModel):
 
 
 class MiscParameters(BaseModel):
+    """Handle the "misc" parameters section."""
+
     is_normalized: bool = True
     is_noisy: bool = False
     export_txt: bool = False
-    # input file is not mandatory and could be provided by another mean
+    # input file is not mandatory and could be provided by another mean.
     input_file: FilePath | None = None
     output_dir: DirectoryPath = None
 
 
 class FinConfiguration(BaseModel):
+    """Handle the parameters for 3DFin Application."""
+
     basic: BasicParameters = BasicParameters()
     advanced: AdvancedParameters = AdvancedParameters()
     expert: ExpertParameters = ExpertParameters()
-    misc: MiscParameters | None = None
+    misc: MiscParameters | None = None  # Misc parameters are optional.
 
     @classmethod
     def From_config_file(cls: Self, filename: Path) -> "FinConfiguration":
+        """Import parameters from a .ini file.
+
+        Could raise exceptions (ValidationError, FileNotFound, configparser.Error)
+
+
+        Parameters
+        ----------
+        filename: Path
+            the Path to the .ini file to load
+
+
+        Returns
+        -------
+            A validated FinConfiguration
+        """
         parser = configparser.ConfigParser()
         # could raise an Exception that the caller is resposible to catch
         with filename.open("r") as f:
@@ -157,6 +177,16 @@ class FinConfiguration(BaseModel):
             return cls.parse_obj(parser)
 
     def to_config_file(self, filename: Path):
+        """Import parameters from a .ini file.
+
+        Could raise exceptions (ValidationError, FileNotFound, configparser.Error)
+
+
+        Parameters
+        ----------
+        filename: Path
+            the Path to the .ini file to save
+        """
         parser = configparser.ConfigParser()
         # could raise an Exception that the caller is resposible to catch
         with filename.open("w") as f:
