@@ -90,8 +90,8 @@ def fin_callback(params: dict):
     # tree_id_field = 4  # Which column contains tree ID field  - Unused - NON MODIFIABLE
     n_digits = 5  # Number of digits for voxel encoding.
 
-    filename_las = params["misc"]["input_las"]
-    basename_las = Path(params["misc"]["input_las"]).stem
+    filename_las = params["misc"]["input_file"]
+    basename_las = Path(params["misc"]["input_file"]).stem
     basepath_output = str(Path(params["misc"]["output_dir"]) / Path(basename_las))
     print(basepath_output)
 
@@ -200,7 +200,7 @@ def fin_callback(params: dict):
         las_dtm_points.y = dtm[:, 1]
         las_dtm_points.z = dtm[:, 2]
 
-        las_dtm_points.write(filename_las + "_dtm_points.las")
+        las_dtm_points.write(basename_las + "_dtm_points.las")
 
         elapsed = timeit.default_timer() - t
         print("        ", "%.2f" % elapsed, "s: exporting the DTM")
@@ -313,7 +313,7 @@ def fin_callback(params: dict):
     print("---------------------------------------------")
 
     xyz0_coords = assigned_cloud[
-        (assigned_cloud[:, 5] < params["advanced"]["stem_search_diameter"])
+        (assigned_cloud[:, 5] < params["advanced"]["stem_search_diameter"]) / 2.0
         & (assigned_cloud[:, 3] > params["advanced"]["minimum_height"])
         & (
             assigned_cloud[:, 3]
@@ -357,8 +357,8 @@ def fin_callback(params: dict):
         params["advanced"]["section_wid"],
         params["expert"]["diameter_proportion"],
         params["expert"]["point_threshold"],
-        params["expert"]["minimum_diameter"],
-        params["advanced"]["maximum_diameter"],
+        params["expert"]["minimum_diameter"] / 2.0,
+        params["advanced"]["maximum_diameter"] / 2.0,
         params["expert"]["point_distance"],
         params["expert"]["number_points_section"],
         params["expert"]["number_sectors"],
@@ -389,12 +389,12 @@ def fin_callback(params: dict):
         tree_vector,
         outliers,
         basepath_output + "_circ.las",
-        params["expert"]["minimum_diameter"],
-        params["advanced"]["maximum_diameter"],
+        params["expert"]["minimum_diameter"] / 2.0,
+        params["advanced"]["maximum_diameter"] / 2.0,
         params["expert"]["point_threshold"],
         params["expert"]["number_sectors"],
         params["expert"]["m_number_sectors"],
-        params["expert"]["circa_points"],
+        params["expert"]["circa"],
     )
 
     dm.draw_axes(
@@ -448,7 +448,7 @@ def fin_callback(params: dict):
     dbh_and_heights[:, 2] = tree_locations[:, 0]
     dbh_and_heights[:, 3] = tree_locations[:, 1]
 
-    if not params["misc"]["txt"]:
+    if not params["misc"]["export_txt"]:
         # Generating aggregated quality value for each section
         quality = np.zeros(sector_perct.shape)
         # Section does not pass quality check if:
@@ -462,10 +462,10 @@ def fin_callback(params: dict):
             | (n_points_in > params["expert"]["point_threshold"])
             | (outliers > 0.3)  # Outlier probability larger than 30 %
             | (
-                R < params["expert"]["minimum_diameter"]
+                R < params["expert"]["minimum_diameter"] / 2.0
             )  # Radius smaller than the minimum radius
             | (
-                R > params["advanced"]["maximum_diameter"]
+                R > params["advanced"]["maximum_diameter"] / 2.0
             )  # Radius larger than the maximum radius
         )
         # 0: does not pass quality check - 1: passes quality checks

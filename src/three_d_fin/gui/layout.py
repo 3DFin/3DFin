@@ -1,4 +1,3 @@
-import configparser
 import os
 import subprocess
 import sys
@@ -10,9 +9,13 @@ from typing import Any, Callable, Optional
 
 import laspy
 from PIL import Image, ImageTk
+from pydantic import ValidationError
 
 from three_d_fin import __about__
 from three_d_fin.gui.tooltip import ToolTip
+from three_d_fin.processing.configuration import (
+    FinConfiguration,
+)
 
 
 class Application(tk.Tk):
@@ -143,149 +146,87 @@ class Application(tk.Tk):
         it fallback to default parameters hardcoded here.
         """
         ### Basic parameters
-        self.z0_name = tk.StringVar(value="Z0")
-        self.upper_limit = tk.StringVar(value="3.5")
-        self.lower_limit = tk.StringVar(value="0.7")
-        self.number_of_iterations = tk.StringVar(value="2")
+        self.z0_name = tk.StringVar()
+        self.upper_limit = tk.StringVar()
+        self.lower_limit = tk.StringVar()
+        self.number_of_iterations = tk.StringVar()
 
         ### Advanced parameters
-        self.maximum_diameter = tk.StringVar(value="1.0")
-        self.stem_search_diameter = tk.StringVar(value="2.0")
-        self.minimum_height = tk.StringVar(value="0.3")
-        self.maximum_height = tk.StringVar(value="25")
-        self.section_len = tk.StringVar(value="0.2")
-        self.section_wid = tk.StringVar(value="0.05")
+        self.maximum_diameter = tk.StringVar()
+        self.stem_search_diameter = tk.StringVar()
+        self.minimum_height = tk.StringVar()
+        self.maximum_height = tk.StringVar()
+        self.section_len = tk.StringVar()
+        self.section_wid = tk.StringVar()
 
         ### Expert parameters
         # Stem identification
-        self.res_xy_stripe = tk.StringVar(value="0.02")
-        self.res_z_stripe = tk.StringVar(value="0.02")
-        self.number_of_points = tk.StringVar(value="1000")
-        self.verticality_scale_stripe = tk.StringVar(value="0.1")
-        self.verticality_thresh_stripe = tk.StringVar(value="0.7")
-        self.height_range = tk.StringVar(value="0.7")
+        self.res_xy_stripe = tk.StringVar()
+        self.res_z_stripe = tk.StringVar()
+        self.number_of_points = tk.StringVar()
+        self.verticality_scale_stripe = tk.StringVar()
+        self.verticality_thresh_stripe = tk.StringVar()
+        self.height_range = tk.StringVar()
 
         # Stem extraction and Tree individualization
-        self.res_xy = tk.StringVar(value="0.035")
-        self.res_z = tk.StringVar(value="0.035")
-        self.minimum_points = tk.StringVar(value="20")
-        self.verticality_scale_stems = tk.StringVar(value="0.1")
-        self.verticality_thresh_stems = tk.StringVar(value="0.7")
-        self.maximum_d = tk.StringVar(value="15")
-        self.distance_to_axis = tk.StringVar(value="1.5")
-        self.res_heights = tk.StringVar(value="0.3")
-        self.maximum_dev = tk.StringVar(value="25")
+        self.res_xy = tk.StringVar()
+        self.res_z = tk.StringVar()
+        self.minimum_points = tk.StringVar()
+        self.verticality_scale_stems = tk.StringVar()
+        self.verticality_thresh_stems = tk.StringVar()
+        self.maximum_d = tk.StringVar()
+        self.distance_to_axis = tk.StringVar()
+        self.res_heights = tk.StringVar()
+        self.maximum_dev = tk.StringVar()
 
         # Extracting sections
-        self.number_points_section = tk.StringVar(value="80")
-        self.diameter_proportion = tk.StringVar(value="0.5")
-        self.minimum_diameter = tk.StringVar(value="0.06")
-        self.point_threshold = tk.StringVar(value="5")
-        self.point_distance = tk.StringVar(value="0.02")
-        self.number_sectors = tk.StringVar(value="16")
-        self.m_number_sectors = tk.StringVar(value="9")
-        self.circle_width = tk.StringVar(value="0.02")
+        self.number_points_section = tk.StringVar()
+        self.diameter_proportion = tk.StringVar()
+        self.minimum_diameter = tk.StringVar()
+        self.point_threshold = tk.StringVar()
+        self.point_distance = tk.StringVar()
+        self.number_sectors = tk.StringVar()
+        self.m_number_sectors = tk.StringVar()
+        self.circle_width = tk.StringVar()
 
         # Drawing circles and axes
-        self.circa = tk.StringVar(value="200")
-        self.p_interval = tk.StringVar(value="0.01")
-        self.axis_downstep = tk.StringVar(value="0.5")
-        self.axis_upstep = tk.StringVar(value="10")
+        self.circa = tk.StringVar()
+        self.p_interval = tk.StringVar()
+        self.axis_downstep = tk.StringVar()
+        self.axis_upstep = tk.StringVar()
 
         # Other parameters
-        self.res_ground = tk.StringVar(value="0.15")
-        self.min_points_ground = tk.StringVar(value="2")
-        self.res_cloth = tk.StringVar(value="0.7")
+        self.res_ground = tk.StringVar()
+        self.min_points_ground = tk.StringVar()
+        self.res_cloth = tk.StringVar()
 
-        # TODO: misc parameters. These parameters have no entry in the option file
-        # but they are needed for processing and exposed in the GUI
         # Variable to keep track of the option selected in normalized_button_1
-        self.is_normalized_var = tk.BooleanVar()
+        self.is_normalized = tk.BooleanVar()
         # Variable to keep track of the option selected in clean_button_1
-        self.is_noisy_var = tk.BooleanVar()
+        self.is_noisy = tk.BooleanVar()
         # Variable to keep track of the option selected in excel_button_1
-        self.txt_var = tk.BooleanVar()
+        self.export_txt = tk.BooleanVar()
         # I/O related parameters
-        self.output_dir_var = tk.StringVar(value=str(Path.home()))
-        self.input_las_var = tk.StringVar()
+        self.output_dir = tk.StringVar(value=str(Path.home()))
+        self.input_file = tk.StringVar()
 
         ### Reading config file only if it is available under name '3DFINconfig.ini'
         my_file = Path("3DFINconfig.ini")
 
         try:
-            my_abs_path = my_file.resolve(strict=True)
+            config_file_path = my_file.resolve(strict=True)
         except FileNotFoundError:
-            pass
+            config = FinConfiguration()
         else:
+            config = FinConfiguration.From_config_file(config_file_path)
             print("Configuration file found. Setting default parameters from the file")
 
-            ### Reading the config file
-            config = configparser.ConfigParser()
-            config.read(my_abs_path)
-
-            ### Basic parameters
-            self.z0_name.set(config["basic"]["z0_name"])
-            self.upper_limit.set(config["basic"]["upper_limit"])
-            self.lower_limit.set(config["basic"]["lower_limit"])
-            self.number_of_iterations.set(config["basic"]["number_of_iterations"])
-
-            ### Advanced parameters
-            self.maximum_diameter.set(config["advanced"]["maximum_diameter"])
-            self.stem_search_diameter.set(config["advanced"]["stem_search_diameter"])
-            self.minimum_height.set(config["advanced"]["minimum_height"])
-            self.maximum_height.set(config["advanced"]["maximum_height"])
-            self.section_len.set(config["advanced"]["section_len"])
-            self.section_wid.set(config["advanced"]["section_wid"])
-
-            ### Expert parameters
-
-            # Stem identification within the stripe
-            self.res_xy_stripe.set(config["expert"]["res_xy_stripe"])
-            self.res_z_stripe.set(config["expert"]["res_z_stripe"])
-            self.number_of_points.set(config["expert"]["number_of_points"])
-            self.verticality_scale_stripe.set(
-                config["expert"]["verticality_scale_stripe"]
-            )
-            self.verticality_thresh_stripe.set(
-                config["expert"]["verticality_thresh_stripe"]
-            )
-            self.height_range.set(config["expert"]["height_range"])
-
-            # Stem extraction and tree individualization
-            self.res_xy.set(config["expert"]["res_xy"])
-            self.res_z.set(config["expert"]["res_z"])
-            self.minimum_points.set(config["expert"]["minimum_points"])
-            self.verticality_scale_stems.set(
-                config["expert"]["verticality_scale_stems"]
-            )
-            self.verticality_thresh_stems.set(
-                config["expert"]["verticality_thresh_stems"]
-            )
-            self.maximum_d.set(config["expert"]["maximum_d"])
-            self.distance_to_axis.set(config["expert"]["distance_to_axis"])
-            self.res_heights.set(config["expert"]["res_heights"])
-            self.maximum_dev.set(config["expert"]["maximum_dev"])
-
-            # Extracting sections
-            self.number_points_section.set(config["expert"]["number_points_section"])
-            self.diameter_proportion.set(config["expert"]["diameter_proportion"])
-            self.minimum_diameter.set(config["expert"]["minimum_diameter"])
-            self.point_threshold.set(config["expert"]["point_threshold"])
-            self.point_distance.set(config["expert"]["point_distance"])
-            self.number_sectors.set(config["expert"]["number_sectors"])
-            self.m_number_sectors.set(config["expert"]["m_number_sectors"])
-            self.circle_width.set(config["expert"]["circle_width"])
-
-            # Drawing circles and axes
-            self.circa.set(config["expert"]["circa"])
-            self.p_interval.set(config["expert"]["p_interval"])
-            self.axis_downstep.set(config["expert"]["axis_downstep"])
-            self.axis_upstep.set(config["expert"]["axis_upstep"])
-
-            # Other parameters
-            self.res_ground.set(config["expert"]["res_ground"])
-            self.min_points_ground.set(config["expert"]["min_points_ground"])
-            self.res_cloth.set(config["expert"]["res_cloth"])
+        config_dict = config.dict()
+        # params and tk.Variable instances should have the same name, take advantage of that.
+        for config_section in config_dict:
+            if config_section != "misc":
+                for key_param, value_param in config_dict[config_section].items():
+                    getattr(self, key_param).set(value_param)
 
     def get_parameters(self) -> dict[str, dict[str, Any]]:
         """Get parameters from widgets and return them organized in a dictionnary.
@@ -296,190 +237,16 @@ class Application(tk.Tk):
             Dictionary of parameters. It is organised following the 3DFINconfig.ini file:
             Each parameters are sorted in sub-dict ("basic", "expert", "advanced").
             TODO: A "misc" subsection enclose all parameters needed by 3DFIN but not
-            defined in the the config file.
         """
-        params: dict[str, dict[str, Any]] = {}
-        params["misc"] = {}
-        params["basic"] = {}
-        params["expert"] = {}
-        params["advanced"] = {}
-
-        # misc parameters see TODO section in the _generate_parameters method
-        params["misc"]["is_normalized"] = self.is_normalized_var.get()
-        params["misc"]["is_noisy"] = self.is_noisy_var.get()
-        params["misc"]["txt"] = self.txt_var.get()
-        params["misc"]["input_las"] = self.input_las_var.get()
-        params["misc"]["output_dir"] = self.output_dir_var.get()
-
-        # -------------------------------------------------------------------------------------------------
-        # BASIC PARAMETERS. These are the parameters to be checked (and changed if needed) for each dataset/plot
-        # All parameters are in m or points
-        # -------------------------------------------------------------------------------------------------
-
-        params["basic"][
-            "z0_name"
-        ] = (
-            self.z0_name.get()
-        )  # Name of the Z0 field in the LAS file containing the cloud.
-        # If the normalized heights are stored in the Z coordinate of the .LAS file: field_name_z0 = "z" (lowercase)
-
-        # Upper and lower limits (vertical) of the stripe where it should be reasonable to find stems with minimum presence of shrubs or branches.
-        params["basic"]["upper_limit"] = float(
-            self.upper_limit.get()
-        )  # Values, normally between 2 and 5
-        params["basic"]["lower_limit"] = float(
-            self.lower_limit.get()
-        )  # Values, normally between 0.3 and 1.3
-
-        params["basic"]["number_of_iterations"] = int(
-            self.number_of_iterations.get()
-        )  # Number of iterations of 'peeling off branches'.
-        # Values between 0 (no branch peeling/cleaning) and 5 (very extreme branch peeling/cleaning)
-
-        # -------------------------------------------------------------------------------------------------
-        # Advanced PARAMETERS. They should only be modified when no good results are obtained tweaking basic parameters.
-        # They require a deeper knowledge of how the algorithm and the implementation work
-        # -------------------------------------------------------------------------------------------------
-
-        params["advanced"]["stem_search_diameter"] = (
-            float(self.stem_search_diameter.get()) / 2
-        )  # Points within this distance from tree axes will be considered as potential stem points.
-        # Values between maximum diameter and 1 (exceptionally greater than 1: very large diameters and/or intricate stems)
-
-        params["advanced"]["maximum_diameter"] = (
-            float(self.maximum_diameter.get()) / 2
-        )  # Maximum radius expected for any section during circle fitting.
-
-        params["advanced"]["minimum_height"] = float(
-            self.minimum_height.get()
-        )  # Lowest height
-        params["advanced"]["maximum_height"] = float(
-            self.maximum_height.get()
-        )  # highest height
-
-        params["advanced"]["section_len"] = float(
-            self.section_len.get()
-        )  # sections are this long (z length)
-        params["advanced"]["section_wid"] = float(
-            self.section_wid.get()
-        )  # sections are this wide
-
-        # -------------------------------------------------------------------------------------------------
-        # EXPERT PARAMETERS. They should only be modified when no good results are obtained peaking basic parameters.
-        # They require a deeper knowledge of how the algorithm and the implementation work
-        # *Stored in the main script in this version.
-        # -------------------------------------------------------------------------------------------------
-
-        # -------------------------------------------------------------------------------------------------
-        # Stem identification within the stripe
-        # -------------------------------------------------------------------------------------------------
-        params["expert"]["res_xy_stripe"] = float(
-            self.res_xy_stripe.get()
-        )  # (x, y)voxel resolution during stem identification
-        params["expert"]["res_z_stripe"] = float(
-            self.res_z_stripe.get()
-        )  # (z) voxel resolution during stem identification
-
-        params["expert"]["number_of_points"] = int(
-            self.number_of_points.get()
-        )  # minimum number of points per stem within the stripe (DBSCAN clustering).
-        # Values, normally between 500 and 3000
-
-        params["expert"]["verticality_scale_stripe"] = float(
-            self.verticality_scale_stripe.get()
-        )  # Vicinity radius for PCA during stem extraction
-        params["expert"]["verticality_thresh_stripe"] = float(
-            self.verticality_thresh_stripe.get()
-        )  # Verticality threshold durig stem extraction
-
-        # -------------------------------------------------------------------------------------------------
-        # Tree individualization.
-        # -------------------------------------------------------------------------------------------------
-        params["expert"]["res_xy"] = float(
-            self.res_xy.get()
-        )  # (x, y) voxel resolution during tree individualization
-        params["expert"]["res_z"] = float(
-            self.res_z.get()
-        )  # (z) voxel resolution during tree individualization
-
-        params["expert"]["minimum_points"] = int(
-            self.minimum_points.get()
-        )  # Minimum number of points within a stripe to consider it as a potential tree during tree individualization
-
-        params["expert"]["verticality_scale_stems"] = float(
-            self.verticality_scale_stems.get()
-        )  # DBSCAN minimum number of points during stem identification
-        params["expert"]["verticality_thresh_stems"] = float(
-            self.verticality_thresh_stems.get()
-        )  # Verticality threshold durig stem identification
-
-        params["expert"]["height_range"] = float(
-            self.height_range.get()
-        )  # only stems where points extend vertically throughout this range are considered.
-        params["expert"]["maximum_d"] = float(
-            self.maximum_d.get()
-        )  # Points that are closer than d_max to an axis are assigned to that axis during individualize_trees process.
-
-        params["expert"]["distance_to_axis"] = float(
-            self.distance_to_axis.get()
-        )  # Points within this distance from tree axes will be used to find tree height
-        params["expert"]["res_heights"] = float(
-            self.res_heights.get()
-        )  # Resolution for the voxelization while computing tree heights
-        params["expert"]["maximum_dev"] = float(
-            self.maximum_dev.get()
-        )  # Maximum degree of vertical deviation from the axis
-
-        # -------------------------------------------------------------------------------------------------
-        # Extracting sections.
-        # -------------------------------------------------------------------------------------------------
-        params["expert"]["number_points_section"] = int(
-            self.number_points_section.get()
-        )  # Minimum number of points in a section to be considered
-        params["expert"]["diameter_proportion"] = float(
-            self.diameter_proportion.get()
-        )  # Proportion, regarding the circumference fit by fit_circle, that the inner circumference radius will have as length
-        params["expert"]["minimum_diameter"] = (
-            float(self.minimum_diameter.get()) / 2
-        )  # Minimum radius expected for any section circle fitting.
-        params["expert"]["point_threshold"] = int(
-            self.point_threshold.get()
-        )  # Number of points inside the inner circle
-        params["expert"]["point_distance"] = float(
-            self.point_distance.get()
-        )  # Maximum distance among points to be considered within the same cluster.
-        params["expert"]["number_sectors"] = int(
-            self.number_sectors.get()
-        )  # Number of sectors in which the circumference will be divided
-        params["expert"]["m_number_sectors"] = int(
-            self.m_number_sectors.get()
-        )  # Minimum number of sectors that must be occupied.
-        params["expert"]["circle_width"] = float(
-            self.circle_width.get()
-        )  # Width, in centimeters, around the circumference to look for points
-
-        # -------------------------------------------------------------------------------------------------
-        # Drawing circles.
-        # -------------------------------------------------------------------------------------------------
-        params["expert"]["circa_points"] = int(self.circa.get())
-
-        # -------------------------------------------------------------------------------------------------
-        # Drawing axes.
-        # -------------------------------------------------------------------------------------------------
-        params["expert"]["p_interval"] = float(self.p_interval.get())
-        params["expert"]["axis_downstep"] = float(self.axis_downstep.get())
-        params["expert"]["axis_upstep"] = float(
-            self.axis_upstep.get()
-        )  # From the stripe centroid, how much (upwards direction) will the drawn axes extend.
-
-        # -------------------------------------------------------------------------------------------------
-        # Height normalization
-        # -------------------------------------------------------------------------------------------------
-        params["expert"]["res_ground"] = float(self.res_ground.get())
-        params["expert"]["min_points_ground"] = int(self.min_points_ground.get())
-        params["expert"]["res_cloth"] = float(self.res_cloth.get())
-
-        return params
+        config_dict: dict[str, dict[str, str]] = {}
+        for category_name, category_field in FinConfiguration.__fields__.items():
+            category_dict: dict[str, str] = {}
+            for category_param in category_field.type_().__fields__:
+                category_dict[category_param] = getattr(self, category_param).get()
+            config_dict[category_name] = category_dict
+        if self.file_externally_defined: #if the file is define elsewhere, no need to define it
+            config_dict["misc"]["input_file"] = None
+        return config_dict
 
     def _create_basic_tab(self) -> None:
         """Create the "basic" parameters tab (1)."""
@@ -633,7 +400,7 @@ class Application(tk.Tk):
         normalized_button_1 = ttk.Radiobutton(
             self.basic_tab,
             text="Yes",
-            variable=self.is_normalized_var,
+            variable=self.is_normalized,
             value=True,
             command=_enable_denoising,
         )
@@ -641,7 +408,7 @@ class Application(tk.Tk):
         normalized_button_2 = ttk.Radiobutton(
             self.basic_tab,
             text="No",
-            variable=self.is_normalized_var,
+            variable=self.is_normalized,
             value=False,
             command=_disable_denoising,
         )
@@ -653,21 +420,21 @@ class Application(tk.Tk):
 
         # Create the optionmenu widget and passing the options_list and value_inside to it.
         clean_button_1 = ttk.Radiobutton(
-            self.basic_tab, text="Yes", variable=self.is_noisy_var, value=True
+            self.basic_tab, text="Yes", variable=self.is_noisy, value=True
         )
         clean_button_1.grid(column=2, row=4, sticky="EW")
         clean_button_2 = ttk.Radiobutton(
-            self.basic_tab, text="No", variable=self.is_noisy_var, value=False
+            self.basic_tab, text="No", variable=self.is_noisy, value=False
         )
         clean_button_2.grid(column=3, row=4, sticky="EW")
 
         # Create the optionmenu widget and passing the options_list and value_inside to it.
         txt_button_1 = ttk.Radiobutton(
-            self.basic_tab, text="TXT files", variable=self.txt_var, value=True
+            self.basic_tab, text="TXT files", variable=self.export_txt, value=True
         )
         txt_button_1.grid(column=2, row=6, sticky="EW")
         txt_button_1 = ttk.Radiobutton(
-            self.basic_tab, text="XLSX files", variable=self.txt_var, value=False
+            self.basic_tab, text="XLSX files", variable=self.export_txt, value=False
         )
         txt_button_1.grid(column=3, row=6, sticky="EW")
 
@@ -1858,11 +1625,11 @@ class Application(tk.Tk):
             output_dir = filedialog.askdirectory(
                 parent=self,
                 title="3DFIN output directory",
-                initialdir=self.output_dir_var.get(),
+                initialdir=self.output_dir.get(),
             )
             # If the dialog was not closed/cancel
             if output_dir != "" and not None:
-                self.output_dir_var.set(str(Path(output_dir).resolve()))
+                self.output_dir.set(str(Path(output_dir).resolve()))
 
         def _ask_input_file() -> None:
             """Ask for a proper input las file.
@@ -1874,7 +1641,7 @@ class Application(tk.Tk):
             the output directory is changed accordingly (default to input las file
             parent directory)
             """
-            initial_path = Path(self.input_las_var.get())
+            initial_path = Path(self.input_file.get())
             is_initial_file = (
                 True if initial_path.exists() and initial_path.is_file() else False
             )
@@ -1898,8 +1665,8 @@ class Application(tk.Tk):
                         parent=self, title="3DFIN Error", message="Invalid las file"
                     )
                     return
-                self.input_las_var.set(str(Path(las_file).resolve()))
-                self.output_dir_var.set(str(Path(las_file).parent.resolve()))
+                self.input_file.set(str(Path(las_file).resolve()))
+                self.output_dir.set(str(Path(las_file).parent.resolve()))
 
         self.label_file = ttk.Label(
             bottom_frame,
@@ -1911,7 +1678,7 @@ class Application(tk.Tk):
         self.label_directory.grid(row=0, column=2, sticky="W")
 
         self.input_file_entry = ttk.Entry(
-            bottom_frame, width=30, textvariable=self.input_las_var
+            bottom_frame, width=30, textvariable=self.input_file
         )
         self.input_file_entry.grid(row=1, column=0, sticky="W", padx=5)
 
@@ -1929,7 +1696,7 @@ class Application(tk.Tk):
             self.input_file_entry.grid_forget()
 
         self.output_dir_entry = ttk.Entry(
-            bottom_frame, width=30, textvariable=self.output_dir_var
+            bottom_frame, width=30, textvariable=self.output_dir
         )
         self.output_dir_entry.grid(row=1, column=2, sticky="W")
 
@@ -1979,18 +1746,18 @@ class Application(tk.Tk):
 
     def validate_and_run_processing_callback(self) -> None:
         """Validate I/O entries and run the processing callback."""
+        params = self.get_parameters()
 
+        # TODO: some check are redundant with validation with pydantic
         # define a lambda to popup error for convenience
         def _show_error(error_msg: str) -> str:
             return messagebox.showerror(
                 parent=self, title="3DFIN Error", message=error_msg
             )
 
-        # TODO: it would be good to make a sanity check on parameters as well
-        params = self.get_parameters()
         # If the file is defined in the GUI, we check its validity
         if not self.file_externally_defined:
-            input_las = Path(params["misc"]["input_las"])
+            input_las = Path(params["misc"]["input_file"])
             if not input_las.exists() or not input_las.is_file():
                 _show_error("Input file does not exists")
                 return
@@ -2012,13 +1779,24 @@ class Application(tk.Tk):
             _show_error("Invalid output directory")
             return
 
-        # TODO: Here we could check if the output directory already contains some processing result
+        # TODO: Here we could check if the output directory already contains some compatible processing result
         # to ask if we should overwrite them.
+
+        # pydantic checks, we check the validity of the data
+        try:
+            typed_param = FinConfiguration.parse_obj(
+                params
+            ).dict()  # coerce dict[str, [str, str]] to dict[str, [str, Any]]
+        except ValidationError as validation_errors:
+            _show_error(
+                str(validation_errors)
+            )  # for now we display very basic messages that should no be very usefull for end user
+            return
 
         # Change button caption
         self.compute_button["text"] = "Processing..."
         # TODO: handle exception in processing here
-        self.processing_callback(params)
+        self.processing_callback(typed_param)
         self.compute_button["text"] = "Compute"
 
     def _bootstrap(self) -> None:

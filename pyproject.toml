@@ -33,7 +33,8 @@ dependencies = [
   "pandas",
   "XlsxWriter",
   "Pillow",
-  "dendromatics @ git+https://github.com/3DFIN/dendromatics@temp_csf_reference"
+  "dendromatics @ git+https://github.com/3DFIN/dendromatics@temp_csf_reference",
+  "pydantic"
 ]
 dynamic = ["version"]
 
@@ -99,7 +100,7 @@ dependencies = [
 ]
 [tool.hatch.envs.lint.scripts]
 # static analysis with ruff
-check-type = "mypy --strict {args:./src/three_d_fin/processing/configuration.py}"
+check-type = "mypy --strict {args:.}"
 check-static = "ruff check {args:.}"
 check-format = "black --check --diff --color {args:.}"
 fix-static = "ruff --fix {args:.}"
