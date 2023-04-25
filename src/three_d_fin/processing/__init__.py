@@ -33,6 +33,7 @@ def launch_application() -> int:
         prog="3DFin",
         description=f"""
             {__about__.__copyright_info_1__}
+
             {__about__.__copyright_info_2__}
             {__about__.__license_msg__}""",
     )
@@ -141,6 +142,6 @@ def launch_application() -> int:
         misc=misc,
     )
     # Run processing
-    algorithm.fin_callback(final_params.dict())
+    algorithm.fin_callback(final_params)
     # TODO it's always sucess for now but we should do exception handling
     return EXIT_SUCCESS

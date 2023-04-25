@@ -1791,9 +1791,7 @@ class Application(tk.Tk):
 
         # Pydantic checks, we check the validity of the data
         try:
-            typed_param = FinConfiguration.parse_obj(
-                params
-            ).dict()  # Coerce dict[str, [str, str]] to dict[str, [str, Any]]
+            fin_config = FinConfiguration.parse_obj(params)
         except ValidationError as validation_errors:
             final_msg: str = "Invalid Parameters:\n\n"
             schema = FinConfiguration.schema()
@@ -1812,11 +1810,8 @@ class Application(tk.Tk):
             _show_error(final_msg)
             return
 
-        # Change button caption
-        self.compute_button["text"] = "Processing..."
         # TODO: handle exception in processing here
-        self.processing_callback(typed_param)
-        self.compute_button["text"] = "Compute"
+        self.processing_callback(fin_config)
 
     def _bootstrap(self) -> None:
         """Create the GUI."""
