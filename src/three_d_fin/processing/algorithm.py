@@ -53,7 +53,7 @@ def fin_callback(config: FinConfiguration):
     -----------------------------------------------------------------------------
 
     After all computations are complete, the following files are output:
-    Filenames are: [original file name] + [specific suffix] + [.txt or .las]
+    Filenames are: [original file name] + [specific suffix] + [.txt, .las or .ini]
 
     LAS files (mainly for checking visually the outputs).
     They can be open straightaway in CloudCompare, where 'colour visualization' of fields with additional information is straightforward
@@ -79,6 +79,8 @@ def fin_callback(config: FinConfiguration):
     •	[original file name]_check_circle: Text file containing the 'check' status of every section of every tree as tabular data.
     •	[original file name]_n_points_in: Text file containing the number of points within the inner circle of every section of every tree as tabular data.
     •	[original file name]_sections: Text file containing the sections as a vector.
+
+    •	[original file name]_sections: ASCII file containing the configuration used for the run.
     """
     # -------------------------------------------------------------------------------------------------
     # NON MODIFIABLE. These parameters should never be modified by the user.
@@ -347,7 +349,7 @@ def fin_callback(config: FinConfiguration):
         Y_c,
         R,
         check_circle,
-        second_time,
+        _,
         sector_perct,
         n_points_in,
     ) = dm.compute_sections(
@@ -658,6 +660,8 @@ def fin_callback(config: FinConfiguration):
     print("Total time:", "   %.2f" % elapsed_las2, "s")
 
     elapsed_t = timeit.default_timer() - t_t
+
+    config.to_config_file(Path(basepath_output + "_config.ini"))
 
     # -------------------------------------------------------------------------------------------------------------
     print("---------------------------------------------")

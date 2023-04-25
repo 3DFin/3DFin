@@ -25,3 +25,9 @@ def test_load_from_file():
     assert valid_config == FinConfiguration.From_config_file(
         Path("tests/lowerlimitchange.ini")
     )
+
+
+def test_write_to_file():
+    """Test configuration file writing."""
+    config = FinConfiguration()
+    config.to_config_file(Path("tests/configtest.ini"))

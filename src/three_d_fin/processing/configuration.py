@@ -1,6 +1,5 @@
 import configparser
 from pathlib import Path
-from typing import Self
 
 from pydantic import (
     BaseModel,
@@ -178,7 +177,7 @@ class FinConfiguration(BaseModel):
     misc: MiscParameters | None = None  # Misc parameters are optional.
 
     @classmethod
-    def From_config_file(cls: Self, filename: Path) -> "FinConfiguration":
+    def From_config_file(cls: "FinConfiguration", filename: Path) -> "FinConfiguration":
         """Import parameters from a .ini file.
 
         Could raise exceptions (ValidationError, FileNotFound, configparser.Error)
@@ -216,4 +215,9 @@ class FinConfiguration(BaseModel):
         # could raise an Exception that the caller is resposible to catch
         with filename.open("w") as f:
             parser = configparser.ConfigParser()
-            parser.write(f, self.dict())
+            parameter_dict = self.dict()
+            # we remove optional section, it's not supported by the parser
+            if parameter_dict["misc"] is None:
+                parameter_dict.pop("misc")
+            parser.read_dict(parameter_dict)
+            parser.write(f)
