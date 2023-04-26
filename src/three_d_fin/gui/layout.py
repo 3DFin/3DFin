@@ -221,7 +221,6 @@ class Application(tk.Tk):
             print("Configuration file found. Setting default parameters from the file")
         except ValidationError:
             print("Configuration file error")
-            # TODO dispatch to error modals
             config = FinConfiguration()
         except FileNotFoundError:
             # no error message in this case, fallback to default parameters
@@ -232,6 +231,9 @@ class Application(tk.Tk):
         for config_section in config_dict:
             for key_param, value_param in config_dict[config_section].items():
                 getattr(self, key_param).set(value_param)
+                # fix a minor presentation issue when no file is defined
+                if key_param == "input_file" and value_param == None:
+                    getattr(self, key_param).set("")
 
     def get_parameters(self) -> dict[str, dict[str, str]]:
         """Get parameters from widgets and return them organized in a dictionnary.
@@ -242,10 +244,9 @@ class Application(tk.Tk):
             Dictionary of parameters. It is organised following the 3DFINconfig.ini file:
             Each parameters are sorted in sub-dict ("basic", "expert", "advanced", "misc").
         """
-        config_dict: dict[str, dict[str, str]] = {}
+        config_dict: dict[str, dict[str, str]] = dict()
         for category_name, category_field in FinConfiguration.__fields__.items():
-            category_dict: dict[str, str] = {}
-            print(category_name)
+            category_dict: dict[str, str] = dict()
             for category_param in category_field.type_().__fields__:
                 category_dict[category_param] = getattr(self, category_param).get()
             config_dict[category_name] = category_dict

@@ -9,6 +9,8 @@ from pydantic import (
     validator,
 )
 
+import laspy
+
 
 class BasicParameters(BaseModel):
     """Handle the "basic" parameters section."""
@@ -168,6 +170,15 @@ class MiscParameters(BaseModel):
     output_dir: DirectoryPath = Field(
         title="Output dir", default_factory=lambda: Path.home()
     )
+
+    @validator("input_file")
+    def valid_input_las(cls, v: FilePath):
+        """Validate maximum_height field again minimum_height value."""
+        try:
+            laspy.open(v.resolve(), read_evlrs=False)
+        except laspy.LaspyException:
+            raise ValueError("invalid las file")
+        return v
 
 
 class FinConfiguration(BaseModel):
