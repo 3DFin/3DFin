@@ -10,6 +10,7 @@ from typing import Any, Callable, Optional
 import laspy
 from PIL import Image, ImageTk
 from pydantic import ValidationError
+from pydantic.fields import ModelField
 
 from three_d_fin import __about__
 from three_d_fin.gui.tooltip import ToolTip
@@ -207,14 +208,15 @@ class Application(tk.Tk):
         # Variable to keep track of the option selected in excel_button_1
         self.export_txt = tk.BooleanVar()
         # I/O related parameters
-        self.output_dir = tk.StringVar(value=str(Path.home()))
+        self.output_dir = tk.StringVar()
         self.input_file = tk.StringVar()
 
         try:
             ### Reading config file only if it is available under name '3DFINconfig.ini'
             config_file_path = Path("3DFINconfig.ini")
             config = FinConfiguration.From_config_file(
-                config_file_path.resolve(strict=True)
+                config_file_path.resolve(strict=True),
+                init_misc=True
             )
             print("Configuration file found. Setting default parameters from the file")
         except ValidationError:
@@ -228,11 +230,8 @@ class Application(tk.Tk):
         # params and tk.Variable instances have the same name, we take advantage of that.
         config_dict = config.dict()
         for config_section in config_dict:
-            if (
-                config_section != "misc"
-            ):  # we do not take account of the misc section if available
-                for key_param, value_param in config_dict[config_section].items():
-                    getattr(self, key_param).set(value_param)
+            for key_param, value_param in config_dict[config_section].items():
+                getattr(self, key_param).set(value_param)
 
     def get_parameters(self) -> dict[str, dict[str, str]]:
         """Get parameters from widgets and return them organized in a dictionnary.
@@ -246,12 +245,12 @@ class Application(tk.Tk):
         config_dict: dict[str, dict[str, str]] = {}
         for category_name, category_field in FinConfiguration.__fields__.items():
             category_dict: dict[str, str] = {}
+            print(category_name)
             for category_param in category_field.type_().__fields__:
                 category_dict[category_param] = getattr(self, category_param).get()
             config_dict[category_name] = category_dict
-        if (
-            self.file_externally_defined
-        ):  # if the file is defined elsewhere, no need to define it
+        # if the file is defined elsewhere, no need to define it
+        if self.file_externally_defined:
             config_dict["misc"]["input_file"] = None
         return config_dict
 
@@ -1794,18 +1793,17 @@ class Application(tk.Tk):
             fin_config = FinConfiguration.parse_obj(params)
         except ValidationError as validation_errors:
             final_msg: str = "Invalid Parameters:\n\n"
-            schema = FinConfiguration.schema()
             for error in validation_errors.errors():
                 error_loc: list[str] = error["loc"]
-                # try to get the human readable value for the field (in title attribute)
-                # Here we use this introspection instead of following properties -> allOf -> ref
-                ref = (
-                    FinConfiguration.__fields__[error_loc[0]].type_().__class__.__name__
+                # Get the human readable value for the field by introspection (stored in "title "attribute)
+                field: ModelField = (
+                    FinConfiguration.__fields__[error_loc[0]]
+                    .type_()
+                    .__fields__[error_loc[1]]
                 )
-                field_title = schema["definitions"][ref]["properties"][error_loc[1]][
-                    "title"
-                ]
-                final_msg = final_msg + f"{field_title} \n"
+                title = field.field_info.title
+                # formatting
+                final_msg = final_msg + f"{title} \n"
                 final_msg = final_msg + f"""\t -> {error["msg"]} "\n"""
             _show_error(final_msg)
             return

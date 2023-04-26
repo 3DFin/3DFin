@@ -160,12 +160,14 @@ class ExpertParameters(BaseModel):
 class MiscParameters(BaseModel):
     """Handle the "misc" parameters section."""
 
-    is_normalized: bool = True
-    is_noisy: bool = False
-    export_txt: bool = False
+    is_normalized: bool = Field(title="Is cloud normalized", default=False)
+    is_noisy: bool = Field(title="Is cloud noisy", default=False)
+    export_txt: bool = Field(title="Export tabular data to txt", default=False)
     # input file is not mandatory and could be provided by another mean.
-    input_file: FilePath | None = None
-    output_dir: DirectoryPath = None
+    input_file: FilePath | None = Field(title="Input file", default=None)
+    output_dir: DirectoryPath = Field(
+        title="Output dir", default_factory=lambda: Path.home()
+    )
 
 
 class FinConfiguration(BaseModel):
@@ -174,11 +176,13 @@ class FinConfiguration(BaseModel):
     basic: BasicParameters = BasicParameters()
     advanced: AdvancedParameters = AdvancedParameters()
     expert: ExpertParameters = ExpertParameters()
-    misc: MiscParameters | None = None  # Misc parameters are optional.
+    misc: MiscParameters | None = MiscParameters()  # Misc parameters are optional.
 
     @classmethod
-    def From_config_file(cls: "FinConfiguration", filename: Path) -> "FinConfiguration":
-        """Import parameters from a .ini file.
+    def From_config_file(
+        cls: "FinConfiguration", filename: Path, init_misc: bool = False
+    ) -> "FinConfiguration":
+        """Import parameters from a .ini file. The misc parameter could be initialized if not present.
 
         Could raise exceptions (ValidationError, FileNotFound, configparser.Error)
 
@@ -187,7 +191,8 @@ class FinConfiguration(BaseModel):
         ----------
         filename: Path
             the Path to the .ini file to load
-
+        init_misc: bool
+            whenether to init "misc" section to default if not present in the file
 
         Returns
         -------
@@ -198,7 +203,15 @@ class FinConfiguration(BaseModel):
         with filename.open("r") as f:
             parser = configparser.ConfigParser()
             parser.read_file(f)
-            return cls.parse_obj(parser)
+            config = cls.parse_obj(parser)
+            if init_misc == False and config.misc == None:
+                return config
+            return FinConfiguration(
+                basic=config.basic,
+                advanced=config.advanced,
+                expert=config.expert,
+                misc=MiscParameters(),
+            )
 
     def to_config_file(self, filename: Path):
         """Import parameters from a .ini file.
