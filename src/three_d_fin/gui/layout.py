@@ -239,8 +239,8 @@ class Application(tk.Tk):
         Returns
         -------
         options : dict[str, dict[str, str]]
-            Dictionary of parameters. It is organized following the 
-            3DFINconfig.ini file: Each parameters are sorted in sub-dict 
+            Dictionary of parameters. It is organized following the
+            3DFINconfig.ini file: Each parameters are sorted in sub-dict
             ("basic", "expert", "advanced", "misc").
         """
         config_dict: dict[str, dict[str, str]] = dict()
@@ -619,7 +619,7 @@ class Application(tk.Tk):
         sections_text = "A) Sections along the stem B) Detail of computed sections "
         "showing the distance\nbetween them and their width "
         "C) Circle fitting to the points of a section."
-        
+
         ttk.Label(self.advanced_tab, text=cleandoc(sections_text)).grid(
             column=1, row=10, columnspan=15, sticky="NW", padx=20, pady=5
         )
@@ -1799,7 +1799,7 @@ class Application(tk.Tk):
                 parent=self, title="3DFIN Error", message=error_msg
             )
 
-        # TODO: Here we could check if the output directory already contains some 
+        # TODO: Here we could check if the output directory already contains some
         # compatible processing results to ask if we want to overwrite them.
 
         # Pydantic checks, we check the validity of the data
@@ -1809,7 +1809,7 @@ class Application(tk.Tk):
             final_msg: str = "Invalid Parameters:\n\n"
             for error in validation_errors.errors():
                 error_loc: list[str] = error["loc"]
-                # Get the human readable value for the field by introspection 
+                # Get the human readable value for the field by introspection
                 # (stored in "title "attribute)
                 field: ModelField = (
                     FinConfiguration.__fields__[error_loc[0]]
