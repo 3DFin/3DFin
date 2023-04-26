@@ -215,8 +215,7 @@ class Application(tk.Tk):
             ### Reading config file only if it is available under name '3DFINconfig.ini'
             config_file_path = Path("3DFINconfig.ini")
             config = FinConfiguration.From_config_file(
-                config_file_path.resolve(strict=True),
-                init_misc=True
+                config_file_path.resolve(strict=True), init_misc=True
             )
             print("Configuration file found. Setting default parameters from the file")
         except ValidationError:
@@ -232,7 +231,7 @@ class Application(tk.Tk):
             for key_param, value_param in config_dict[config_section].items():
                 getattr(self, key_param).set(value_param)
                 # fix a minor presentation issue when no file is defined
-                if key_param == "input_file" and value_param == None:
+                if key_param == "input_file" and value_param is None:
                     getattr(self, key_param).set("")
 
     def get_parameters(self) -> dict[str, dict[str, str]]:

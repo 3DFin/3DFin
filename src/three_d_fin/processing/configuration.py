@@ -1,6 +1,7 @@
 import configparser
 from pathlib import Path
 
+import laspy
 from pydantic import (
     BaseModel,
     DirectoryPath,
@@ -8,8 +9,6 @@ from pydantic import (
     FilePath,
     validator,
 )
-
-import laspy
 
 
 class BasicParameters(BaseModel):
@@ -177,7 +176,7 @@ class MiscParameters(BaseModel):
         try:
             laspy.open(v.resolve(), read_evlrs=False)
         except laspy.LaspyException:
-            raise ValueError("invalid las file")
+            raise ValueError("invalid las file") from None
         return v
 
 
@@ -215,7 +214,7 @@ class FinConfiguration(BaseModel):
             parser = configparser.ConfigParser()
             parser.read_file(f)
             config = cls.parse_obj(parser)
-            if init_misc == False and config.misc == None:
+            if init_misc is False and config.misc is None:
                 return config
             return FinConfiguration(
                 basic=config.basic,
