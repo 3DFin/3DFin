@@ -224,7 +224,7 @@ class Application(tk.Tk):
             # no error message in this case, fallback to default parameters
             config = FinConfiguration()
 
-        # params and tk.Variable instances have the same name, we take advantage of that.
+        # params and tk.Variable instances have the same name, we take advantage of that
         config_dict = config.dict()
         for config_section in config_dict:
             for key_param, value_param in config_dict[config_section].items():
@@ -234,13 +234,14 @@ class Application(tk.Tk):
                     getattr(self, key_param).set("")
 
     def get_parameters(self) -> dict[str, dict[str, str]]:
-        """Get parameters from widgets and return them organized in a dictionnary.
+        """Get parameters from widgets and return them organized in a dictionary.
 
         Returns
         -------
         options : dict[str, dict[str, str]]
-            Dictionary of parameters. It is organised following the 3DFINconfig.ini file:
-            Each parameters are sorted in sub-dict ("basic", "expert", "advanced", "misc").
+            Dictionary of parameters. It is organized following the
+            3DFINconfig.ini file: Each parameters are sorted in sub-dict
+            ("basic", "expert", "advanced", "misc").
         """
         config_dict: dict[str, dict[str, str]] = dict()
         for category_name, category_field in FinConfiguration.__fields__.items():
@@ -324,22 +325,21 @@ class Application(tk.Tk):
         )
 
         #### Text displaying info
-        insert_text1 = """This program implements an algorithm to detect the trees present in a ground-based
-        3D point cloud from a forest plot, and compute individual tree parameters: tree height,
-        tree location, diameters along the stem (including DBH), and stem axis.
-
-        It takes a .LAS/.LAZ file as input, which may contain extra fields (.LAS standard
-        or not). Also, the input point cloud can come from terrestrial photogrammetry,
-        TLS or mobile (e.g. hand-held) LS, a combination of those, and/or a combination
-        of those with UAV-(LS or SfM), or ALS.
-
-        After all computations are done, it outputs several .LAS files containing resulting
-        point clouds and a XLSX file storing tabular data. Optionally, tabular data may be
-        output as text files instead of the Excel spreadsheet if preferred.
-
-
-        Further details may be found in next tabs and in the documentation.
-        """
+        insert_text1 = (
+            "This program implements an algorithm to detect the trees "
+            "present in a ground-based\n 3D point cloud from a forest plot, and compute"
+            " individual tree parameters: tree height,\ntree location, diameters along"
+            " the stem (including DBH), and stem axis.\n\n"
+            "It takes a .LAS/.LAZ file as input, which may contain extra fields "
+            "(.LAS standard \nor not). Also, the input point cloud can come from "
+            "terrestrial photogrammetry,\nTLS or mobile (e.g. hand-held) LS, a "
+            "combination of those, and/or a combination\nof those with UAV-(LS or SfM),"
+            " or ALS.\n\nAfter all computations are done, it outputs several .LAS files"
+            " containing resulting\npoint clouds and a XLSX file storing tabular data. "
+            "Optionally, tabular data may be\noutput as text files instead of the Excel"
+            " spreadsheet if preferred.\n\n"
+            "Further details may be found in next tabs and in the documentation."
+        )
 
         ttk.Separator(self.basic_tab, orient="vertical").grid(
             column=5, row=1, rowspan=10, sticky="NS"
@@ -580,15 +580,16 @@ class Application(tk.Tk):
         ttk.Label(self.advanced_tab, text="meters").grid(column=4, row=6, sticky="W")
 
         #### Text displaying info ###
-        insert_text2 = """If the results obtained by just tweaking basic parameters do not meet your expectations,
-        you might want to modify these.
-
-        You can get a brief description of what they do by hovering the mouse over the info icon
-        right before each parameter. However, keep in mind that a thorough understanding is
-        advisable before changing these. For that, you can get a better grasp of what the algo-
-        rithm does in the attached documentation. You can easily access it through the
-        Documentation button in the bottom-right corner.
-        """
+        insert_text2 = (
+            "If the results obtained by just tweaking basic parameters do "
+            "not meet your expectations,\nyou might want to modify these.\n\n"
+            "You can get a brief description of what they do by hovering the mouse over"
+            " the info icon\nright before each parameter. However, keep in mind that a "
+            "thorough understanding is\nadvisable before changing these. For that, you "
+            "can get a better grasp of what the algo-\nrithm does in the attached "
+            "documentation. You can easily access it through the\nDocumentation button "
+            "in the bottom-right corner."
+        )
 
         ttk.Separator(self.advanced_tab, orient="vertical").grid(
             column=5,
@@ -615,9 +616,10 @@ class Application(tk.Tk):
             column=1, row=9, columnspan=15, sticky="W", padx=20, pady=5
         )
 
-        sections_text = """A) Sections along the stem B) Detail of computed sections showing the distance
-        between them and their width C) Circle fitting to the points of a section.
-        """
+        sections_text = "A) Sections along the stem B) Detail of computed sections "
+        "showing the distance\nbetween them and their width "
+        "C) Circle fitting to the points of a section."
+
         ttk.Label(self.advanced_tab, text=cleandoc(sections_text)).grid(
             column=1, row=10, columnspan=15, sticky="NW", padx=20, pady=5
         )
@@ -648,8 +650,9 @@ class Application(tk.Tk):
         ToolTip.create(
             stem_search_diameter_info,
             text="Points within this distance from tree axes will be considered\n"
-            'as potential stem points. Reasonable values are "Maximum diameter"-2 meters \n'
-            "(exceptionally greater than 2: very large diameters and/or intricate stems).",
+            "as potential stem points. Reasonable values are 'Maximum diameter'-2 "
+            "meters \n(exceptionally greater than 2: very large diameters and/or "
+            "intricate stems).",
         )
 
         minimum_height_info = ttk.Label(self.advanced_tab, image=self.info_icon)
@@ -682,8 +685,8 @@ class Application(tk.Tk):
         ToolTip.create(
             section_wid_info,
             text="Sections are this wide. This means that points within this distance\n"
-            "(vertical) are considered during circle fitting and diameter computation.\n"
-            "Default value: 0.05 meters.",
+            "(vertical) are considered during circle fitting and diameter "
+            "computation.\nDefault value: 0.05 meters.",
         )
 
     def _create_expert_tab(self) -> None:
@@ -1068,9 +1071,9 @@ class Application(tk.Tk):
         ToolTip.create(
             verticality_thresh_stripe_info,
             text="Verticality threshold durig stem identification\n"
-            "Verticality is defined as (1 - sin(V)), being V the vertical angle of the normal\n"
-            "vector, measured from the horizontal. Note that it does not grow linearly.\n"
-            "Default value: 0.7.",
+            "Verticality is defined as (1 - sin(V)), being V the vertical angle of the "
+            "normal\nvector, measured from the horizontal. Note that it does not grow "
+            "linearly.\nDefault value: 0.7.",
         )
 
         height_range_info = ttk.Label(self.expert_tab, image=self.info_icon)
@@ -1120,9 +1123,9 @@ class Application(tk.Tk):
         ToolTip.create(
             verticality_thresh_stems_info,
             text="Verticality threshold durig stem extraction.\n"
-            "Verticality is defined as (1 - sin(V)), being V the vertical angle of the normal\n"
-            "vector, measured from the horizontal. Note that it does not grow linearly.\n"
-            "Default value: 0.7.",
+            "Verticality is defined as (1 - sin(V)), being V the vertical angle of the "
+            "normal\nvector, measured from the horizontal. Note that it does not grow "
+            "linearly.\nDefault value: 0.7.",
         )
 
         maximum_d_info = ttk.Label(self.expert_tab, image=self.info_icon)
@@ -1313,8 +1316,9 @@ class Application(tk.Tk):
             ).grid(column=1, row=2, sticky="W")
             ttk.Label(
                 new,
-                text="Before modifying these, you should read the documentation and the\n"
-                "references listed below for a deep understading of what the algorithm does.",
+                text="Before modifying these, you should read the documentation and "
+                "the\nreferences listed below for a deep understading of what the "
+                "algorithm does.",
                 font=("Helvetica", 10),
             ).grid(column=1, row=3, sticky="W")
 
@@ -1323,33 +1327,37 @@ class Application(tk.Tk):
             )
             ttk.Label(
                 new,
-                text="Cabo, C., Ordonez, C., Lopez-Sanchez, C. A., & Armesto, J. (2018). Automatic dendrometry:\n"
-                "Tree detection, tree height and diameter estimation using terrestrial laser scanning.\n"
-                "International Journal of Applied Earth Observation and Geoinformation, 69, 164–174.\n"
+                text="Cabo, C., Ordonez, C., Lopez-Sanchez, C. A., & Armesto, J. (2018)"
+                ". Automatic dendrometry:\nTree detection, tree height and diameter "
+                "estimation using terrestrial laser scanning.\nInternational Journal "
+                "of Applied Earth Observation and Geoinformation, 69, 164–174.\n"
                 "https://doi.org/10.1016/j.jag.2018.01.011",
                 font=("Helvetica", 10),
             ).grid(column=1, row=5, sticky="W")
 
             ttk.Label(
                 new,
-                text="Ester, M., Kriegel, H.-P., Sander, J., & Xu, X. (1996). A Density-Based Algorithm for\n"
-                "Discovering Clusters in Large Spatial Databases with Noise. www.aaai.org",
+                text="Ester, M., Kriegel, H.-P., Sander, J., & Xu, X. (1996). A "
+                "Density-Based Algorithm for\nDiscovering Clusters in Large Spatial "
+                "Databases with Noise. www.aaai.org",
                 font=("Helvetica", 10),
             ).grid(column=1, row=6, sticky="W")
 
             ttk.Label(
                 new,
-                text="Prendes, C., Cabo, C., Ordoñez, C., Majada, J., & Canga, E. (2021). An algorithm for\n"
-                "the automatic parametrization of wood volume equations from Terrestrial Laser Scanning\n"
-                "point clouds: application in Pinus pinaster. GIScience and Remote Sensing, 58(7), 1130–1150.\n"
-                "https://doi.org/10.1080/15481603.2021.1972712 ",
+                text="Prendes, C., Cabo, C., Ordoñez, C., Majada, J., & Canga, E. "
+                "(2021). An algorithm for\nthe automatic parametrization of wood "
+                "volume equations from Terrestrial Laser Scanning\npoint clouds: "
+                "application in Pinus pinaster. GIScience and Remote Sensing, 58(7), "
+                "1130–1150.\nhttps://doi.org/10.1080/15481603.2021.1972712",
                 font=("Helvetica", 10),
             ).grid(column=1, row=7, sticky="W")
 
             ttk.Label(
                 new,
-                text="Zhang, W., Qi, J., Wan, P., Wang, H., Xie, D., Wang, X., & Yan, G. (2016). An\n"
-                "easy-to-use airborne LiDAR data filtering method based on cloth simulation. Remote Sensing, 8(6).\n"
+                text="Zhang, W., Qi, J., Wan, P., Wang, H., Xie, D., Wang, X., & Yan, "
+                "G. (2016). An\neasy-to-use airborne LiDAR data filtering method based "
+                "on cloth simulation. Remote Sensing, 8(6).\n"
                 "https://doi.org/10.3390/rs8060501",
                 font=("Helvetica", 10),
             ).grid(column=1, row=8, sticky="W")
@@ -1372,38 +1380,69 @@ class Application(tk.Tk):
         self.about_tab = ttk.Frame(self.note)
         self.note.add(self.about_tab, text="About")
 
-        nerc_project = """'Advancing 3D Fuel Mapping for Wildfire Behaviour and Risk Mitigation Modelling' """
+        nerc_project = (
+            "'Advancing 3D Fuel Mapping for Wildfire Behaviour and "
+            "Risk Mitigation Modelling'"
+        )
 
-        csic_project = """‘Advancing carbon emission estimations from wildfires applying artificial intelligence to 3D terrestrial point clouds’"""
+        csic_project = (
+            "‘Advancing carbon emission estimations from wildfires applying "
+            "artificial intelligence to 3D terrestrial point clouds’"
+        )
 
         ### TEAM MEMBERS ###
-        carloscabo = """Carlos Cabo (carloscabo.uniovi@gmail.com). PhD in Geomatics. 'Maria Zambrano' Research Fellow at Department of
-        Mining Exploitation, University of Oviedo and Honorary Appointment at Science and Engineering Faculty, Swansea
-        University. Research fields: Spatial analysis, cartography, geomatics."""
+        carloscabo = (
+            "Carlos Cabo (carloscabo.uniovi@gmail.com). PhD in Geomatics. "
+            "'Maria Zambrano' Research Fellow at Department of\nMining Exploitation, "
+            "University of Oviedo and Honorary Appointment at Science and Engineering "
+            "Faculty, Swansea\nUniversity. Research fields: Spatial analysis, "
+            "cartography, geomatics."
+        )
 
-        diegolaino = """Diego Laino (diegolainor@gmail.com). PhD student in Natural Resources Engineering at Department of Mining Exploit-
-        ation, University of Oviedo. Assist. Researcher at Centre for Wildfire Research, Geography Department, Swansea Univer-
-        sity. Research fields: deep learning, remote sensing, forestry."""
+        diegolaino = (
+            "Diego Laino (diegolainor@gmail.com). PhD student in Natural "
+            "Resources Engineering at Department of Mining Exploit-\nation, University "
+            "Oviedo. Assist. Researcher at Centre for Wildfire Research, Geography of "
+            "Department, Swansea Univer-\nsity. Research fields: deep learning, remote "
+            "sensing, forestry."
+        )
 
-        crissantin = """Cristina Santin (c.santin@csic.es). Research fellow at the Research Institute of Biodiversity (CSIC-University of Oviedo
-        - Principality of Asturias, Spain) and Honorary Assoc. Professor at the Biosciences Department of Swansea University.
-        Research fields: environmental impacts of wildfires."""
+        covadongaprendes = (
+            "Covadonga Prendes (cprendes@cetemas.es). PhD in Geomatics. "
+            "Forest engineer and researcher at CETEMAS (Forest and\nWood Technology "
+            "Research Centre Foundation). Geomatics research group. Research fields: "
+            "LiDAR, sustainable forestry\ndevelopment, spatial analysis."
+        )
 
-        stefandoerr = """Stefan Doerr (s.doerr@swansea.ac.uk). PhD in Geography. Full Professor at the Geography Department, Swansea Univer-
-        sity and Director of its Centre for Wildfire Research. Editor-in-Chief: International Journal of Wildland Fire. Research fields:
-        wildfires, landscape carbon dynamics, soils, water quality, ecosystem services."""
+        crissantin = (
+            "Cristina Santin (c.santin@csic.es). Research fellow at the "
+            "Research Institute of Biodiversity (CSIC-University of Oviedo\n- "
+            "Principality of Asturias, Spain) and Honorary Assoc. Professor at the "
+            "Biosciences Department of Swansea University.\nResearch fields: "
+            "environmental impacts of wildfires."
+        )
 
-        celestinoordonez = """Celestino Ordonez (ordonezcelestino@uniovi.es). PhD in Mine Engineering. Full professor at Department of Mining Ex-
-        ploitation, University of Oviedo. Main researcher at GEOGRAPH research group. Research fields: Spatial analysis, laser
-        scanning, photogrammetry."""
+        stefandoerr = (
+            "Stefan Doerr (s.doerr@swansea.ac.uk). PhD in Geography. Full \n"
+            "Professor at the Geography Department, Swansea Univer-\nsity and Director "
+            "of its Centre for Wildfire Research. Editor-in-Chief: International "
+            "Journal of Wildland Fire. Research fields:\nwildfires, landscape carbon "
+            "dynamics, soils, water quality, ecosystem services."
+        )
 
-        tadasnikonovas = """Tadas Nikonovas (tadas.nikonovas@swansea.ac.uk). PhD in Geography. Office Researcher at Centre for Wildfire Research,
-        Geography Department, Swansea University. Research fields: Global fire activity, atmospheric emissions, fire occurrence
-        modelling."""
+        celestinoordonez = (
+            "Celestino Ordonez (ordonezcelestino@uniovi.es). PhD in "
+            "Mine Engineering. Full professor at Department of Mining Ex-\nploitation, "
+            "University of Oviedo. Main researcher at GEOGRAPH research group. Research"
+            " fields: Spatial analysis, laser\nscanning, photogrammetry."
+        )
 
-        covadongaprendes = """Covadonga Prendes (cprendes@cetemas.es). PhD in Geomatics. Forest engineer and researcher at CETEMAS (Forest and
-        Wood Technology Research Centre Foundation). Geomatics research group. Research fields: LiDAR, sustainable forestry
-        development, spatial analysis. """
+        tadasnikonovas = (
+            "Tadas Nikonovas (tadas.nikonovas@swansea.ac.uk). PhD in "
+            "Geography. Office Researcher at Centre for Wildfire Research,\nGeography "
+            "Department, Swansea University. Research fields: Global fire activity, "
+            "atmospheric emissions, fire occurrence\nmodelling."
+        )
 
         ### SCROLLBAR ###
 
@@ -1583,7 +1622,7 @@ class Application(tk.Tk):
                     (0, 0), window=license_scrollable, anchor="nw"
                 )
 
-                # Update buttons frames idle tasks to let tkinter calculate buttons sizes
+                # Update buttons frames idle tasks to let tkinter calculate button sizes
                 license_scrollable.update_idletasks()
 
                 license_frame_canvas.config(width=620, height=400)
@@ -1760,8 +1799,8 @@ class Application(tk.Tk):
                 parent=self, title="3DFIN Error", message=error_msg
             )
 
-        # TODO: Here we could check if the output directory already contains some compatible processing results
-        # to ask if we want to overwrite them.
+        # TODO: Here we could check if the output directory already contains some
+        # compatible processing results to ask if we want to overwrite them.
 
         # Pydantic checks, we check the validity of the data
         try:
@@ -1770,7 +1809,8 @@ class Application(tk.Tk):
             final_msg: str = "Invalid Parameters:\n\n"
             for error in validation_errors.errors():
                 error_loc: list[str] = error["loc"]
-                # Get the human readable value for the field by introspection (stored in "title "attribute)
+                # Get the human readable value for the field by introspection
+                # (stored in "title "attribute)
                 field: ModelField = (
                     FinConfiguration.__fields__[error_loc[0]]
                     .type_()
