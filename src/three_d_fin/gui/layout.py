@@ -1,4 +1,3 @@
-import os
 import subprocess
 import sys
 import tkinter as tk
@@ -1761,30 +1760,6 @@ class Application(tk.Tk):
                 parent=self, title="3DFIN Error", message=error_msg
             )
 
-        # If the file is defined in the GUI, we check its validity
-        # if not self.file_externally_defined:
-        #     input_las = Path(params["misc"]["input_file"])
-        #     if not input_las.exists() or not input_las.is_file():
-        #         _show_error("Input file does not exists")
-        #         return
-        #     try:
-        #         laspy.open(input_las, read_evlrs=False)
-        #     except laspy.LaspyException:
-        #         _show_error("Invalid las file")
-        #         return
-
-        # We check the validity of the current output directory
-        output_dir = Path(params["misc"]["output_dir"])
-        if (
-            not output_dir.exists()
-            or not output_dir.is_dir()
-            or not os.access(
-                output_dir, os.W_OK
-            )  # os.access won't work well under Windows, we still have to mess with exceptions
-        ):
-            _show_error("Invalid output directory")
-            return
-
         # TODO: Here we could check if the output directory already contains some compatible processing results
         # to ask if we want to overwrite them.
 
@@ -1804,7 +1779,7 @@ class Application(tk.Tk):
                 title = field.field_info.title
                 # formatting
                 final_msg = final_msg + f"{title} \n"
-                final_msg = final_msg + f"""\t -> {error["msg"]} "\n"""
+                final_msg = final_msg + f"""\t -> {error["msg"]} \n"""
             _show_error(final_msg)
             return
 
@@ -1821,7 +1796,7 @@ class Application(tk.Tk):
         self.title(f"3DFIN v{__about__.__version__}")
         self.option_add("Helvetica", "12")
         self.resizable(False, False)
-        self.geometry("810x660+0+0")
+        self.geometry("810x654+0+0")
 
         ### Creating the tabs
         self.note = ttk.Notebook(self)
