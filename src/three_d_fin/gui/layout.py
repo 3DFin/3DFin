@@ -339,7 +339,7 @@ class Application(tk.Tk):
             "Optionally, tabular data may be\noutput as text files instead of the Excel"
             " spreadsheet if preferred.\n\n"
             "Further details may be found in next tabs and in the documentation."
-            )
+        )
 
         ttk.Separator(self.basic_tab, orient="vertical").grid(
             column=5, row=1, rowspan=10, sticky="NS"
@@ -1388,7 +1388,7 @@ class Application(tk.Tk):
         csic_project = (
             "‘Advancing carbon emission estimations from wildfires applying "
             "artificial intelligence to 3D terrestrial point clouds’"
-            )
+        )
 
         ### TEAM MEMBERS ###
         carloscabo = (
@@ -1396,7 +1396,8 @@ class Application(tk.Tk):
             "'Maria Zambrano' Research Fellow at Department of\nMining Exploitation, "
             "University of Oviedo and Honorary Appointment at Science and Engineering "
             "Faculty, Swansea\nUniversity. Research fields: Spatial analysis, "
-            "cartography, geomatics.")
+            "cartography, geomatics."
+        )
 
         diegolaino = (
             "Diego Laino (diegolainor@gmail.com). PhD student in Natural "
@@ -1404,14 +1405,14 @@ class Application(tk.Tk):
             "Oviedo. Assist. Researcher at Centre for Wildfire Research, Geography of "
             "Department, Swansea Univer-\nsity. Research fields: deep learning, remote "
             "sensing, forestry."
-            )
+        )
 
         covadongaprendes = (
             "Covadonga Prendes (cprendes@cetemas.es). PhD in Geomatics. "
             "Forest engineer and researcher at CETEMAS (Forest and\nWood Technology "
             "Research Centre Foundation). Geomatics research group. Research fields: "
             "LiDAR, sustainable forestry\ndevelopment, spatial analysis."
-            )
+        )
 
         crissantin = (
             "Cristina Santin (c.santin@csic.es). Research fellow at the "
@@ -1419,7 +1420,7 @@ class Application(tk.Tk):
             "Principality of Asturias, Spain) and Honorary Assoc. Professor at the "
             "Biosciences Department of Swansea University.\nResearch fields: "
             "environmental impacts of wildfires."
-            )
+        )
 
         stefandoerr = (
             "Stefan Doerr (s.doerr@swansea.ac.uk). PhD in Geography. Full \n"
@@ -1427,22 +1428,21 @@ class Application(tk.Tk):
             "of its Centre for Wildfire Research. Editor-in-Chief: International "
             "Journal of Wildland Fire. Research fields:\nwildfires, landscape carbon "
             "dynamics, soils, water quality, ecosystem services."
-            )
+        )
 
         celestinoordonez = (
             "Celestino Ordonez (ordonezcelestino@uniovi.es). PhD in "
             "Mine Engineering. Full professor at Department of Mining Ex-\nploitation, "
             "University of Oviedo. Main researcher at GEOGRAPH research group. Research"
             " fields: Spatial analysis, laser\nscanning, photogrammetry."
-            )
+        )
 
         tadasnikonovas = (
             "Tadas Nikonovas (tadas.nikonovas@swansea.ac.uk). PhD in "
             "Geography. Office Researcher at Centre for Wildfire Research,\nGeography "
             "Department, Swansea University. Research fields: Global fire activity, "
             "atmospheric emissions, fire occurrence\nmodelling."
-            )
-
+        )
 
         ### SCROLLBAR ###
 
