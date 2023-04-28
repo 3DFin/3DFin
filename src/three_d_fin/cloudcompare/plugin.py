@@ -450,10 +450,9 @@ class CCPluginFinProcessing:
         cloud_axes.setCurrentDisplayedScalarField(0)  # = tilting_degree
         cloud_axes.setEnabled(False)
         base_group.addChild(cloud_axes)
-        
+
         self.cc_instance.addToDB(cloud_axes)
         self.cc_instance.addToDB(cloud_circles)
-
 
         dbh_values, tree_locations = dm.tree_locator(
             sections,
@@ -478,7 +477,9 @@ class CCPluginFinProcessing:
         )
         cloud_tree_locations.setName("Tree locator")
         cloud_tree_locations.setPointSize(8)
-        CCPluginFinProcessing.write_sf(cloud_tree_locations, dbh_values.reshape(-1), "dbh")
+        CCPluginFinProcessing.write_sf(
+            cloud_tree_locations, dbh_values.reshape(-1), "dbh"
+        )
         cloud_tree_locations.setColor(255, 0, 255, 255)
         cloud_tree_locations.toggleColors()
         dbh = cloud_tree_locations.getScalarField(0)  # dbh
