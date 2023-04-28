@@ -38,6 +38,14 @@ dependencies = [
 ]
 dynamic = ["version"]
 
+# Entry point for CloudCompare plugin
+[project.entry-points."cloudcompare.plugins"]
+3DFin = "three_d_fin.cloudcompare.plugin:ThreeDFin"
+
+# Entry point for GUI and CLI
+[project.scripts]
+3DFin = "three_d_fin.processing:launch_application"
+
 [tool.hatch.version]
 path = "src/three_d_fin/__about__.py"
 
@@ -46,8 +54,6 @@ Documentation = "https://github.com/3DFin/3DFin#README.md"
 Issues = "https://github.com/3DFin/3DFin/issues"
 Source = "https://github.com/3DFin/3DFin"
 
-[project.scripts]
-3DFin = "three_d_fin.processing:launch_application"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/three_d_fin"]

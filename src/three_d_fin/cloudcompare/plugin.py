@@ -12,7 +12,7 @@ import pycc
 from gui.layout import Application
 
 
-class TreeIndividualizationCC(pycc.PythonPluginInterface):
+class 3DFinCC(pycc.PythonPluginInterface):
     """Define a CloudCompare-PythonPlugin Plugin (sic.)."""
 
     def __init__(self):
@@ -21,7 +21,7 @@ class TreeIndividualizationCC(pycc.PythonPluginInterface):
 
     def getActions(self) -> list[pycc.Action]:
         """List of actions exposed by the plugin."""
-        return [pycc.Action(name="Tree Individualization", target=main_cloudcompare)]
+        return [pycc.Action(name="3DFin", target=main)]
 
 
 class CCPluginFinProcessing:
@@ -800,7 +800,7 @@ def _create_app_and_run(
         print("cleaning and setting back current working directory to default")
 
 
-def main_cloudcompare():
+def main():
     """Plugin main action."""
     cc = pycc.GetInstance()
 
