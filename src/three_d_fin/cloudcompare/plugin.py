@@ -5,8 +5,8 @@ from pathlib import Path
 import dendromatics as dm
 import numpy as np
 import pycc
-from gui.layout import Application
 
+from three_d_fin.gui.layout import Application
 from three_d_fin.processing.configuration import FinConfiguration
 from three_d_fin.processing.io import export_tabular_data
 
