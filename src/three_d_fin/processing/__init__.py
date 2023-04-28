@@ -3,14 +3,6 @@ import configparser
 import os
 from pathlib import Path
 
-import laspy
-import pydantic
-
-from three_d_fin import __about__
-from three_d_fin.gui.layout import Application
-from three_d_fin.processing import algorithm
-from three_d_fin.processing.configuration import FinConfiguration, MiscParameters
-
 
 def launch_application() -> int:
     """Parse the command line and launch the GUI or the CLI application.
@@ -26,6 +18,14 @@ def launch_application() -> int:
     exit_code : int
         POSIX minimal exit code (0 = SUCCESS, 1 = ERROR)
     """
+    import laspy
+    import pydantic
+
+    from three_d_fin import __about__
+    from three_d_fin.gui.layout import Application
+    from three_d_fin.processing import algorithm
+    from three_d_fin.processing.configuration import FinConfiguration, MiscParameters
+
     EXIT_ERROR = 1
     EXIT_SUCCESS = 0
 
