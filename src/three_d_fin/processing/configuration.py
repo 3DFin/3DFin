@@ -173,7 +173,7 @@ class MiscParameters(BaseModel):
     @validator("input_file")
     def valid_input_las(cls, v: FilePath | None):
         """Validate maximum_height field again minimum_height value."""
-        if v == None:
+        if v is None:
             return v
         try:
             laspy.open(v.resolve(), read_evlrs=False)

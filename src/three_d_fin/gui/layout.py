@@ -1738,7 +1738,6 @@ class Application(tk.Tk):
             self.label_file.config(state=tk.DISABLED)
             self.label_file.config(text="File already set by the application")
             self.input_file_button.config(state=tk.DISABLED)
-            #self.input_file.set("Point cloud set by application")
             self.input_file_entry.config(state=tk.DISABLED)
 
         self.output_dir_entry = ttk.Entry(

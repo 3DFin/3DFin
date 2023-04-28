@@ -192,11 +192,13 @@ class CCPluginFinProcessing:
             dtm = dm.clean_cloth(cloth_nodes)
 
             # Exporting the DTM
-            cloud = pycc.ccPointCloud(dtm[:, X_field], dtm[:, Y_field], dtm[:, Z_field])
-            cloud.setName("dtm")
-            cloud.setEnabled(False)
-            base_group.addChild(cloud)
-            self.cc_instance.addToDB(cloud)
+            cloud_dtm = pycc.ccPointCloud(
+                dtm[:, X_field], dtm[:, Y_field], dtm[:, Z_field]
+            )
+            cloud_dtm.setName("dtm")
+            cloud_dtm.setEnabled(False)
+            base_group.addChild(cloud_dtm)
+            self.cc_instance.addToDB(cloud_dtm)
 
             elapsed = timeit.default_timer() - t
             print("        ", "%.2f" % elapsed, "s: exporting the DTM")
@@ -265,16 +267,16 @@ class CCPluginFinProcessing:
         print("---------------------------------------------")
 
         # Stripe
-        cloud = pycc.ccPointCloud(
+        cloud_stripe = pycc.ccPointCloud(
             clust_stripe[:, X_field], clust_stripe[:, Y_field], clust_stripe[:, Z_field]
         )
-        cloud.setName("Stems in stripe")
-        CCPluginFinProcessing.write_sf(cloud, clust_stripe[:, -1], "tree_ID")
-        cloud.setCurrentDisplayedScalarField(0)
-        cloud.toggleSF()
-        cloud.setEnabled(False)
-        base_group.addChild(cloud)
-        self.cc_instance.addToDB(cloud)
+        cloud_stripe.setName("Stems in stripe")
+        CCPluginFinProcessing.write_sf(cloud_stripe, clust_stripe[:, -1], "tree_ID")
+        cloud_stripe.setCurrentDisplayedScalarField(0)
+        cloud_stripe.toggleSF()
+        cloud_stripe.setEnabled(False)
+        base_group.addChild(cloud_stripe)
+        self.cc_instance.addToDB(cloud_stripe)
 
         # Append new field to bas point cloud
         CCPluginFinProcessing.write_sf(
@@ -293,32 +295,34 @@ class CCPluginFinProcessing:
         print("Total time:", "   %.2f" % elapsed_las, "s")
 
         # Tree heights
-        cloud = pycc.ccPointCloud(
+        cloud_tree_heights = pycc.ccPointCloud(
             tree_heights[:, X_field], tree_heights[:, Y_field], tree_heights[:, Z_field]
         )
-        cloud.setName("Highest points")
-        CCPluginFinProcessing.write_sf(cloud, tree_heights[:, 3], "z0")
-        CCPluginFinProcessing.write_sf(cloud, tree_heights[:, 4], "deviated")
-        cloud.setPointSize(8)
-        z0 = cloud.getScalarField(0)  # z0
+        cloud_tree_heights.setName("Highest points")
+        CCPluginFinProcessing.write_sf(cloud_tree_heights, tree_heights[:, 3], "z0")
+        CCPluginFinProcessing.write_sf(
+            cloud_tree_heights, tree_heights[:, 4], "deviated"
+        )
+        cloud_tree_heights.setPointSize(8)
+        z0 = cloud_tree_heights.getScalarField(0)  # z0
 
         # Add label with z0 values
-        for i in range(len(cloud.points())):
+        for i in range(len(cloud_tree_heights.points())):
             hlabel = pycc.cc2DLabel(f"point{i}")
-            hlabel.addPickedPoint(cloud, i)
+            hlabel.addPickedPoint(cloud_tree_heights, i)
             value = round(z0.asArray()[i], 2)
             hlabel.setName(f"{value:.2f}")
             hlabel.displayPointLegend(True)
             hlabel.toggleVisibility()
             hlabel.setDisplayedIn2D(False)
-            cloud.addChild(hlabel)
+            cloud_tree_heights.addChild(hlabel)
             self.cc_instance.addToDB(hlabel)
 
         # Set black color everywhere
-        cloud.setColor(0, 0, 0, 255)
-        cloud.toggleColors()
-        base_group.addChild(cloud)
-        self.cc_instance.addToDB(cloud, autoExpandDBTree=False)
+        cloud_tree_heights.setColor(0, 0, 0, 255)
+        cloud_tree_heights.toggleColors()
+        base_group.addChild(cloud_tree_heights)
+        self.cc_instance.addToDB(cloud_tree_heights, autoExpandDBTree=False)
 
         # stem extraction and curation
         print("---------------------------------------------")
@@ -383,7 +387,6 @@ class CCPluginFinProcessing:
         np.seterr(divide="ignore", invalid="ignore")
         outliers = dm.tilt_detection(X_c, Y_c, R, sections, w_1=3, w_2=1)
         np.seterr(divide="warn", invalid="warn")
-
         print("  ")
         print("---------------------------------------------")
         print("6.-Drawing circles and axes...")
@@ -408,24 +411,25 @@ class CCPluginFinProcessing:
             config.expert.m_number_sectors,
             config.expert.circa,
         )
-
-        cloud = pycc.ccPointCloud(
+        # circles
+        cloud_circles = pycc.ccPointCloud(
             circ_coords[:, X_field], circ_coords[:, Y_field], circ_coords[:, Z_field]
         )
-        cloud.setName("Fitted sections")
-        CCPluginFinProcessing.write_sf(cloud, circ_coords[:, 4], "tree_ID")
+        cloud_circles.setName("Fitted sections")
+        CCPluginFinProcessing.write_sf(cloud_circles, circ_coords[:, 4], "tree_ID")
         CCPluginFinProcessing.write_sf(
-            cloud, circ_coords[:, 5], "sector_occupancy_percent"
+            cloud_circles, circ_coords[:, 5], "sector_occupancy_percent"
         )
-        CCPluginFinProcessing.write_sf(cloud, circ_coords[:, 6], "pts_inner_circle")
-        CCPluginFinProcessing.write_sf(cloud, circ_coords[:, 7], "Z0")
-        CCPluginFinProcessing.write_sf(cloud, circ_coords[:, 8], "Diameter")
-        CCPluginFinProcessing.write_sf(cloud, circ_coords[:, 9], "outlier_prob")
-        CCPluginFinProcessing.write_sf(cloud, circ_coords[:, 10], "quality")
-        cloud.toggleSF()
-        cloud.setCurrentDisplayedScalarField(6)  # = quality
-        base_group.addChild(cloud)
-        self.cc_instance.addToDB(cloud)
+        CCPluginFinProcessing.write_sf(
+            cloud_circles, circ_coords[:, 6], "pts_inner_circle"
+        )
+        CCPluginFinProcessing.write_sf(cloud_circles, circ_coords[:, 7], "Z0")
+        CCPluginFinProcessing.write_sf(cloud_circles, circ_coords[:, 8], "Diameter")
+        CCPluginFinProcessing.write_sf(cloud_circles, circ_coords[:, 9], "outlier_prob")
+        CCPluginFinProcessing.write_sf(cloud_circles, circ_coords[:, 10], "quality")
+        cloud_circles.toggleSF()
+        cloud_circles.setCurrentDisplayedScalarField(6)  # = quality
+        base_group.addChild(cloud_circles)
 
         axes_point, tilt = dm.generate_axis_cloud(
             tree_vector,
@@ -436,16 +440,20 @@ class CCPluginFinProcessing:
             config.expert.p_interval,
         )
 
-        cloud = pycc.ccPointCloud(
+        # cloud axes
+        cloud_axes = pycc.ccPointCloud(
             axes_point[:, X_field], axes_point[:, Y_field], axes_point[:, Z_field]
         )
-        cloud.setName("Axes")
-        CCPluginFinProcessing.write_sf(cloud, tilt, "tilting_degree")
-        cloud.toggleSF()
-        cloud.setCurrentDisplayedScalarField(0)  # = tilting_degree
-        cloud.setEnabled(False)
-        base_group.addChild(cloud)
-        self.cc_instance.addToDB(cloud)
+        cloud_axes.setName("Axes")
+        CCPluginFinProcessing.write_sf(cloud_axes, tilt, "tilting_degree")
+        cloud_axes.toggleSF()
+        cloud_axes.setCurrentDisplayedScalarField(0)  # = tilting_degree
+        cloud_axes.setEnabled(False)
+        base_group.addChild(cloud_axes)
+        
+        self.cc_instance.addToDB(cloud_axes)
+        self.cc_instance.addToDB(cloud_circles)
+
 
         dbh_values, tree_locations = dm.tree_locator(
             sections,
@@ -462,21 +470,22 @@ class CCPluginFinProcessing:
             Z_field,
         )
 
-        cloud = pycc.ccPointCloud(
+        # cloud axes
+        cloud_tree_locations = pycc.ccPointCloud(
             tree_locations[:, X_field],
             tree_locations[:, Y_field],
             tree_locations[:, Z_field],
         )
-        cloud.setName("Tree locator")
-        cloud.setPointSize(8)
-        CCPluginFinProcessing.write_sf(cloud, dbh_values.reshape(-1), "dbh")
-        cloud.setColor(255, 0, 255, 255)
-        cloud.toggleColors()
-        dbh = cloud.getScalarField(0)  # dbh
+        cloud_tree_locations.setName("Tree locator")
+        cloud_tree_locations.setPointSize(8)
+        CCPluginFinProcessing.write_sf(cloud_tree_locations, dbh_values.reshape(-1), "dbh")
+        cloud_tree_locations.setColor(255, 0, 255, 255)
+        cloud_tree_locations.toggleColors()
+        dbh = cloud_tree_locations.getScalarField(0)  # dbh
 
-        for i in range(len(cloud.points())):
+        for i in range(len(cloud_tree_locations.points())):
             dlabel = pycc.cc2DLabel(f"point{i}")
-            dlabel.addPickedPoint(cloud, i)
+            dlabel.addPickedPoint(cloud_tree_locations, i)
             value = round(dbh.asArray()[i], 3)
             if value == 0.0:
                 dlabel.setName("Non Reliable")
@@ -485,11 +494,11 @@ class CCPluginFinProcessing:
             dlabel.displayPointLegend(True)
             dlabel.toggleVisibility()
             dlabel.setDisplayedIn2D(False)
-            cloud.addChild(dlabel)
+            cloud_tree_locations.addChild(dlabel)
             self.cc_instance.addToDB(dlabel)
 
-        base_group.addChild(cloud)
-        self.cc_instance.addToDB(cloud, autoExpandDBTree=False)
+        base_group.addChild(cloud_tree_locations)
+        self.cc_instance.addToDB(cloud_tree_locations, autoExpandDBTree=False)
 
         export_tabular_data(
             config,
@@ -561,12 +570,12 @@ def _create_app_and_run(
             ctypes.windll.user32.SetThreadDpiAwarenessContext(
                 ctypes.wintypes.HANDLE(-1)
             )
-    #try:
+    # try:
     fin_app = Application(
         plugin_functor, file_externally_defined=True, cloud_fields=scalar_fields
     )
     fin_app.run()
-    # except Exception as e:  # TODO: Exception handling        
+    # except Exception as e:  # TODO: Exception handling
 
 
 def main():
@@ -599,6 +608,6 @@ def main():
     cc.freezeUI(True)
     # TODO: Catch exceptions into modals.
     pycc.RunInThread(_create_app_and_run, plugin_functor, scalar_fields)
-    #_create_app_and_run(plugin_functor, scalar_fields)
+    # _create_app_and_run(plugin_functor, scalar_fields)
     cc.freezeUI(False)
     cc.updateUI()
