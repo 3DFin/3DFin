@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "3DFIN"
+name = "3DFin"
 description = "Automatic dendrometry and forest inventory for terrestrial point clouds, application package"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -31,7 +31,7 @@ dependencies = [
   "lazrs~=0.5.0",
   "numpy>=1.24.0",
   "pandas~=2.0.0",
-  "XlsxWriter",
+  "XlsxWriter~=3.1.0",
   "Pillow~=9.5.0",
   "dendromatics~=0.1.0",
   "pydantic~=1.10.7"
@@ -42,9 +42,9 @@ dynamic = ["version"]
 path = "src/three_d_fin/__about__.py"
 
 [project.urls]
-Documentation = "https://github.com/3DFIN/3DFIN#README.md"
-Issues = "https://github.com/3DFIN/3DFIN/issues"
-Source = "https://github.com/3DFIN/3DFIN"
+Documentation = "https://github.com/3DFin/3DFin#README.md"
+Issues = "https://github.com/3DFin/3DFin/issues"
+Source = "https://github.com/3DFin/3DFin"
 
 [project.scripts]
 3DFin = "three_d_fin.processing:launch_application"

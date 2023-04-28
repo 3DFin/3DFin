@@ -2,7 +2,7 @@ __version__ = "0.1.0.dev4"
 
 # Copyright infos
 __copyright_info_1__ = (
-    "3DFIN: Forest Inventory Copyright (C) 2023 Carlos Cabo & Diego Laino."
+    "3DFin: Forest Inventory Copyright (C) 2023 Carlos Cabo & Diego Laino."
 )
 __copyright_info_2__ = (
     "This program comes with ABSOLUTELY NO WARRANTY. This is a free "
