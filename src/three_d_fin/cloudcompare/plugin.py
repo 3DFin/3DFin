@@ -1,9 +1,6 @@
-import os
 import platform
-import tempfile
 import timeit
 from pathlib import Path
-from typing import Any
 
 import dendromatics as dm
 import numpy as np
@@ -11,8 +8,10 @@ import pandas as pd
 import pycc
 from gui.layout import Application
 
+from three_d_fin.processing.configuration import FinConfiguration
 
-class 3DFinCC(pycc.PythonPluginInterface):
+
+class ThreeDFinCC(pycc.PythonPluginInterface):
     """Define a CloudCompare-PythonPlugin Plugin (sic.)."""
 
     def __init__(self):
@@ -46,10 +45,8 @@ class CCPluginFinProcessing:
         self.point_cloud = point_cloud
         self.cc_instance = cc_instance
 
-    @classmethod
-    def write_sf(
-        cls, point_cloud: pycc.ccPointCloud, scalar_field: np.ndarray, name: str
-    ):
+    @staticmethod
+    def write_sf(point_cloud: pycc.ccPointCloud, scalar_field: np.ndarray, name: str):
         """Write a scalar field on a pycc.PointCloud.
 
         Parameters
@@ -66,12 +63,12 @@ class CCPluginFinProcessing:
         sf_array[:] = scalar_field.astype(np.float32)[:]
         point_cloud.getScalarField(idx_sf).computeMinAndMax()
 
-    def __call__(self, params: dict[str, dict[str, Any]]):
+    def __call__(self, config: FinConfiguration):
         """3DFin processing.
 
         Parameters
         ----------
-        params : dict[str, dict[str, Any]]
+        config : FinConfiguration
             Processing parameters.
         """
         # -------------------------------------------------------------------------------------------------
@@ -87,21 +84,19 @@ class CCPluginFinProcessing:
         base_group = self.point_cloud.getParent()
 
         basepath_output = str(
-            Path(params["misc"]["output_dir"]) / Path(self.point_cloud.getName())
+            Path(config.misc.output_dir) / Path(self.point_cloud.getName())
         )
         print(f"Output path is set to {basepath_output}")
 
         t_t = timeit.default_timer()
 
-        if params["misc"]["is_normalized"]:
-            print(f"Using scalar field {params['basic']['z0_name']} (normalized height)")
+        if config.misc.is_normalized:
+            print(f"Using scalar field {config.basic.z0_name} (normalized height)")
             # convert CC file
             coords = np.c_[
                 self.point_cloud.points(),
                 self.point_cloud.getScalarField(
-                    self.point_cloud.getScalarFieldIndexByName(
-                        params["basic"]["z0_name"]
-                    )
+                    self.point_cloud.getScalarFieldIndexByName(config.basic.z0_name)
                 ).asArray(),
             ]
             # Number of points and area occuped by the plot.
@@ -150,7 +145,7 @@ class CCPluginFinProcessing:
             print("Cloud is not normalized...")
             print("---------------------------------------------")
 
-            if params["misc"]["is_noisy"]:
+            if config.misc.is_noisy:
                 print("---------------------------------------------")
                 print("And there is noise. Reducing it...")
                 print("---------------------------------------------")
@@ -158,8 +153,8 @@ class CCPluginFinProcessing:
                 # Noise elimination
                 clean_points = dm.clean_ground(
                     coords,
-                    params["expert"]["res_ground"],
-                    params["expert"]["min_points_ground"],
+                    config.expert.res_ground,
+                    config.expert.min_points_ground,
                 )
 
                 elapsed = timeit.default_timer() - t
@@ -180,11 +175,11 @@ class CCPluginFinProcessing:
                 print("Generating a Digital Terrain Model...")
                 print("---------------------------------------------")
                 t = timeit.default_timer()
-                print(params["expert"]["res_cloth"])
+                print(config.expert.res_cloth)
 
                 # Extracting ground points and DTM
                 cloth_nodes = dm.generate_dtm(
-                    cloud=coords, cloth_resolution=params["expert"]["res_cloth"]
+                    cloud=coords, cloth_resolution=config.expert.res_cloth
                 )
 
                 elapsed = timeit.default_timer() - t
@@ -226,18 +221,18 @@ class CCPluginFinProcessing:
         print("---------------------------------------------")
 
         stripe = coords[
-            (coords[:, 3] > params["basic"]["lower_limit"])
-            & (coords[:, 3] < params["basic"]["upper_limit"]),
+            (coords[:, 3] > config.basic.lower_limit)
+            & (coords[:, 3] < config.basic.upper_limit),
             0:4,
         ]
         clust_stripe = dm.verticality_clustering(
             stripe,
-            params["expert"]["verticality_scale_stripe"],
-            params["expert"]["verticality_thresh_stripe"],
-            params["expert"]["number_of_points"],
-            params["basic"]["number_of_iterations"],
-            params["expert"]["res_xy_stripe"],
-            params["expert"]["res_z_stripe"],
+            config.expert.verticality_scale_stripe,
+            config.expert.verticality_thresh_stripe,
+            config.expert.number_of_points,
+            config.basic.number_of_iterations,
+            config.expert.res_xy_stripe,
+            config.expert.res_z_stripe,
             n_digits,
         )
 
@@ -248,16 +243,16 @@ class CCPluginFinProcessing:
         assigned_cloud, tree_vector, tree_heights = dm.individualize_trees(
             coords,
             clust_stripe,
-            params["expert"]["res_z"],
-            params["expert"]["res_xy"],
-            params["basic"]["lower_limit"],
-            params["basic"]["upper_limit"],
-            params["expert"]["height_range"],
-            params["expert"]["maximum_d"],
-            params["expert"]["minimum_points"],
-            params["expert"]["distance_to_axis"],
-            params["expert"]["maximum_dev"],
-            params["expert"]["res_heights"],
+            config.expert.res_z,
+            config.expert.res_xy,
+            config.basic.lower_limit,
+            config.basic.upper_limit,
+            config.expert.height_range,
+            config.expert.maximum_d,
+            config.expert.minimum_points,
+            config.expert.distance_to_axis,
+            config.expert.maximum_dev,
+            config.expert.res_heights,
             n_digits,
             X_field,
             Y_field,
@@ -291,7 +286,7 @@ class CCPluginFinProcessing:
         )
         self.point_cloud.setEnabled(False)
 
-        if params["misc"]["is_noisy"]:
+        if config.misc.is_noisy:
             CCPluginFinProcessing.write_sf(self.point_cloud, assigned_cloud[:, 4], "Z0")
 
         t_las = timeit.default_timer()
@@ -332,23 +327,22 @@ class CCPluginFinProcessing:
         print("---------------------------------------------")
 
         xyz0_coords = assigned_cloud[
-            (assigned_cloud[:, 5] < params["advanced"]["stem_search_diameter"])
-            & (assigned_cloud[:, 3] > params["advanced"]["minimum_height"])
+            (assigned_cloud[:, 5] < config.advanced.stem_search_diameter)
+            & (assigned_cloud[:, 3] > config.advanced.minimum_height)
             & (
                 assigned_cloud[:, 3]
-                < params["advanced"]["maximum_height"]
-                + params["advanced"]["section_wid"]
+                < config.advanced.maximum_height + config.advanced.section_wid
             ),
             :,
         ]
         stems = dm.verticality_clustering(
             xyz0_coords,
-            params["expert"]["verticality_scale_stripe"],
-            params["expert"]["verticality_thresh_stripe"],
-            params["expert"]["number_of_points"],
-            params["basic"]["number_of_iterations"],
-            params["expert"]["res_xy_stripe"],
-            params["expert"]["res_z_stripe"],
+            config.expert.verticality_scale_stripe,
+            config.expert.verticality_thresh_stripe,
+            config.expert.number_of_points,
+            config.basic.number_of_iterations,
+            config.expert.res_xy_stripe,
+            config.expert.res_z_stripe,
             n_digits,
         )[:, 0:6]
 
@@ -358,9 +352,9 @@ class CCPluginFinProcessing:
         print("---------------------------------------------")
 
         sections = np.arange(
-            params["advanced"]["minimum_height"],
-            params["advanced"]["maximum_height"],
-            params["advanced"]["section_len"],
+            config.advanced.minimum_height,
+            config.advanced.maximum_height,
+            config.advanced.section_len,
         )  # Range of uniformly spaced values within the specified interval
 
         (
@@ -374,16 +368,16 @@ class CCPluginFinProcessing:
         ) = dm.compute_sections(
             stems,
             sections,
-            params["advanced"]["section_wid"],
-            params["expert"]["diameter_proportion"],
-            params["expert"]["point_threshold"],
-            params["expert"]["minimum_diameter"],
-            params["advanced"]["maximum_diameter"],
-            params["expert"]["point_distance"],
-            params["expert"]["number_points_section"],
-            params["expert"]["number_sectors"],
-            params["expert"]["m_number_sectors"],
-            params["expert"]["circle_width"],
+            config.advanced.section_wid,
+            config.expert.diameter_proportion,
+            config.expert.point_threshold,
+            config.expert.minimum_diameter,
+            config.advanced.maximum_diameter,
+            config.expert.point_distance,
+            config.expert.number_points_section,
+            config.expert.number_sectors,
+            config.expert.m_number_sectors,
+            config.expert.circle_width,
         )
 
         # Once every circle on every tree is fitted, outliers are detected.
@@ -408,12 +402,12 @@ class CCPluginFinProcessing:
             n_points_in,
             tree_vector,
             outliers,
-            params["expert"]["minimum_diameter"],
-            params["advanced"]["maximum_diameter"],
-            params["expert"]["point_threshold"],
-            params["expert"]["number_sectors"],
-            params["expert"]["m_number_sectors"],
-            params["expert"]["circa_points"],
+            config.expert.minimum_diameter,
+            config.advanced.maximum_diameter,
+            config.expert.point_threshold,
+            config.expert.number_sectors,
+            config.expert.m_number_sectors,
+            config.expert.circa_points,
         )
 
         cloud = pycc.ccPointCloud(
@@ -436,11 +430,11 @@ class CCPluginFinProcessing:
 
         axes_point, tilt = dm.generate_axis_cloud(
             tree_vector,
-            params["expert"]["axis_downstep"],
-            params["expert"]["axis_upstep"],
-            params["basic"]["lower_limit"],
-            params["basic"]["upper_limit"],
-            params["expert"]["p_interval"],
+            config.expert.axis_downstep,
+            config.expert.axis_upstep,
+            config.basic.lower_limit,
+            config.basic.upper_limit,
+            config.expert.p_interval,
             X_field,
             Y_field,
             Z_field,
@@ -466,7 +460,7 @@ class CCPluginFinProcessing:
             R,
             outliers,
             n_points_in,
-            params["expert"]["point_threshold"],
+            config.expert.point_threshold,
             X_field,
             Y_field,
             Z_field,
@@ -516,24 +510,24 @@ class CCPluginFinProcessing:
         dbh_and_heights[:, 2] = tree_locations[:, 0]
         dbh_and_heights[:, 3] = tree_locations[:, 1]
 
-        if not params["misc"]["txt"]:
+        if not config.misc.txt:
             # Generating aggregated quality value for each section
             quality = np.zeros(sector_perct.shape)
             # Section does not pass quality check if:
             mask = (
                 (
                     sector_perct
-                    < params["expert"]["m_number_sectors"]
-                    / params["expert"]["number_sectors"]
+                    < config.expert.m_number_sectors
+                    / config.expert.number_sectors
                     * 100
                 )  # Percentange of occupied sectors less than minimum
-                | (n_points_in > params["expert"]["point_threshold"])
+                | (n_points_in > config.expert.point_threshold)
                 | (outliers > 0.3)  # Outlier probability larger than 30 %
                 | (
-                    R < params["expert"]["minimum_diameter"]
+                    R < config.expert.minimum_diameter
                 )  # Radius smaller than the minimum radius
                 | (
-                    R > params["advanced"]["maximum_diameter"]
+                    R > config.advanced.maximum_diameter
                 )  # Radius larger than the maximum radius
             )
             # 0: does not pass quality check - 1: passes quality checks
@@ -794,7 +788,7 @@ def _create_app_and_run(
             plugin_functor, file_externally_defined=True, cloud_fields=scalar_fields
         )
         fin_app.run()
-    except:
+    except Exception:  # TODO: Exception handling
         pass
     finally:
         print("cleaning and setting back current working directory to default")
@@ -820,7 +814,6 @@ def main():
     for i in range(point_cloud.getNumberOfScalarFields()):
         scalar_fields.append(point_cloud.getScalarFieldName(i))
 
-
     # TODO: Detect if a user already have computed something on this cloud (based on scalar field and entities in the DBTree)
     # and propose to force recompute (erase) or suggest to duplicate the point cloud.
 
@@ -830,6 +823,6 @@ def main():
     cc.freezeUI(True)
     # TODO: Catch exceptions into modals.
     pycc.RunInThread(_create_app_and_run, plugin_functor, scalar_fields)
-    #_create_app_and_run(plugin_functor, scalar_fields)
+    # _create_app_and_run(plugin_functor, scalar_fields)
     cc.freezeUI(False)
     cc.updateUI()
