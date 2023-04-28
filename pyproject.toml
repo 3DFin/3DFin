@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "3DFIN"
+name = "3DFin"
 description = "Automatic dendrometry and forest inventory for terrestrial point clouds, application package"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -27,13 +27,14 @@ classifiers = [
   "Intended Audience :: Science/Research",
 ]
 dependencies = [
-  "laspy",
-  "lazrs",
-  "numpy",
-  "pandas",
-  "XlsxWriter",
-  "Pillow",
-  "dendromatics @ git+https://github.com/3DFIN/dendromatics@v0.0.1"
+  "laspy~=2.4.1",
+  "lazrs~=0.5.0",
+  "numpy>=1.24.0",
+  "pandas~=2.0.0",
+  "XlsxWriter~=3.1.0",
+  "Pillow~=9.5.0",
+  "dendromatics~=0.1.0",
+  "pydantic~=1.10.7"
 ]
 dynamic = ["version"]
 
@@ -41,18 +42,45 @@ dynamic = ["version"]
 path = "src/three_d_fin/__about__.py"
 
 [project.urls]
-Documentation = "https://github.com/3DFIN/3DFIN#README.md"
-Issues = "https://github.com/3DFIN/3DFIN/issues"
-Source = "https://github.com/3DFIN/3DFIN"
+Documentation = "https://github.com/3DFin/3DFin#README.md"
+Issues = "https://github.com/3DFin/3DFin/issues"
+Source = "https://github.com/3DFin/3DFin"
 
 [project.scripts]
-3DFin = "three_d_fin.gui.processing:process"
+3DFin = "three_d_fin.processing:launch_application"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/three_d_fin"]
 
 [tool.hatch.metadata]
 allow-direct-references = true
+
+[tool.hatch.envs.default]
+dependencies = [
+  "pytest",
+  "pytest-cov",
+]
+
+[tool.hatch.envs.default.scripts]
+cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=src/three_d_fin/processing --cov=tests {args}"
+no-cov = "cov --no-cov {args}"
+
+[[tool.hatch.envs.test.matrix]]
+python = ["38", "39", "310", "311"]
+
+[tool.coverage.run]
+branch = true
+parallel = true
+omit = [
+    "src/three_d_fin/__about__.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
 
 [tool.hatch.envs.pyinstaller]
 dependencies = [
@@ -68,9 +96,11 @@ detached = true
 dependencies = [
   "ruff>=0.0.261",
   "black>=23.3.0",
+  "mypy>=1.2.0"
 ]
 [tool.hatch.envs.lint.scripts]
 # static analysis with ruff
+check-type = "mypy --strict {args:.}"
 check-static = "ruff check {args:.}"
 check-format = "black --check --diff --color {args:.}"
 fix-static = "ruff --fix {args:.}"

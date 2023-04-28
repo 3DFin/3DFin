@@ -6,17 +6,17 @@ import laspy
 import numpy as np
 import pandas as pd
 
-from three_d_fin.gui.layout import Application
+from three_d_fin.processing.configuration import FinConfiguration
 
 
-def fin_callback(fin_app: Application, params: dict):
-    """3DFIN main algorithm.
+def fin_callback(config: FinConfiguration):
+    """3DFin main algorithm.
 
     -----------------------------------------------------------------------------
     ------------------        General Description          ----------------------
     -----------------------------------------------------------------------------
 
-    This  Python script implements an algorithm to detect the trees present
+    This Python script implements an algorithm to detect the trees present
     in a ground-based 3D point cloud from a forest plot,
     and compute individual tree parameters: tree height, tree location,
     diameters along the stem (including DBH), and stem axis.
@@ -53,7 +53,7 @@ def fin_callback(fin_app: Application, params: dict):
     -----------------------------------------------------------------------------
 
     After all computations are complete, the following files are output:
-    Filenames are: [original file name] + [specific suffix] + [.txt or .las]
+    Filenames are: [original file name] + [specific suffix] + [.txt, .las or .ini]
 
     LAS files (mainly for checking visually the outputs).
     They can be open straightaway in CloudCompare, where 'colour visualization' of fields with additional information is straightforward
@@ -79,6 +79,8 @@ def fin_callback(fin_app: Application, params: dict):
     •	[original file name]_check_circle: Text file containing the 'check' status of every section of every tree as tabular data.
     •	[original file name]_n_points_in: Text file containing the number of points within the inner circle of every section of every tree as tabular data.
     •	[original file name]_sections: Text file containing the sections as a vector.
+
+    •	[original file name]_sections: ASCII file containing the configuration used for the run.
     """
     # -------------------------------------------------------------------------------------------------
     # NON MODIFIABLE. These parameters should never be modified by the user.
@@ -87,29 +89,20 @@ def fin_callback(fin_app: Application, params: dict):
     X_field = 0  # Which column contains X field  - NON MODIFIABLE
     Y_field = 1  # Which column contains Y field  - NON MODIFIABLE
     Z_field = 2  # Which column contains Z field  - NON MODIFIABLE
-
-    # Z0_field = 3  # Which column contains Z0 field  - Unused - NON MODIFIABLE
-    # tree_id_field = 4  # Which column contains tree ID field  - Unused - NON MODIFIABLE
     n_digits = 5  # Number of digits for voxel encoding.
 
-    filename_las = params["misc"]["input_las"]
-    basename_las = Path(params["misc"]["input_las"]).stem
-    basepath_output = str(Path(params["misc"]["output_dir"]) / Path(basename_las))
+    filename_las = str(config.misc.input_file.resolve())
+    basename_las = Path(config.misc.input_file).stem
+    basepath_output = str(Path(config.misc.output_dir) / Path(basename_las))
     print(basepath_output)
-
-    print(fin_app.copyright_info_1)
-    print(fin_app.copyright_info_2)
-    print(
-        "See License at the bottom of 'About' tab for more details or visit <https://www.gnu.org/licenses/>"
-    )
 
     t_t = timeit.default_timer()
 
-    if params["misc"]["is_normalized"]:
+    if config.misc.is_normalized:
         # Read .LAS file.
         entr = laspy.read(filename_las)
         coords = np.vstack(
-            (entr.x, entr.y, entr.z, entr[params["basic"]["z0_name"]])
+            (entr.x, entr.y, entr.z, entr[config.basic.z0_name])
         ).transpose()
 
         # Number of points and area occuped by the plot.
@@ -157,7 +150,7 @@ def fin_callback(fin_app: Application, params: dict):
         print("Cloud is not normalized...")
         print("---------------------------------------------")
 
-        if params["misc"]["is_noisy"]:
+        if config.misc.is_noisy:
             print("---------------------------------------------")
             print("And there is noise. Reducing it...")
             print("---------------------------------------------")
@@ -165,8 +158,8 @@ def fin_callback(fin_app: Application, params: dict):
             # Noise elimination
             clean_points = dm.clean_ground(
                 coords,
-                params["expert"]["res_ground"],
-                params["expert"]["min_points_ground"],
+                config.expert.res_ground,
+                config.expert.min_points_ground,
             )
 
             elapsed = timeit.default_timer() - t
@@ -189,7 +182,7 @@ def fin_callback(fin_app: Application, params: dict):
             t = timeit.default_timer()
             # Extracting ground points and DTM
             cloth_nodes = dm.generate_dtm(
-                coords, cloth_resolution=params["expert"]["res_cloth"]
+                coords, cloth_resolution=config.expert.res_cloth
             )
 
             elapsed = timeit.default_timer() - t
@@ -208,7 +201,7 @@ def fin_callback(fin_app: Application, params: dict):
         las_dtm_points.y = dtm[:, 1]
         las_dtm_points.z = dtm[:, 2]
 
-        las_dtm_points.write(filename_las + "_dtm_points.las")
+        las_dtm_points.write(basepath_output + "_dtm_points.las")
 
         elapsed = timeit.default_timer() - t
         print("        ", "%.2f" % elapsed, "s: exporting the DTM")
@@ -232,18 +225,18 @@ def fin_callback(fin_app: Application, params: dict):
     print("---------------------------------------------")
 
     stripe = coords[
-        (coords[:, 3] > params["basic"]["lower_limit"])
-        & (coords[:, 3] < params["basic"]["upper_limit"]),
+        (coords[:, 3] > config.basic.lower_limit)
+        & (coords[:, 3] < config.basic.upper_limit),
         0:4,
     ]
     clust_stripe = dm.verticality_clustering(
         stripe,
-        params["expert"]["verticality_scale_stripe"],
-        params["expert"]["verticality_thresh_stripe"],
-        params["expert"]["number_of_points"],
-        params["basic"]["number_of_iterations"],
-        params["expert"]["res_xy_stripe"],
-        params["expert"]["res_z_stripe"],
+        config.expert.verticality_scale_stripe,
+        config.expert.verticality_thresh_stripe,
+        config.expert.number_of_points,
+        config.basic.number_of_iterations,
+        config.expert.res_xy_stripe,
+        config.expert.res_z_stripe,
         n_digits,
     )
 
@@ -254,16 +247,16 @@ def fin_callback(fin_app: Application, params: dict):
     assigned_cloud, tree_vector, tree_heights = dm.individualize_trees(
         coords,
         clust_stripe,
-        params["expert"]["res_z"],
-        params["expert"]["res_xy"],
-        params["basic"]["lower_limit"],
-        params["basic"]["upper_limit"],
-        params["expert"]["height_range"],
-        params["expert"]["maximum_d"],
-        params["expert"]["minimum_points"],
-        params["expert"]["distance_to_axis"],
-        params["expert"]["maximum_dev"],
-        params["expert"]["res_heights"],
+        config.expert.res_z,
+        config.expert.res_xy,
+        config.basic.lower_limit,
+        config.basic.upper_limit,
+        config.expert.height_range,
+        config.expert.maximum_d,
+        config.expert.minimum_points,
+        config.expert.distance_to_axis,
+        config.expert.maximum_dev,
+        config.expert.res_heights,
         n_digits,
         X_field,
         Y_field,
@@ -293,7 +286,7 @@ def fin_callback(fin_app: Application, params: dict):
     entr.dist_axes = assigned_cloud[:, 5]
     entr.tree_ID = assigned_cloud[:, 4]
 
-    if params["misc"]["is_noisy"]:
+    if config.misc.is_noisy:
         entr.add_extra_dim(laspy.ExtraBytesParams(name="Z0", type=np.float64))
         entr.Z0 = z0_values
     entr.write(basepath_output + "_tree_ID_dist_axes.las")
@@ -321,22 +314,22 @@ def fin_callback(fin_app: Application, params: dict):
     print("---------------------------------------------")
 
     xyz0_coords = assigned_cloud[
-        (assigned_cloud[:, 5] < params["advanced"]["stem_search_diameter"])
-        & (assigned_cloud[:, 3] > params["advanced"]["minimum_height"])
+        (assigned_cloud[:, 5] < (config.advanced.stem_search_diameter) / 2.0)
+        & (assigned_cloud[:, 3] > config.advanced.minimum_height)
         & (
             assigned_cloud[:, 3]
-            < params["advanced"]["maximum_height"] + params["advanced"]["section_wid"]
+            < config.advanced.maximum_height + config.advanced.section_wid
         ),
         :,
     ]
     stems = dm.verticality_clustering(
         xyz0_coords,
-        params["expert"]["verticality_scale_stripe"],
-        params["expert"]["verticality_thresh_stripe"],
-        params["expert"]["number_of_points"],
-        params["basic"]["number_of_iterations"],
-        params["expert"]["res_xy_stripe"],
-        params["expert"]["res_z_stripe"],
+        config.expert.verticality_scale_stripe,
+        config.expert.verticality_thresh_stripe,
+        config.expert.number_of_points,
+        config.basic.number_of_iterations,
+        config.expert.res_xy_stripe,
+        config.expert.res_z_stripe,
         n_digits,
     )[:, 0:6]
 
@@ -346,9 +339,9 @@ def fin_callback(fin_app: Application, params: dict):
     print("---------------------------------------------")
 
     sections = np.arange(
-        params["advanced"]["minimum_height"],
-        params["advanced"]["maximum_height"],
-        params["advanced"]["section_len"],
+        config.advanced.minimum_height,
+        config.advanced.maximum_height,
+        config.advanced.section_len,
     )  # Range of uniformly spaced values within the specified interval
 
     (
@@ -356,22 +349,22 @@ def fin_callback(fin_app: Application, params: dict):
         Y_c,
         R,
         check_circle,
-        second_time,
+        _,
         sector_perct,
         n_points_in,
     ) = dm.compute_sections(
         stems,
         sections,
-        params["advanced"]["section_wid"],
-        params["expert"]["diameter_proportion"],
-        params["expert"]["point_threshold"],
-        params["expert"]["minimum_diameter"],
-        params["advanced"]["maximum_diameter"],
-        params["expert"]["point_distance"],
-        params["expert"]["number_points_section"],
-        params["expert"]["number_sectors"],
-        params["expert"]["m_number_sectors"],
-        params["expert"]["circle_width"],
+        config.advanced.section_wid,
+        config.expert.diameter_proportion,
+        config.expert.point_threshold,
+        config.expert.minimum_diameter / 2.0,
+        config.advanced.maximum_diameter / 2.0,
+        config.expert.point_distance,
+        config.expert.number_points_section,
+        config.expert.number_sectors,
+        config.expert.m_number_sectors,
+        config.expert.circle_width,
     )
 
     # Once every circle on every tree is fitted, outliers are detected.
@@ -397,22 +390,22 @@ def fin_callback(fin_app: Application, params: dict):
         tree_vector,
         outliers,
         basepath_output + "_circ.las",
-        params["expert"]["minimum_diameter"],
-        params["advanced"]["maximum_diameter"],
-        params["expert"]["point_threshold"],
-        params["expert"]["number_sectors"],
-        params["expert"]["m_number_sectors"],
-        params["expert"]["circa_points"],
+        config.expert.minimum_diameter / 2.0,
+        config.advanced.maximum_diameter / 2.0,
+        config.expert.point_threshold,
+        config.expert.number_sectors,
+        config.expert.m_number_sectors,
+        config.expert.circa,
     )
 
     dm.draw_axes(
         tree_vector,
         basepath_output + "_axes.las",
-        params["expert"]["axis_downstep"],
-        params["expert"]["axis_upstep"],
-        params["basic"]["lower_limit"],
-        params["basic"]["upper_limit"],
-        params["expert"]["p_interval"],
+        config.expert.axis_downstep,
+        config.expert.axis_upstep,
+        config.basic.lower_limit,
+        config.basic.upper_limit,
+        config.expert.p_interval,
     )
 
     dbh_values, tree_locations = dm.tree_locator(
@@ -424,7 +417,7 @@ def fin_callback(fin_app: Application, params: dict):
         R,
         outliers,
         n_points_in,
-        params["expert"]["point_threshold"],
+        config.expert.point_threshold,
         X_field,
         Y_field,
         Z_field,
@@ -456,31 +449,29 @@ def fin_callback(fin_app: Application, params: dict):
     dbh_and_heights[:, 2] = tree_locations[:, 0]
     dbh_and_heights[:, 3] = tree_locations[:, 1]
 
-    if not params["misc"]["txt"]:
+    if not config.misc.export_txt:
         # Generating aggregated quality value for each section
         quality = np.zeros(sector_perct.shape)
         # Section does not pass quality check if:
         mask = (
             (
                 sector_perct
-                < params["expert"]["m_number_sectors"]
-                / params["expert"]["number_sectors"]
-                * 100
+                < config.expert.m_number_sectors / config.expert.number_sectors * 100
             )  # Percentange of occupied sectors less than minimum
-            | (n_points_in > params["expert"]["point_threshold"])
+            | (n_points_in > config.expert.point_threshold)
             | (outliers > 0.3)  # Outlier probability larger than 30 %
             | (
-                R < params["expert"]["minimum_diameter"]
+                R < config.expert.minimum_diameter / 2.0
             )  # Radius smaller than the minimum radius
             | (
-                R > params["advanced"]["maximum_diameter"]
+                R > config.advanced.maximum_diameter / 2.0
             )  # Radius larger than the maximum radius
         )
         # 0: does not pass quality check - 1: passes quality checks
         quality = np.where(mask, quality, 1)
 
         # Function to convert data to pandas DataFrames
-        def to_pandas(data):
+        def to_pandas(data: np.ndarray) -> pd.DataFrame:
             # Covers np.arrays of shape == 2 (almost every case)
             if len(data.shape) == 2:
                 df = pd.DataFrame(
@@ -670,17 +661,11 @@ def fin_callback(fin_app: Application, params: dict):
 
     elapsed_t = timeit.default_timer() - t_t
 
+    config.to_config_file(Path(basepath_output + "_config.ini"))
+
     # -------------------------------------------------------------------------------------------------------------
     print("---------------------------------------------")
     print("End of process!")
     print("---------------------------------------------")
     print("Total time:", "   %.2f" % elapsed_t, "s")
     print("nº of trees:", X_c.shape[0])
-
-    input("Press enter to close the program...")
-
-
-def process():
-    """3DFin GUI instanciation and processing."""
-    fin_app = Application(fin_callback)
-    _ = fin_app.run()
