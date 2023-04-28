@@ -171,8 +171,10 @@ class MiscParameters(BaseModel):
     )
 
     @validator("input_file")
-    def valid_input_las(cls, v: FilePath):
+    def valid_input_las(cls, v: FilePath | None):
         """Validate maximum_height field again minimum_height value."""
+        if v == None:
+            return v
         try:
             laspy.open(v.resolve(), read_evlrs=False)
         except laspy.LaspyException:
@@ -242,5 +244,7 @@ class FinConfiguration(BaseModel):
             # we remove optional section, it's not supported by the parser
             if parameter_dict["misc"] is None:
                 parameter_dict.pop("misc")
+            elif parameter_dict["misc"]["input_file"] is None:
+                parameter_dict["misc"].pop("input_file")
             parser.read_dict(parameter_dict)
             parser.write(f)

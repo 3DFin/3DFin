@@ -75,7 +75,7 @@ def export_tabular_data(
     dbh_and_heights[:, 2] = tree_locations[:, 0]
     dbh_and_heights[:, 3] = tree_locations[:, 1]
 
-    if not config.misc.txt:
+    if not config.misc.export_txt:
         # Generating aggregated quality value for each section
         quality = np.zeros(sector_perct.shape)
         # Section does not pass quality check if:

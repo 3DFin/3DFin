@@ -1735,9 +1735,11 @@ class Application(tk.Tk):
         # by another mean than input from the GUI, we do not want to show field related
         # to Las input.
         if self.file_externally_defined:
-            self.label_file.grid_forget()
-            self.input_file_button.grid_forget()
-            self.input_file_entry.grid_forget()
+            self.label_file.config(state=tk.DISABLED)
+            self.label_file.config(text="File already set by the application")
+            self.input_file_button.config(state=tk.DISABLED)
+            #self.input_file.set("Point cloud set by application")
+            self.input_file_entry.config(state=tk.DISABLED)
 
         self.output_dir_entry = ttk.Entry(
             bottom_frame, width=30, textvariable=self.output_dir

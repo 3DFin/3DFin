@@ -406,7 +406,7 @@ class CCPluginFinProcessing:
             config.expert.point_threshold,
             config.expert.number_sectors,
             config.expert.m_number_sectors,
-            config.expert.circa_points,
+            config.expert.circa,
         )
 
         cloud = pycc.ccPointCloud(
@@ -434,9 +434,6 @@ class CCPluginFinProcessing:
             config.basic.lower_limit,
             config.basic.upper_limit,
             config.expert.p_interval,
-            X_field,
-            Y_field,
-            Z_field,
         )
 
         cloud = pycc.ccPointCloud(
@@ -564,15 +561,12 @@ def _create_app_and_run(
             ctypes.windll.user32.SetThreadDpiAwarenessContext(
                 ctypes.wintypes.HANDLE(-1)
             )
-    try:
-        fin_app = Application(
-            plugin_functor, file_externally_defined=True, cloud_fields=scalar_fields
-        )
-        fin_app.run()
-    except Exception:  # TODO: Exception handling
-        pass
-    finally:
-        print("cleaning and setting back current working directory to default")
+    #try:
+    fin_app = Application(
+        plugin_functor, file_externally_defined=True, cloud_fields=scalar_fields
+    )
+    fin_app.run()
+    # except Exception as e:  # TODO: Exception handling        
 
 
 def main():
@@ -605,6 +599,6 @@ def main():
     cc.freezeUI(True)
     # TODO: Catch exceptions into modals.
     pycc.RunInThread(_create_app_and_run, plugin_functor, scalar_fields)
-    # _create_app_and_run(plugin_functor, scalar_fields)
+    #_create_app_and_run(plugin_functor, scalar_fields)
     cc.freezeUI(False)
     cc.updateUI()
