@@ -330,7 +330,7 @@ class CCPluginFinProcessing:
         print("---------------------------------------------")
 
         xyz0_coords = assigned_cloud[
-            (assigned_cloud[:, 5] < config.advanced.stem_search_diameter)
+            (assigned_cloud[:, 5] < (config.advanced.stem_search_diameter / 2.0))
             & (assigned_cloud[:, 3] > config.advanced.minimum_height)
             & (
                 assigned_cloud[:, 3]
@@ -374,8 +374,8 @@ class CCPluginFinProcessing:
             config.advanced.section_wid,
             config.expert.diameter_proportion,
             config.expert.point_threshold,
-            config.expert.minimum_diameter,
-            config.advanced.maximum_diameter,
+            config.expert.minimum_diameter / 2.0,
+            config.advanced.maximum_diameter / 2.0,
             config.expert.point_distance,
             config.expert.number_points_section,
             config.expert.number_sectors,
@@ -404,8 +404,8 @@ class CCPluginFinProcessing:
             n_points_in,
             tree_vector,
             outliers,
-            config.expert.minimum_diameter,
-            config.advanced.maximum_diameter,
+            config.expert.minimum_diameter / 2.0,
+            config.advanced.maximum_diameter / 2.0,
             config.expert.point_threshold,
             config.expert.number_sectors,
             config.expert.m_number_sectors,

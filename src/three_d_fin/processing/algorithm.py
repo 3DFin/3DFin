@@ -314,7 +314,7 @@ def fin_callback(config: FinConfiguration):
     print("---------------------------------------------")
 
     xyz0_coords = assigned_cloud[
-        (assigned_cloud[:, 5] < (config.advanced.stem_search_diameter) / 2.0)
+        (assigned_cloud[:, 5] < (config.advanced.stem_search_diameter / 2.0))
         & (assigned_cloud[:, 3] > config.advanced.minimum_height)
         & (
             assigned_cloud[:, 3]
