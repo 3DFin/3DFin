@@ -25,7 +25,7 @@ class TreeIndividualizationCC(pycc.PythonPluginInterface):
 
 
 class CCPluginFinProcessing:
-    """3DFIN processing functor.
+    """3DFin processing functor.
 
     The Functor wrap current CC environement needed by 3DFin and __call__ method trigger
     the processing.
@@ -66,13 +66,11 @@ class CCPluginFinProcessing:
         sf_array[:] = scalar_field.astype(np.float32)[:]
         point_cloud.getScalarField(idx_sf).computeMinAndMax()
 
-    def __call__(self, fin_app: Application, params: dict[str, dict[str, Any]]):
+    def __call__(self, params: dict[str, dict[str, Any]]):
         """3DFin processing.
 
         Parameters
         ----------
-        fin_app : Application
-            Current 3DFin application.
         params : dict[str, dict[str, Any]]
             Processing parameters.
         """
@@ -88,11 +86,6 @@ class CCPluginFinProcessing:
 
         base_group = self.point_cloud.getParent()
 
-        print(fin_app.copyright_info_1)
-        print(fin_app.copyright_info_2)
-        print(
-            "See License at the bottom of 'About' tab for more details or visit <https://www.gnu.org/licenses/>"
-        )
         basepath_output = str(
             Path(params["misc"]["output_dir"]) / Path(self.point_cloud.getName())
         )
@@ -772,7 +765,7 @@ def _create_app_and_run(
         The functor you want to run inside the 3DFin application.
     scalar_fields : list[str]
         A list of scalar field names. These list will feed the dropdown menu
-        inside the 3DFIN GUI.
+        inside the 3DFin GUI.
     """
     # FIX for HidPI support on windows 10+
     # The "bug" was sneaky for two reasons:
@@ -796,22 +789,15 @@ def _create_app_and_run(
             ctypes.windll.user32.SetThreadDpiAwarenessContext(
                 ctypes.wintypes.HANDLE(-1)
             )
-    # A quick fix for the fact that CSF write a file in cwd
-    current_cwd = str(Path.cwd())
     try:
-        csf_temp_dir = tempfile.TemporaryDirectory()
-        print(f"setting current working directory to {csf_temp_dir.name}")
-        os.chdir(csf_temp_dir.name)
         fin_app = Application(
             plugin_functor, file_externally_defined=True, cloud_fields=scalar_fields
         )
         fin_app.run()
-    # except:
-    # ...
+    except:
+        pass
     finally:
         print("cleaning and setting back current working directory to default")
-        os.chdir(current_cwd)
-        csf_temp_dir.cleanup()
 
 
 def main_cloudcompare():
@@ -829,20 +815,20 @@ def main_cloudcompare():
     if not isinstance(point_cloud, pycc.ccPointCloud):
         raise RuntimeError("Selected entity should be a point cloud")
 
-    # list all scalar fields to feed dropdown menu in the interface
+    # List all scalar fields to feed dropdown menu in the interface
     scalar_fields: list[str] = []
     for i in range(point_cloud.getNumberOfScalarFields()):
         scalar_fields.append(point_cloud.getScalarFieldName(i))
 
 
-    # TODO: detect if a user already have computed something on this cloud (based on scalar field and entities in the DBTree)
+    # TODO: Detect if a user already have computed something on this cloud (based on scalar field and entities in the DBTree)
     # and propose to force recompute (erase) or suggest to duplicate the point cloud.
 
     # TODO: Handle big coodinates (could be tested but maybe wait for CC API update).
     plugin_functor = CCPluginFinProcessing(cc, point_cloud)
 
     cc.freezeUI(True)
-    # TODO: catch exceptions into modals.
+    # TODO: Catch exceptions into modals.
     pycc.RunInThread(_create_app_and_run, plugin_functor, scalar_fields)
     #_create_app_and_run(plugin_functor, scalar_fields)
     cc.freezeUI(False)
