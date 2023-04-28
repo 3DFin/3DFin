@@ -40,7 +40,7 @@ dynamic = ["version"]
 
 # Entry point for CloudCompare plugin
 [project.entry-points."cloudcompare.plugins"]
-3DFin = "three_d_fin.cloudcompare.plugin:ThreeDFin"
+3DFin = "three_d_fin.cloudcompare.plugin:ThreeDFinCC"
 
 # Entry point for GUI and CLI
 [project.scripts]
