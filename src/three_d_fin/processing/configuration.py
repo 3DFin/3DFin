@@ -29,7 +29,7 @@ class BasicParameters(BaseModel):
         if "upper_limit" in values and v >= values["upper_limit"]:
             raise ValueError(
                 f"""Stripe lower limit ({v}) should be lower than Stripe upper Limit ({values["upper_limit"]})"""
-            )  # TODO: name are hardcoded for now
+            )  # TODO: names are hardcoded for now
         return v
 
 
@@ -211,7 +211,7 @@ class FinConfiguration(BaseModel):
             A validated FinConfiguration
         """
         parser = configparser.ConfigParser()
-        # could raise an Exception that the caller is resposible to catch
+        # Could raise an Exception that the caller is resposible to catch
         with filename.open("r") as f:
             parser = configparser.ConfigParser()
             parser.read_file(f)
@@ -237,11 +237,11 @@ class FinConfiguration(BaseModel):
             the Path to the .ini file to save
         """
         parser = configparser.ConfigParser()
-        # could raise an Exception that the caller is resposible to catch
+        # Could raise an Exception that the caller is resposible to catch
         with filename.open("w") as f:
             parser = configparser.ConfigParser()
             parameter_dict = self.dict()
-            # we remove optional section, it's not supported by the parser
+            # We remove optional sections, it's not supported by the parser
             if parameter_dict["misc"] is None:
                 parameter_dict.pop("misc")
             elif parameter_dict["misc"]["input_file"] is None:

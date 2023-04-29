@@ -25,7 +25,7 @@ class Application(tk.Tk):
         self,
         processing_callback: Callable[[dict[str, dict[str, Any]]], None],
         file_externally_defined: bool = False,
-        cloud_fields: Optional[list[str]] = None,
+        cloud_fields: Optional[set[str]] = None,
     ):
         """Construct the 3DFin GUI Application.
 
@@ -228,10 +228,15 @@ class Application(tk.Tk):
         config_dict = config.dict()
         for config_section in config_dict:
             for key_param, value_param in config_dict[config_section].items():
-                getattr(self, key_param).set(value_param)
-                # fix a minor presentation issue when no file is defined
-                if key_param == "input_file" and value_param is None:
+                # Default z0_name should match one of the supplied list if present.
+                if (key_param == "z0_name") and self.cloud_fields is not None:
+                    if value_param in self.cloud_fields:
+                        getattr(self, key_param).set(value_param)
+                # Fix a minor presentation issue when no file is defined
+                elif key_param == "input_file" and value_param is None:
                     getattr(self, key_param).set("")
+                else:
+                    getattr(self, key_param).set(value_param)
 
     def get_parameters(self) -> dict[str, dict[str, str]]:
         """Get parameters from widgets and return them organized in a dictionary.
@@ -277,10 +282,10 @@ class Application(tk.Tk):
             z0_entry = ttk.Entry(self.basic_tab, width=7, textvariable=self.z0_name)
             z0_entry.grid(column=3, row=7, sticky="EW")
         else:
-            # Try to find the default field
-            z0_entry = ttk.OptionMenu(self.basic_tab, self.z0_name, *self.cloud_fields)
+            z0_entry = ttk.OptionMenu(
+                self.basic_tab, self.z0_name, self.z0_name.get(), *self.cloud_fields
+            )
             z0_entry.grid(column=3, row=7, columnspan=2, sticky="EW")
-            self.z0_name.set(self.cloud_fields[0])
 
         z0_entry.configure(state="disabled")
 
