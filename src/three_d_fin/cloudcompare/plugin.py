@@ -122,9 +122,11 @@ class CCPluginFinProcessing:
             print("---------------------------------------------")
 
         else:
+            # TODO(RJ) double conversion is only needed for DTM processing, 
+            # But maybe it's worth generalizing it.
+            # CSF expect also fortran type arrays.
             coords = np.asfortranarray(self.point_cloud.points()).astype(np.double)
-            # TODO(RJ) double conversion is only needed for DTM processing, but it could be
-            # good to handle that in a better way.
+
 
             # Number of points and area occuped by the plot.
             print("---------------------------------------------")
@@ -571,12 +573,10 @@ def _create_app_and_run(
             ctypes.windll.user32.SetThreadDpiAwarenessContext(
                 ctypes.wintypes.HANDLE(-1)
             )
-    # try:
     fin_app = Application(
         plugin_functor, file_externally_defined=True, cloud_fields=scalar_fields
     )
     fin_app.run()
-    # except Exception as e:  # TODO: Exception handling
 
 
 def main():
@@ -607,8 +607,10 @@ def main():
     plugin_functor = CCPluginFinProcessing(cc, point_cloud)
 
     cc.freezeUI(True)
-    # TODO: Catch exceptions into modals.
-    pycc.RunInThread(_create_app_and_run, plugin_functor, scalar_fields)
-    # _create_app_and_run(plugin_functor, scalar_fields)
+    try: 
+        pycc.RunInThread(_create_app_and_run, plugin_functor, scalar_fields)
+        # _create_app_and_run(plugin_functor, scalar_fields)
+    except Exception as e:
+        raise RuntimeError("Something went wrong") # TODO: Catch exceptions into modals.
     cc.freezeUI(False)
     cc.updateUI()
