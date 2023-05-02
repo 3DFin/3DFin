@@ -19,7 +19,7 @@ from three_d_fin.processing.configuration import (
 
 
 class Application(tk.Tk):
-    """Encapsulate GUI creation and interactions for 3DFIN application."""
+    """Encapsulate GUI creation and interactions for 3DFin application."""
 
     def __init__(
         self,
@@ -27,7 +27,7 @@ class Application(tk.Tk):
         file_externally_defined: bool = False,
         cloud_fields: Optional[list[str]] = None,
     ):
-        """Construct the 3DFIN GUI Application.
+        """Construct the 3DFin GUI Application.
 
         Parameters
         ----------
@@ -211,8 +211,8 @@ class Application(tk.Tk):
         self.input_file = tk.StringVar()
 
         try:
-            ### Reading config file only if it is available under name '3DFINconfig.ini'
-            config_file_path = Path("3DFINconfig.ini")
+            ### Reading config file only if it is available under name '3DFinconfig.ini'
+            config_file_path = Path("3DFinconfig.ini")
             config = FinConfiguration.From_config_file(
                 config_file_path.resolve(strict=True), init_misc=True
             )
@@ -240,7 +240,7 @@ class Application(tk.Tk):
         -------
         options : dict[str, dict[str, str]]
             Dictionary of parameters. It is organized following the
-            3DFINconfig.ini file: Each parameters are sorted in sub-dict
+            3DFinconfig.ini file: Each parameters are sorted in sub-dict
             ("basic", "expert", "advanced", "misc").
         """
         config_dict: dict[str, dict[str, str]] = dict()
@@ -1668,7 +1668,7 @@ class Application(tk.Tk):
             """Ask for a proper output directory."""
             output_dir = filedialog.askdirectory(
                 parent=self,
-                title="3DFIN output directory",
+                title="3DFin output directory",
                 initialdir=self.output_dir.get(),
             )
             # If the dialog was not closed/cancel
@@ -1695,7 +1695,7 @@ class Application(tk.Tk):
             initial_file = str(initial_path.resolve()) if is_initial_file else ""
             las_file = filedialog.askopenfilename(
                 parent=self,
-                title="3DFIN input file",
+                title="3DFin input file",
                 filetypes=[("las files", ".las .Las .Laz .laz")],
                 initialdir=initial_dir,
                 initialfile=initial_file,
@@ -1706,7 +1706,7 @@ class Application(tk.Tk):
                     laspy.open(las_file, read_evlrs=False)
                 except laspy.LaspyException:
                     messagebox.showerror(
-                        parent=self, title="3DFIN Error", message="Invalid las file"
+                        parent=self, title="3DFin Error", message="Invalid las file"
                     )
                     return
                 self.input_file.set(str(Path(las_file).resolve()))
@@ -1796,7 +1796,7 @@ class Application(tk.Tk):
         # define a lambda to popup error for convenience
         def _show_error(error_msg: str) -> str:
             return messagebox.showerror(
-                parent=self, title="3DFIN Error", message=error_msg
+                parent=self, title="3DFin Error", message=error_msg
             )
 
         # TODO: Here we could check if the output directory already contains some
@@ -1833,7 +1833,7 @@ class Application(tk.Tk):
 
         self.iconbitmap(default=self._get_resource_path("icon_window.ico"))
 
-        self.title(f"3DFIN v{__about__.__version__}")
+        self.title(f"3DFin v{__about__.__version__}")
         self.option_add("Helvetica", "12")
         self.resizable(False, False)
         self.geometry("810x654+0+0")

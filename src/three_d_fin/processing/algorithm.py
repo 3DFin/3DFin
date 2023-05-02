@@ -10,7 +10,7 @@ from three_d_fin.processing.configuration import FinConfiguration
 
 
 def fin_callback(config: FinConfiguration):
-    """3DFIN main algorithm.
+    """3DFin main algorithm.
 
     -----------------------------------------------------------------------------
     ------------------        General Description          ----------------------
