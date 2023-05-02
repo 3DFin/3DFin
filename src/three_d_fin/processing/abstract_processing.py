@@ -1,104 +1,203 @@
-import platform
 import timeit
+from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import Any
 
 import dendromatics as dm
 import numpy as np
-import pycc
 
-from three_d_fin.gui.layout import Application
 from three_d_fin.processing.configuration import FinConfiguration
 from three_d_fin.processing.io import export_tabular_data
 
 
-class ThreeDFinCC(pycc.PythonPluginInterface):
-    """Define a CloudCompare-PythonPlugin Plugin (sic.)."""
+class FinProcessing(ABC):
+    """Define a 3DFin algorithm and its I/O requirements.
 
-    def __init__(self):
-        """Construct the object."""
-        pycc.PythonPluginInterface.__init__(self)
-
-    def getActions(self) -> list[pycc.Action]:
-        """List of actions exposed by the plugin."""
-        return [pycc.Action(name="3DFin", target=main)]
-
-
-class CCPluginFinProcessing:
-    """3DFin processing functor.
-
-    The Functor wrap current CC environement needed by 3DFin and __call__ method trigger
-    the processing.
+    I/O are defined as abstract methods that must be overridden by implementors .
     """
 
-    def __init__(
-        self, cc_instance: pycc.ccPythonInstance, point_cloud: pycc.ccPointCloud
-    ):
-        """Construct the functor object.
+    config: FinConfiguration | None = None
 
-        Parameters
-        ----------
-        cc_instance : pycc.ccPythonInstance
-            Current cc application, wrapped by CloudCompare-PythonPlugin.
-        point_cloud : pycc.ccPointCloud
-            Point cloud targetted by the 3DFin processing.
-        """
-        self.point_cloud = point_cloud
-        self.cc_instance = cc_instance
+    base_cloud: Any
 
-    @staticmethod
-    def write_sf(point_cloud: pycc.ccPointCloud, scalar_field: np.ndarray, name: str):
-        """Write a scalar field on a pycc.PointCloud.
+    output_basepath: Path
 
-        Parameters
-        ----------
-        point_cloud : pycc.ccPointCloud
-            Point cloud targetted by the 3DFin processing.
-        scalar_field : np.ndarray
-            Numpy vector discribing the scalar field.
-        name: str
-            Name of the scalar_field to write
-        """
-        idx_sf = point_cloud.addScalarField(name)
-        sf_array = point_cloud.getScalarField(idx_sf).asArray()
-        sf_array[:] = scalar_field.astype(np.float32)[:]
-        point_cloud.getScalarField(idx_sf).computeMinAndMax()
-
-    def __call__(self, config: FinConfiguration):
-        """3DFin processing.
+    def set_config(self, config: FinConfiguration):
+        """Set the configuration.
 
         Parameters
         ----------
         config : FinConfiguration
-            Processing parameters.
+            Self explanatory, the 3DFin configuration.
         """
+        self.config = config
+
+    @abstractmethod
+    def _construct_output_path(self):
+        pass
+
+    @abstractmethod
+    def check_already_computed_data(self) -> bool:
+        """Check if the processing algorithm output is likely to collides with data from a previous computation.
+
+        Returns
+        -------
+        previous_data : bool
+            True if the algorithm output could be in competition with data from a previous computation,
+            False otherwise.
+        """
+        pass
+
+    @abstractmethod
+    def _pre_processing_hook(self):
+        pass
+
+    @abstractmethod
+    def _post_processing_hook(self):
+        pass
+
+    @abstractmethod
+    def _load_base_cloud(self):
+        pass
+
+    @abstractmethod
+    def _get_xyz_z0_from_base(self) -> np.ndarray:
+        pass
+
+    @abstractmethod
+    def _get_xyz_from_base(self) -> np.ndarray:
+        pass
+
+    @abstractmethod
+    def _export_dtm(self, dtm: np.ndarray):
+        pass
+
+    @abstractmethod
+    def _export_stripe(self, clust_stripe: np.ndarray):
+        pass
+
+    @abstractmethod
+    def _enrich_base_cloud(
+        self, assigned_cloud: np.ndarray, z0_values: np.ndarray | None
+    ):
+        pass
+
+    @abstractmethod
+    def _export_tree_height(self, tree_heights: np.ndarray):
+        pass
+
+    @abstractmethod
+    def _export_circles(self, circles_coords: np.ndarray):
+        pass
+
+    @abstractmethod
+    def _export_axes(self, axes_points: np.ndarray, tilt: np.ndarray):
+        pass
+
+    @abstractmethod
+    def _export_tree_locations(
+        self, tree_locations: np.ndarray, dbh_values: np.ndarray
+    ):
+        pass
+
+    def processing(self):
+        """3DFin main algorithm.
+
+        -----------------------------------------------------------------------------
+        ------------------        General Description          ----------------------
+        -----------------------------------------------------------------------------
+
+        This Python script implements an algorithm to detect the trees present
+        in a ground-based 3D point cloud from a forest plot,
+        and compute individual tree parameters: tree height, tree location,
+        diameters along the stem (including DBH), and stem axis.
+
+        The input point cloud will be in .LAS/.LAZ format and can contain extra fields (.LAS standard or not)
+        This algorithm is mainly based on rules, although it uses clusterization in some stages.
+        Also, the input point cloud can come from terrestrail photogrammetry, TLS or mobile (e.g. hand-held) LS,
+        a combination of those, and/or a combination of those with UAV-(LS or SfM), or ALS.
+
+        The algorithm may be divided in three main steps:
+
+            1.	Identification of stems in an user-defined horizontal stripe.
+            2.	Tree individualization based on point-to-stem-axis distances.
+            3.	Robust computation of stem diameter at different section heights.
+
+        -----------------------------------------------------------------------------
+        ------------------   Heights in the input .LAS file    ----------------------
+        -----------------------------------------------------------------------------
+
+        This script uses Z and Z0 to describe coordinates referring to 'heights'.
+            - Z refers to the originally captured elevation in the point cloud
+            - Z0 refers to a normalized height (elevation from the ground).
+        This script needs normalized heights to work, but also admits elevation
+        coordinates and preserves them in the outputs, as additional information
+        Then, the input point cloud might include just just Z0, or both Z and Z0.
+
+        Before running script, it should be checked where are the normalized heights stored in the input file: 'z' or another field.
+        The name of that field is one of the basic input parameters:
+            - field_name_z0: Name of the field containing the height normalized data in the .LAS file.
+        If the normalized heights are stored in the z coordinate of the .LAS file, the value of field_name_z0 will be 'z' (lowercase).
+
+        -----------------------------------------------------------------------------
+        ------------------                Outputs              ----------------------
+        -----------------------------------------------------------------------------
+
+        After all computations are complete, the following files are output:
+        Filenames are: [original file name] + [specific suffix] + [.txt, .las or .ini]
+
+        LAS files (mainly for checking visually the outputs).
+        They can be open straightaway in CloudCompare, where 'colour visualization' of fields with additional information is straightforward
+
+        •	[original file name]_tree_ID_dist_axes: LAS file containing the original point cloud and a scalar field that contains tree IDs.
+        •	[original file name]_axes: LAS file containing stem axes coordinates.
+        •	[original file name]_circ: LAS file containing circles (sections) coordinates.
+        •	[original file name]_stripe: LAS file containing the stems obtained from the stripe during step 1.
+        •	[original file name]_tree_locator: LAS file containing the tree locators coordinates.
+        •	[original file name]_tree_heights: LAS file containing the highest point from each tree.
+
+        Text files with tabular data:
+            Files contain TAB-separated information with as many rows as trees detected in the plot and as many columns as stem sections considered
+            All units are m or points.
+            _outliers and _check_circle have no units
+
+        •	[original file name]_dbh_and_heights: Text file containing tree height, tree location and DBH of every tree as tabular data.
+        •	[original file name]_X_c: Text file containing the (x) coordinate of the centre of every section of every tree as tabular data.
+        •	[original file name]_Y_c: Text file containing the (y) coordinate of the centre of every section of every tree as tabular data.
+        •	[original file name]_diameters: Text file containing the diameter of every section of every tree as tabular data.
+        •	[original file name]_outliers: Text file containing the 'outlier probability' of every section of every tree as tabular data.
+        •	[original file name]_sector_perct: Text file containing the sector occupancy of every section of every tree as tabular data.
+        •	[original file name]_check_circle: Text file containing the 'check' status of every section of every tree as tabular data.
+        •	[original file name]_n_points_in: Text file containing the number of points within the inner circle of every section of every tree as tabular data.
+        •	[original file name]_sections: Text file containing the sections as a vector.
+
+        •	[original file name]_sections: ASCII file containing the configuration used for the run.
+        """
+        if self.config is None:
+            raise Exception("Please set configuration before running any processing")
+
+        self._pre_processing_hook()
         # -------------------------------------------------------------------------------------------------
         # NON MODIFIABLE. These parameters should never be modified by the user.
         # -------------------------------------------------------------------------------------------------
-
         X_field = 0  # Which column contains X field  - NON MODIFIABLE
         Y_field = 1  # Which column contains Y field  - NON MODIFIABLE
         Z_field = 2  # Which column contains Z field  - NON MODIFIABLE
-
         n_digits = 5  # Number of digits for voxel encoding.
 
-        base_group = self.point_cloud.getParent()
+        # Aliasing config
+        config = self.config
 
-        basepath_output = str(
-            Path(config.misc.output_dir) / Path(self.point_cloud.getName())
-        )
-        print(f"Output path is set to {basepath_output}")
+        # construct output_path
+        self._construct_output_path()
 
         t_t = timeit.default_timer()
 
+        # load the base_cloud if needed
+        self._load_base_cloud()
+
         if config.misc.is_normalized:
-            print(f"Using scalar field {config.basic.z0_name} (normalized height)")
-            # convert CC file
-            coords = np.c_[
-                self.point_cloud.points(),
-                self.point_cloud.getScalarField(
-                    self.point_cloud.getScalarFieldIndexByName(config.basic.z0_name)
-                ).asArray(),
-            ]
+            coords = self._get_xyz_z0_from_base()
             # Number of points and area occuped by the plot.
             print("---------------------------------------------")
             print("Analyzing cloud size...")
@@ -122,10 +221,7 @@ class CCPluginFinProcessing:
             print("---------------------------------------------")
 
         else:
-            # TODO(RJ) double conversion is only needed for DTM processing,
-            # But maybe it's worth generalizing it.
-            # CSF expect also fortran type arrays.
-            coords = np.asfortranarray(self.point_cloud.points()).astype(np.double)
+            coords = self._get_xyz_from_base()
 
             # Number of points and area occuped by the plot.
             print("---------------------------------------------")
@@ -175,11 +271,9 @@ class CCPluginFinProcessing:
                 print("Generating a Digital Terrain Model...")
                 print("---------------------------------------------")
                 t = timeit.default_timer()
-                print(config.expert.res_cloth)
-
                 # Extracting ground points and DTM
                 cloth_nodes = dm.generate_dtm(
-                    cloud=coords, cloth_resolution=config.expert.res_cloth
+                    coords, cloth_resolution=config.expert.res_cloth
                 )
 
                 elapsed = timeit.default_timer() - t
@@ -192,14 +286,8 @@ class CCPluginFinProcessing:
             # Cleaning the DTM
             dtm = dm.clean_cloth(cloth_nodes)
 
-            # Exporting the DTM
-            cloud_dtm = pycc.ccPointCloud(
-                dtm[:, X_field], dtm[:, Y_field], dtm[:, Z_field]
-            )
-            cloud_dtm.setName("dtm")
-            cloud_dtm.setEnabled(False)
-            base_group.addChild(cloud_dtm)
-            self.cc_instance.addToDB(cloud_dtm)
+            # export DTM
+            self._export_dtm(dtm)
 
             elapsed = timeit.default_timer() - t
             print("        ", "%.2f" % elapsed, "s: exporting the DTM")
@@ -267,63 +355,18 @@ class CCPluginFinProcessing:
         print("3.-Exporting .LAS files including complete cloud and stripe...")
         print("---------------------------------------------")
 
-        # Stripe
-        cloud_stripe = pycc.ccPointCloud(
-            clust_stripe[:, X_field], clust_stripe[:, Y_field], clust_stripe[:, Z_field]
-        )
-        cloud_stripe.setName("Stems in stripe")
-        CCPluginFinProcessing.write_sf(cloud_stripe, clust_stripe[:, -1], "tree_ID")
-        cloud_stripe.setCurrentDisplayedScalarField(0)
-        cloud_stripe.toggleSF()
-        cloud_stripe.setEnabled(False)
-        base_group.addChild(cloud_stripe)
-        self.cc_instance.addToDB(cloud_stripe)
-
-        # Append new field to bas point cloud
-        CCPluginFinProcessing.write_sf(
-            self.point_cloud, assigned_cloud[:, 5], "dist_axes"
-        )
-        CCPluginFinProcessing.write_sf(
-            self.point_cloud, assigned_cloud[:, 4], "tree_ID"
-        )
-        self.point_cloud.setEnabled(False)
-
-        if config.misc.is_noisy:
-            CCPluginFinProcessing.write_sf(self.point_cloud, assigned_cloud[:, 4], "Z0")
-
         t_las = timeit.default_timer()
+        # Export Stripe
+        self._export_stripe()
+
+        # Whole cloud including new fields
+        self._enrich_base_cloud()
+
         elapsed_las = timeit.default_timer() - t_las
         print("Total time:", "   %.2f" % elapsed_las, "s")
 
-        # Tree heights
-        cloud_tree_heights = pycc.ccPointCloud(
-            tree_heights[:, X_field], tree_heights[:, Y_field], tree_heights[:, Z_field]
-        )
-        cloud_tree_heights.setName("Highest points")
-        CCPluginFinProcessing.write_sf(cloud_tree_heights, tree_heights[:, 3], "z0")
-        CCPluginFinProcessing.write_sf(
-            cloud_tree_heights, tree_heights[:, 4], "deviated"
-        )
-        cloud_tree_heights.setPointSize(8)
-        z0 = cloud_tree_heights.getScalarField(0)  # z0
-
-        # Add label with z0 values
-        for i in range(len(cloud_tree_heights.points())):
-            hlabel = pycc.cc2DLabel(f"point{i}")
-            hlabel.addPickedPoint(cloud_tree_heights, i)
-            value = round(z0.asArray()[i], 2)
-            hlabel.setName(f"{value:.2f}")
-            hlabel.displayPointLegend(True)
-            hlabel.toggleVisibility()
-            hlabel.setDisplayedIn2D(False)
-            cloud_tree_heights.addChild(hlabel)
-            self.cc_instance.addToDB(hlabel)
-
-        # Set black color everywhere
-        cloud_tree_heights.setColor(0, 0, 0, 255)
-        cloud_tree_heights.toggleColors()
-        base_group.addChild(cloud_tree_heights)
-        self.cc_instance.addToDB(cloud_tree_heights, autoExpandDBTree=False)
+        # Export tree heights
+        self._export_tree_height(tree_heights)
 
         # stem extraction and curation
         print("---------------------------------------------")
@@ -388,6 +431,7 @@ class CCPluginFinProcessing:
         np.seterr(divide="ignore", invalid="ignore")
         outliers = dm.tilt_detection(X_c, Y_c, R, sections, w_1=3, w_2=1)
         np.seterr(divide="warn", invalid="warn")
+
         print("  ")
         print("---------------------------------------------")
         print("6.-Drawing circles and axes...")
@@ -395,7 +439,7 @@ class CCPluginFinProcessing:
 
         t_las2 = timeit.default_timer()
 
-        circ_coords = dm.generate_circles_cloud(
+        circles_coords = dm.generate_circles_cloud(
             X_c,
             Y_c,
             R,
@@ -412,27 +456,11 @@ class CCPluginFinProcessing:
             config.expert.m_number_sectors,
             config.expert.circa,
         )
-        # circles
-        cloud_circles = pycc.ccPointCloud(
-            circ_coords[:, X_field], circ_coords[:, Y_field], circ_coords[:, Z_field]
-        )
-        cloud_circles.setName("Fitted sections")
-        CCPluginFinProcessing.write_sf(cloud_circles, circ_coords[:, 4], "tree_ID")
-        CCPluginFinProcessing.write_sf(
-            cloud_circles, circ_coords[:, 5], "sector_occupancy_percent"
-        )
-        CCPluginFinProcessing.write_sf(
-            cloud_circles, circ_coords[:, 6], "pts_inner_circle"
-        )
-        CCPluginFinProcessing.write_sf(cloud_circles, circ_coords[:, 7], "Z0")
-        CCPluginFinProcessing.write_sf(cloud_circles, circ_coords[:, 8], "Diameter")
-        CCPluginFinProcessing.write_sf(cloud_circles, circ_coords[:, 9], "outlier_prob")
-        CCPluginFinProcessing.write_sf(cloud_circles, circ_coords[:, 10], "quality")
-        cloud_circles.toggleSF()
-        cloud_circles.setCurrentDisplayedScalarField(6)  # = quality
-        base_group.addChild(cloud_circles)
 
-        axes_point, tilt = dm.generate_axis_cloud(
+        # Export circles
+        self._export_circles(circles_coords)
+
+        axes, tilt = dm.generate_axis_cloud(
             tree_vector,
             config.expert.axis_downstep,
             config.expert.axis_upstep,
@@ -441,19 +469,8 @@ class CCPluginFinProcessing:
             config.expert.p_interval,
         )
 
-        # cloud axes
-        cloud_axes = pycc.ccPointCloud(
-            axes_point[:, X_field], axes_point[:, Y_field], axes_point[:, Z_field]
-        )
-        cloud_axes.setName("Axes")
-        CCPluginFinProcessing.write_sf(cloud_axes, tilt, "tilting_degree")
-        cloud_axes.toggleSF()
-        cloud_axes.setCurrentDisplayedScalarField(0)  # = tilting_degree
-        cloud_axes.setEnabled(False)
-        base_group.addChild(cloud_axes)
-
-        self.cc_instance.addToDB(cloud_axes)
-        self.cc_instance.addToDB(cloud_circles)
+        # Export axes
+        self._export_axes(axes, tilt)
 
         dbh_values, tree_locations = dm.tree_locator(
             sections,
@@ -470,41 +487,15 @@ class CCPluginFinProcessing:
             Z_field,
         )
 
-        # cloud axes
-        cloud_tree_locations = pycc.ccPointCloud(
-            tree_locations[:, X_field],
-            tree_locations[:, Y_field],
-            tree_locations[:, Z_field],
-        )
-        cloud_tree_locations.setName("Tree locator")
-        cloud_tree_locations.setPointSize(8)
-        CCPluginFinProcessing.write_sf(
-            cloud_tree_locations, dbh_values.reshape(-1), "dbh"
-        )
-        cloud_tree_locations.setColor(255, 0, 255, 255)
-        cloud_tree_locations.toggleColors()
-        dbh = cloud_tree_locations.getScalarField(0)  # dbh
+        # Export tree locations
+        self._export_tree_locations(tree_locations)
 
-        for i in range(len(cloud_tree_locations.points())):
-            dlabel = pycc.cc2DLabel(f"point{i}")
-            dlabel.addPickedPoint(cloud_tree_locations, i)
-            value = round(dbh.asArray()[i], 3)
-            if value == 0.0:
-                dlabel.setName("Non Reliable")
-            else:
-                dlabel.setName(f"{value:.3f}")
-            dlabel.displayPointLegend(True)
-            dlabel.toggleVisibility()
-            dlabel.setDisplayedIn2D(False)
-            cloud_tree_locations.addChild(dlabel)
-            self.cc_instance.addToDB(dlabel)
-
-        base_group.addChild(cloud_tree_locations)
-        self.cc_instance.addToDB(cloud_tree_locations, autoExpandDBTree=False)
-
+        # -------------------------------------------------------------------------------------------------------------
+        # Exporting results
+        # -------------------------------------------------------------------------------------------------------------
         export_tabular_data(
             config,
-            basepath_output,
+            str(self.basepath_output),
             X_c,
             Y_c,
             R,
@@ -519,12 +510,14 @@ class CCPluginFinProcessing:
             cloud_size,
             cloud_shape,
         )
+
         elapsed_las2 = timeit.default_timer() - t_las2
         print("Total time:", "   %.2f" % elapsed_las2, "s")
 
         elapsed_t = timeit.default_timer() - t_t
 
-        config.to_config_file(Path(basepath_output + "_config.ini"))
+        config.to_config_file(self.basepath_output + "_config.ini")
+
         # -------------------------------------------------------------------------------------------------------------
         print("---------------------------------------------")
         print("End of process!")
@@ -532,86 +525,4 @@ class CCPluginFinProcessing:
         print("Total time:", "   %.2f" % elapsed_t, "s")
         print("nº of trees:", X_c.shape[0])
 
-
-def _create_app_and_run(
-    plugin_functor: CCPluginFinProcessing, scalar_fields: list[str]
-):
-    """Encapsulate the 3DFin GUI and processing.
-
-    It also embed a custom fix for the HiDPI support that is broken when using tk
-    under the CloudCompare runtime. This function allow to run the fix and the app
-    on a dedicated thread thanx to pycc.RunInThread.
-
-    Parameters
-    ----------
-    plugin_functor : CCPluginFinProcessing
-        The functor you want to run inside the 3DFin application.
-    scalar_fields : list[str]
-        A list of scalar field names. These list will feed the dropdown menu
-        inside the 3DFin GUI.
-    """
-    # FIX for HidPI support on windows 10+
-    # The "bug" was sneaky for two reasons:
-    # - First, you should turn the DpiAwareness value to a counter intuitive value
-    # in other context you would assume to turn Dpi awarness at least >= 1 (PROCESS_SYSTEM_DPI_AWARE)
-    # but here, with TK the right value is 0 (PROCESS_DPI_UNAWARE) maybe because DPI is handled by CC process
-    # - Second, you can't use the usual SetProcessDpiAwareness function here because it could not be redefined
-    # when defined once somewhere (TODO: maybe we could try to redefine it at startup of CC-PythonPlugin see if it works)
-    # so we have to force it for the current thread with this one:
-    # TODO: we do not know how it's handled in other OSes.
-    import ctypes
-
-    awareness_code = ctypes.c_int()
-    if platform.system() == "Windows" and (
-        platform.release() == "10" or platform.release() == "11"
-    ):
-        import ctypes.wintypes  # reimport here, because sometimes it's not initialized
-
-        ctypes.windll.shcore.GetProcessDpiAwareness(0, ctypes.byref(awareness_code))
-        if awareness_code.value > 0:
-            ctypes.windll.user32.SetThreadDpiAwarenessContext(
-                ctypes.wintypes.HANDLE(-1)
-            )
-    fin_app = Application(
-        plugin_functor, file_externally_defined=True, cloud_fields=scalar_fields
-    )
-    fin_app.run()
-
-
-def main():
-    """Plugin main action."""
-    cc = pycc.GetInstance()
-
-    entities = cc.getSelectedEntities()
-    print(f"Selected entities: {entities}")
-
-    if not entities or len(entities) > 1:
-        raise RuntimeError("Please select one point cloud")
-
-    point_cloud = entities[0]
-
-    if not isinstance(point_cloud, pycc.ccPointCloud):
-        raise RuntimeError("Selected entity should be a point cloud")
-
-    # List all scalar fields to feed dropdown menu in the interface
-    scalar_fields: list[str] = []
-    for i in range(point_cloud.getNumberOfScalarFields()):
-        scalar_fields.append(point_cloud.getScalarFieldName(i))
-
-    # TODO: Detect if a user already have computed something on this cloud
-    # (based on scalar field and entities in the DBTree)
-    # and propose to force recompute (erase) or suggest to duplicate the point cloud.
-
-    # TODO: Handle big coodinates (could be tested but maybe wait for CC API update).
-    plugin_functor = CCPluginFinProcessing(cc, point_cloud)
-
-    cc.freezeUI(True)
-    try:
-        pycc.RunInThread(_create_app_and_run, plugin_functor, scalar_fields)
-        # _create_app_and_run(plugin_functor, scalar_fields)
-    except Exception:
-        raise RuntimeError(
-            "Something went wrong"
-        ) from None  # TODO: Catch exceptions into modals.
-    cc.freezeUI(False)
-    cc.updateUI()
+        self._post_processing_hook()
