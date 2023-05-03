@@ -357,10 +357,13 @@ class FinProcessing(ABC):
 
         t_las = timeit.default_timer()
         # Export Stripe
-        self._export_stripe()
+        self._export_stripe(clust_stripe)
 
-        # Whole cloud including new fields
-        self._enrich_base_cloud()
+        # Whole cloud including new
+        if not config.misc.is_normalized:
+            self._enrich_base_cloud(assigned_cloud, z0_values)
+        else:
+            self._enrich_base_cloud(assigned_cloud, None)
 
         elapsed_las = timeit.default_timer() - t_las
         print("Total time:", "   %.2f" % elapsed_las, "s")
@@ -488,7 +491,7 @@ class FinProcessing(ABC):
         )
 
         # Export tree locations
-        self._export_tree_locations(tree_locations)
+        self._export_tree_locations(tree_locations, dbh_values)
 
         # -------------------------------------------------------------------------------------------------------------
         # Exporting results
@@ -516,7 +519,7 @@ class FinProcessing(ABC):
 
         elapsed_t = timeit.default_timer() - t_t
 
-        config.to_config_file(self.basepath_output + "_config.ini")
+        config.to_config_file(Path(str(self.basepath_output) + "_config.ini"))
 
         # -------------------------------------------------------------------------------------------------------------
         print("---------------------------------------------")

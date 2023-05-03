@@ -174,7 +174,7 @@ def export_tabular_data(
         df_info_dbh_and_heights = pd.Series(info_dbh_and_heights)
         df_info_cloud_size = pd.Series(info_cloud_size)
 
-        xls_filename = basepath_output + ".xlsx"
+        xls_filename = str(basepath_output) + ".xlsx"
 
         # Creating an instance of a excel writer
         writer = pd.ExcelWriter(xls_filename, engine="xlsxwriter")
@@ -278,18 +278,22 @@ def export_tabular_data(
         writer.close()
 
     else:
-        np.savetxt(basepath_output + "_diameters.txt", R * 2, fmt=("%.3f"))
-        np.savetxt(basepath_output + "_X_c.txt", X_c, fmt=("%.3f"))
-        np.savetxt(basepath_output + "_Y_c.txt", Y_c, fmt=("%.3f"))
-        np.savetxt(basepath_output + "_check_circle.txt", check_circle, fmt=("%.3f"))
-        np.savetxt(basepath_output + "_n_points_in.txt", n_points_in, fmt=("%.3f"))
-        np.savetxt(basepath_output + "_sector_perct.txt", sector_perct, fmt=("%.3f"))
-        np.savetxt(basepath_output + "_outliers.txt", outliers, fmt=("%.3f"))
+        np.savetxt(str(basepath_output) + "_diameters.txt", R * 2, fmt=("%.3f"))
+        np.savetxt(str(basepath_output) + "_X_c.txt", X_c, fmt=("%.3f"))
+        np.savetxt(str(basepath_output) + "_Y_c.txt", Y_c, fmt=("%.3f"))
         np.savetxt(
-            basepath_output + "_dbh_and_heights.txt", dbh_and_heights, fmt=("%.3f")
+            str(basepath_output) + "_check_circle.txt", check_circle, fmt=("%.3f")
+        )
+        np.savetxt(str(basepath_output) + "_n_points_in.txt", n_points_in, fmt=("%.3f"))
+        np.savetxt(
+            str(basepath_output) + "_sector_perct.txt", sector_perct, fmt=("%.3f")
+        )
+        np.savetxt(str(basepath_output) + "_outliers.txt", outliers, fmt=("%.3f"))
+        np.savetxt(
+            str(basepath_output) + "_dbh_and_heights.txt", dbh_and_heights, fmt=("%.3f")
         )
         np.savetxt(
-            basepath_output + "_sections.txt",
+            str(basepath_output) + "_sections.txt",
             np.column_stack(sections),
             fmt=("%.3f"),
         )

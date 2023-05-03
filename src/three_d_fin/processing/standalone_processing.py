@@ -2,7 +2,8 @@ from pathlib import Path
 
 import laspy
 import numpy as np
-from abstract_processing import FinProcessing
+
+from three_d_fin.processing.abstract_processing import FinProcessing
 
 
 class StandaloneLASProcessing(FinProcessing):

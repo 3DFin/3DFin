@@ -74,7 +74,7 @@ def launch_application() -> int:
     print(__about__.__copyright_info_2__)
     print(__about__.__license_msg__)
 
-    fin_processing = StandaloneLASProcessing
+    fin_processing = StandaloneLASProcessing()
     # No subcommand, launch GUI
     if cli_parse.subcommand is None:
         # create the processing object
