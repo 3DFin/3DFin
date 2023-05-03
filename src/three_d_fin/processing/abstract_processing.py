@@ -1,7 +1,7 @@
 import timeit
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 import dendromatics as dm
 import numpy as np
@@ -16,7 +16,7 @@ class FinProcessing(ABC):
     I/O are defined as abstract methods that must be overridden by implementors .
     """
 
-    config: FinConfiguration | None = None
+    config: Optional[FinConfiguration] = None
 
     base_cloud: Any
 
@@ -78,7 +78,7 @@ class FinProcessing(ABC):
 
     @abstractmethod
     def _enrich_base_cloud(
-        self, assigned_cloud: np.ndarray, z0_values: np.ndarray | None
+        self, assigned_cloud: np.ndarray, z0_values: Optional[np.ndarray]
     ):
         pass
 

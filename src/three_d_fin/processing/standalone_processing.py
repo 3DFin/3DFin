@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Optional
 
 import laspy
 import numpy as np
@@ -60,7 +61,7 @@ class StandaloneLASProcessing(FinProcessing):
         las_stripe.write(str(self.basepath_output) + "_stripe.las")
 
     def _enrich_base_cloud(
-        self, assigned_cloud: np.ndarray, z0_values: np.ndarray | None
+        self, assigned_cloud: np.ndarray, z0_values: Optional[np.ndarray]
     ):
         self.base_cloud.add_extra_dims(
             [
@@ -74,12 +75,12 @@ class StandaloneLASProcessing(FinProcessing):
 
         if not self.config.misc.is_normalized:
             # In the case the user still want to use our CSF normalization but already have
-            # a field called Z0, adding the field with the same name will raise an exception. 
-            # So we have to check its existance before. 
-            # In this case no need to ask if we want to override, since it's saved 
+            # a field called Z0, adding the field with the same name will raise an exception.
+            # So we have to check its existance before.
+            # In this case no need to ask if we want to override, since it's saved
             # in another file instance
             # TODO: Maybe name this field in accordance with z0_name value
-            if self.base_cloud.Z0 is not None :
+            if self.base_cloud.Z0 is not None:
                 self.base_cloud.add_extra_dim(
                     laspy.ExtraBytesParams(name="Z0", type=np.float64)
                 )

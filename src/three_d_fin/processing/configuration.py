@@ -172,7 +172,7 @@ class MiscParameters(BaseModel):
     )
 
     @validator("input_file")
-    def valid_input_las(cls, v: FilePath | None):
+    def valid_input_las(cls, v: Optional[FilePath]):
         """Validate maximum_height field again minimum_height value."""
         if v is None:
             return v
