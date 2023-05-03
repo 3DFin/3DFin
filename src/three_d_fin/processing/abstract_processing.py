@@ -22,6 +22,8 @@ class FinProcessing(ABC):
 
     output_basepath: Path
 
+    overwrite: bool = False
+
     def set_config(self, config: FinConfiguration):
         """Set the configuration.
 
@@ -175,6 +177,7 @@ class FinProcessing(ABC):
         """
         if self.config is None:
             raise Exception("Please set configuration before running any processing")
+        
 
         self._pre_processing_hook()
         # -------------------------------------------------------------------------------------------------

@@ -1832,10 +1832,12 @@ class Application(tk.Tk):
         # Here we will check in an astract way if the output could collides
         # with previous computation. and ask if we want to overwrite them.
         if self.processing_object.check_already_computed_data():
-            a = messagebox.askyesnocancel(
+            overwrite = messagebox.askokcancel(
                 title="3DFin",
                 message="The output target already contains results from a previous 3DFin computation, do you want to overwrite them?",
             )
+            if not overwrite:
+                return
             
         # Now we do the processing in itself
         # TODO: handle exception in processing here
