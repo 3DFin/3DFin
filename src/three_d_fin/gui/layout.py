@@ -1801,7 +1801,6 @@ class Application(tk.Tk):
         """Validate I/O entries and run the processing callback."""
         params = self.get_parameters()
 
-        # TODO: some check are redundant with validation with pydantic
         # define a lambda to popup error for convenience
         def _show_error(error_msg: str) -> str:
             return messagebox.showerror(
@@ -1830,11 +1829,14 @@ class Application(tk.Tk):
             return
 
         self.processing_object.set_config(fin_config)
-        # TODO: Here we will check in an astract way if the output could collides
+        # Here we will check in an astract way if the output could collides
         # with previous computation. and ask if we want to overwrite them.
-        # if self.processing_object.check_already_computed_data()
-        # then popup "do you want to overrrides ?"
-
+        if self.processing_object.check_already_computed_data():
+            a = messagebox.askyesnocancel(
+                title="3DFin",
+                message="The output target already contains results from a previous 3DFin computation, do you want to overwrite them?",
+            )
+            
         # Now we do the processing in itself
         # TODO: handle exception in processing here
         self.processing_object.process()

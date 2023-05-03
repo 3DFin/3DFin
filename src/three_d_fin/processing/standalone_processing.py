@@ -15,8 +15,34 @@ class StandaloneLASProcessing(FinProcessing):
         self.basepath_output = Path(self.config.misc.output_dir) / Path(basename_las)
 
     def check_already_computed_data(self) -> bool:
-        """See base class doc string, Not implemented yet."""
-        pass
+        self._construct_output_path()
+        any_of = False
+        # Check existence of las output
+        any_of |= Path(str(self.basepath_output) + "_dtm_points.las").exists()
+        any_of |= Path(str(self.basepath_output) + "_stripe.las").exists()
+        any_of |= Path(str(self.basepath_output) + "_tree_ID_dist_axes.las").exists()
+        any_of |= Path(str(self.basepath_output) + "_tree_heights.las").exists()
+        any_of |= Path(str(self.basepath_output) + "_circ.las").exists()
+        any_of |= Path(str(self.basepath_output) + "_axes.las").exists()
+        any_of |= Path(str(self.basepath_output) + "_tree_locator.las").exists()
+
+        # Check existence of tabular output
+        if self.config.misc.export_txt:
+            any_of |= Path(str(self.basepath_output) + "_diameters.txt").exists()
+            any_of |= Path(str(self.basepath_output) + "_X_c.txt").exists()
+            any_of |= Path(str(self.basepath_output) + "_Y_c.txt").exists()
+            any_of |= Path(str(self.basepath_output) + "_check_circle.txt").exists()
+            any_of |= Path(str(self.basepath_output) + "_n_points_in.txt").exists()
+            any_of |= Path(str(self.basepath_output) + "_sector_perct.txt").exists()
+            any_of |= Path(str(self.basepath_output) + "_outliers.txt").exists()
+            any_of |= Path(str(self.basepath_output) + "_dbh_and_heights.txt").exists()
+            any_of |= Path(str(self.basepath_output) + "_sections.txt").exists()
+        else:
+            any_of |= Path(str(self.basepath_output) + ".xlsx").exists()
+        # Check existence of ini output
+        any_of |= Path(str(self.basepath_output) + "_config.ini").exists()
+
+        return any_of
 
     def _pre_processing_hook(self):
         pass
@@ -80,7 +106,7 @@ class StandaloneLASProcessing(FinProcessing):
             # In this case no need to ask if we want to override, since it's saved
             # in another file instance
             # TODO: Maybe name this field in accordance with z0_name value
-            if self.base_cloud.Z0 is not None:
+            if self.base_cloud.Z0 is None:
                 self.base_cloud.add_extra_dim(
                     laspy.ExtraBytesParams(name="Z0", type=np.float64)
                 )
