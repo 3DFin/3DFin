@@ -73,10 +73,16 @@ class StandaloneLASProcessing(FinProcessing):
         self.base_cloud.tree_ID = assigned_cloud[:, 4]
 
         if not self.config.misc.is_normalized:
-            # No need to ask if we want to override, since it's saved in another file instance
-            self.base_cloud.add_extra_dim(
-                laspy.ExtraBytesParams(name="Z0", type=np.float64)
-            )
+            # In the case the user still want to use our CSF normalization but already have
+            # a field called Z0, adding the field with the same name will raise an exception. 
+            # So we have to check its existance before. 
+            # In this case no need to ask if we want to override, since it's saved 
+            # in another file instance
+            # TODO: Maybe name this field in accordance with z0_name value
+            if self.base_cloud.Z0 is not None :
+                self.base_cloud.add_extra_dim(
+                    laspy.ExtraBytesParams(name="Z0", type=np.float64)
+                )
             self.base_cloud.Z0 = z0_values
         self.base_cloud.write(str(self.basepath_output) + "_tree_ID_dist_axes.las")
 
