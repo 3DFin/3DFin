@@ -1,4 +1,5 @@
 import tkinter as tk
+from typing import Optional
 
 
 class ToolTip(object):
@@ -10,7 +11,7 @@ class ToolTip(object):
     x: int = 0
     y: int = 0
     widget: tk.Widget
-    tipwindow: tk.Toplevel | None
+    tipwindow: Optional[tk.Toplevel]
 
     def __init__(self, widget: tk.Widget):
         """ToolTip Constructor.
@@ -22,8 +23,8 @@ class ToolTip(object):
         widget : tk.Widget
             Widget documented by the ToolTip instance.
         """
-        self.widget: tk.Widget = widget
-        self.tipwindow: tk.Toplevel | None = None
+        self.widget = widget
+        self.tipwindow = None
 
     def showtip(self, text: str) -> None:
         """Display text in tooltip window.
