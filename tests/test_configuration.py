@@ -11,7 +11,7 @@ def test_load_from_file():
     Parse it as an object and check that the lower_limit field is not set to
     default value anymore.
 
-    Additionnaly do an obvious check: a parsed config file is equivalent to the
+    Additionally do an obvious check: a parsed config file is equivalent to the
     same file loaded via static method From_config_file().
     """
     config_file = configparser.ConfigParser()
