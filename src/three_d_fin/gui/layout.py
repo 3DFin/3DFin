@@ -382,7 +382,8 @@ class Application(tk.Tk):
 
         ttk.Label(
             self.basic_tab,
-            text="The algorithm requires a height-normalized point cloud, such as the one above.",
+            text="3DFin is able to normalize heights automatically, but also\n"
+            "allows using already height-normalized point clouds.",
         ).grid(column=6, row=13, columnspan=2, sticky="N")
 
         #### Adding radio buttons
