@@ -62,16 +62,18 @@ class StandaloneLASProcessing(FinProcessing):
     def _enrich_base_cloud(
         self, assigned_cloud: np.ndarray, z0_values: np.ndarray | None
     ):
-        self.base_cloud.add_extra_dim(
-            laspy.ExtraBytesParams(name="dist_axes", type=np.float64)
+        self.base_cloud.add_extra_dims(
+            [
+                laspy.ExtraBytesParams(name="dist_axes", type=np.float64),
+                laspy.ExtraBytesParams(name="tree_ID", type=np.int32),
+            ]
         )
-        self.base_cloud.add_extra_dim(
-            laspy.ExtraBytesParams(name="tree_ID", type=np.int32)
-        )
+
         self.base_cloud.dist_axes = assigned_cloud[:, 5]
         self.base_cloud.tree_ID = assigned_cloud[:, 4]
 
         if not self.config.misc.is_normalized:
+            # No need to ask if we want to override, since it's saved in another file instance
             self.base_cloud.add_extra_dim(
                 laspy.ExtraBytesParams(name="Z0", type=np.float64)
             )
@@ -83,16 +85,15 @@ class StandaloneLASProcessing(FinProcessing):
         las_tree_heights.x = tree_heights[:, 0]
         las_tree_heights.y = tree_heights[:, 1]
         las_tree_heights.z = tree_heights[:, 2]
-        las_tree_heights.add_extra_dim(
-            laspy.ExtraBytesParams(name="z0", type=np.float64)
+        las_tree_heights.add_extra_dims(
+            [
+                laspy.ExtraBytesParams(name="z0", type=np.float64),
+                laspy.ExtraBytesParams(name="deviated", type=np.int32),
+            ]
         )
         las_tree_heights.z0 = tree_heights[:, 3]
-        las_tree_heights.add_extra_dim(
-            laspy.ExtraBytesParams(name="deviated", type=np.int32)
-        )
-        las_tree_heights.deviated = tree_heights[
-            :, 4
-        ]  # vertical deviation binary indicator
+        # vertical deviation binary indicator
+        las_tree_heights.deviated = tree_heights[:, 4]
         las_tree_heights.write(str(self.basepath_output) + "_tree_heights.las")
 
     def _export_circles(self, circles_coords: np.ndarray):
@@ -102,31 +103,26 @@ class StandaloneLASProcessing(FinProcessing):
         las_circ.y = circles_coords[:, 1]
         las_circ.z = circles_coords[:, 2]
 
-        las_circ.add_extra_dim(laspy.ExtraBytesParams(name="tree_ID", type=np.int32))
+        las_circ.add_extra_dims(
+            [
+                laspy.ExtraBytesParams(name="tree_ID", type=np.int32),
+                laspy.ExtraBytesParams(
+                    name="sector_occupancy_percent", type=np.float64
+                ),
+                laspy.ExtraBytesParams(name="pts_inner_circle", type=np.int32),
+                laspy.ExtraBytesParams(name="Z0", type=np.float64),
+                laspy.ExtraBytesParams(name="Diameter", type=np.float64),
+                laspy.ExtraBytesParams(name="outlier_prob", type=np.float64),
+                laspy.ExtraBytesParams(name="quality", type=np.int32),
+            ]
+        )
+
         las_circ.tree_ID = circles_coords[:, 4]
-
-        las_circ.add_extra_dim(
-            laspy.ExtraBytesParams(name="sector_occupancy_percent", type=np.float64)
-        )
         las_circ.sector_occupancy_percent = circles_coords[:, 5]
-
-        las_circ.add_extra_dim(
-            laspy.ExtraBytesParams(name="pts_inner_circle", type=np.int32)
-        )
         las_circ.pts_inner_circle = circles_coords[:, 6]
-
-        las_circ.add_extra_dim(laspy.ExtraBytesParams(name="Z0", type=np.float64))
         las_circ.Z0 = circles_coords[:, 7]
-
-        las_circ.add_extra_dim(laspy.ExtraBytesParams(name="Diameter", type=np.float64))
         las_circ.Diameter = circles_coords[:, 8]
-
-        las_circ.add_extra_dim(
-            laspy.ExtraBytesParams(name="outlier_prob", type=np.float64)
-        )
         las_circ.outlier_prob = circles_coords[:, 9]
-
-        las_circ.add_extra_dim(laspy.ExtraBytesParams(name="quality", type=np.int32))
         las_circ.quality = circles_coords[:, 10]
 
         las_circ.write(str(self.basepath_output) + "_circ.las")
