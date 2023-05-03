@@ -1,5 +1,6 @@
 import configparser
 from pathlib import Path
+from typing import Optional
 
 import laspy
 from pydantic import (
@@ -165,7 +166,7 @@ class MiscParameters(BaseModel):
     is_noisy: bool = Field(title="Is cloud noisy", default=False)
     export_txt: bool = Field(title="Export tabular data to txt", default=False)
     # input file is not mandatory and could be provided by another mean.
-    input_file: FilePath | None = Field(title="Input file", default=None)
+    input_file: Optional[FilePath] = Field(title="Input file", default=None)
     output_dir: DirectoryPath = Field(
         title="Output dir", default_factory=lambda: Path.home()
     )
@@ -186,7 +187,7 @@ class FinConfiguration(BaseModel):
     basic: BasicParameters = BasicParameters()
     advanced: AdvancedParameters = AdvancedParameters()
     expert: ExpertParameters = ExpertParameters()
-    misc: MiscParameters | None = MiscParameters()  # Misc parameters are optional.
+    misc: Optional[MiscParameters] = MiscParameters()  # Misc parameters are optional.
 
     @classmethod
     def From_config_file(
