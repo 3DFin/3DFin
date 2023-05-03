@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 
@@ -6,7 +8,7 @@ from three_d_fin.processing.configuration import FinConfiguration
 
 def export_tabular_data(
     config: FinConfiguration,
-    basepath_output: str,
+    basepath_output: Path,
     X_c: np.ndarray,
     Y_c: np.ndarray,
     R: np.ndarray,

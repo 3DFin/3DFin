@@ -4,7 +4,7 @@ import tkinter as tk
 from inspect import cleandoc
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
-from typing import Any, Callable, Optional
+from typing import Any, Optional
 
 import laspy
 from PIL import Image, ImageTk
@@ -13,6 +13,7 @@ from pydantic.fields import ModelField
 
 from three_d_fin import __about__
 from three_d_fin.gui.tooltip import ToolTip
+from three_d_fin.processing.abstract_processing import FinProcessing
 from three_d_fin.processing.configuration import (
     FinConfiguration,
 )
@@ -23,7 +24,7 @@ class Application(tk.Tk):
 
     def __init__(
         self,
-        processing_callback: Callable[[dict[str, dict[str, Any]]], None],
+        processing_object: FinProcessing,
         file_externally_defined: bool = False,
         cloud_fields: Optional[set[str]] = None,
     ):
@@ -31,9 +32,10 @@ class Application(tk.Tk):
 
         Parameters
         ----------
-        processing_callback : Callable[[dict[str, dict[str, Any]]]
-            Callback/Functor that is responsible for the computing logic.
-            It is triggered by the "compute" button of the GUI.
+        processing_object : FinProcessing
+            An implementation of the abstract FinProcessing class.
+            it is responsible for the computing logic.
+            Its process() method is triggered by the "compute" button of the GUI.
         file_externally_defined : bool
             Whether or not the file/filename was already defined by a third party.
             if True, input_las input and buttons will be disabled.
@@ -44,7 +46,7 @@ class Application(tk.Tk):
             TODO: we can imagine, no z0 fields and z == z0
         """
         tk.Tk.__init__(self)
-        self.processing_callback = processing_callback
+        self.processing_object = processing_object
         self.file_externally_defined = file_externally_defined
         self.cloud_fields = cloud_fields
         self._bootstrap()
@@ -1805,9 +1807,6 @@ class Application(tk.Tk):
                 parent=self, title="3DFin Error", message=error_msg
             )
 
-        # TODO: Here we could check if the output directory already contains some
-        # compatible processing results to ask if we want to overwrite them.
-
         # Pydantic checks, we check the validity of the data
         try:
             fin_config = FinConfiguration.parse_obj(params)
@@ -1829,8 +1828,15 @@ class Application(tk.Tk):
             _show_error(final_msg)
             return
 
+        self.processing_object.set_config(fin_config)
+        # TODO: Here we will check in an astract way if the output could collides
+        # with previous computation. and ask if we want to overwrite them.
+        # if self.processing_object.check_already_computed_data()
+        # then popup "do you want to overrrides ?"
+
+        # Now we do the processing in itself
         # TODO: handle exception in processing here
-        self.processing_callback(fin_config)
+        self.processing_object.process()
 
     def _bootstrap(self) -> None:
         """Create the GUI."""

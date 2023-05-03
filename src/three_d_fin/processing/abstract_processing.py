@@ -100,7 +100,7 @@ class FinProcessing(ABC):
     ):
         pass
 
-    def processing(self):
+    def process(self):
         """3DFin main algorithm.
 
         -----------------------------------------------------------------------------
@@ -495,7 +495,7 @@ class FinProcessing(ABC):
         # -------------------------------------------------------------------------------------------------------------
         export_tabular_data(
             config,
-            str(self.basepath_output),
+            self.basepath_output,
             X_c,
             Y_c,
             R,

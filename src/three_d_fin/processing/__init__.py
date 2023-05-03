@@ -23,8 +23,8 @@ def launch_application() -> int:
 
     from three_d_fin import __about__
     from three_d_fin.gui.layout import Application
-    from three_d_fin.processing import algorithm
     from three_d_fin.processing.configuration import FinConfiguration, MiscParameters
+    from three_d_fin.processing.standalone_processing import StandaloneLASProcessing
 
     EXIT_ERROR = 1
     EXIT_SUCCESS = 0
@@ -73,9 +73,12 @@ def launch_application() -> int:
     print(__about__.__copyright_info_1__)
     print(__about__.__copyright_info_2__)
     print(__about__.__license_msg__)
+
+    fin_processing = StandaloneLASProcessing
     # No subcommand, launch GUI
     if cli_parse.subcommand is None:
-        fin_app = Application(algorithm.fin_callback)
+        # create the processing object
+        fin_app = Application(fin_processing)
         _ = fin_app.run()
         # TODO it's always sucess for now but we should do exception handling
         return EXIT_SUCCESS
@@ -142,6 +145,7 @@ def launch_application() -> int:
         misc=misc,
     )
     # Run processing
-    algorithm.fin_callback(final_params)
+    fin_processing.set_config(final_params)
+    fin_processing.process()
     # TODO it's always sucess for now but we should do exception handling
     return EXIT_SUCCESS
