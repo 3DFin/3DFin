@@ -15,6 +15,7 @@ class StandaloneLASProcessing(FinProcessing):
         self.basepath_output = Path(self.config.misc.output_dir) / Path(basename_las)
 
     def check_already_computed_data(self) -> bool:
+        """Check for already computed data in target directory."""
         self._construct_output_path()
         any_of = False
         # Check existence of las output

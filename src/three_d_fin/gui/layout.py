@@ -1838,7 +1838,7 @@ class Application(tk.Tk):
             )
             if not overwrite:
                 return
-            
+
         # Now we do the processing in itself
         # TODO: handle exception in processing here
         self.processing_object.process()

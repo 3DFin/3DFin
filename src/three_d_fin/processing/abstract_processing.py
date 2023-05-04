@@ -35,10 +35,6 @@ class FinProcessing(ABC):
         self.config = config
 
     @abstractmethod
-    def _construct_output_path(self):
-        pass
-
-    @abstractmethod
     def check_already_computed_data(self) -> bool:
         """Check if the processing algorithm output is likely to collides with data from a previous computation.
 
@@ -48,6 +44,10 @@ class FinProcessing(ABC):
             True if the algorithm output could be in competition with data from a previous computation,
             False otherwise.
         """
+        pass
+
+    @abstractmethod
+    def _construct_output_path(self):
         pass
 
     @abstractmethod
@@ -177,7 +177,6 @@ class FinProcessing(ABC):
         """
         if self.config is None:
             raise Exception("Please set configuration before running any processing")
-        
 
         self._pre_processing_hook()
         # -------------------------------------------------------------------------------------------------
