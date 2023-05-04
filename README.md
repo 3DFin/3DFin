@@ -5,9 +5,24 @@ Welcome to 3DFin: 3D Forest inventory's official repository!
 
 3DFin is a free software for automatic computation of tree parameters in terrestrial point clouds. It offers the users a quick, ease-of-use interface to load their forest plots and generate tree metrics with just a few clicks.
 
-3DFin is available as a standalone program, which can be downloaded from [Releases](https://github.com/3DFin/3DFin/releases/). From there, simply click on __3DFin.exe__.
-
 Be sure to check the [Documentation](https://github.com/3DFin/3DFin/blob/main/src/three_d_fin/assets/documentation.pdf), which features detailed explanations on how the program works and an User manual.
+
+
+# Download 
+
+3DFin is available in Windows as a standalone program, which can be downloaded from here: [Download](https://github.com/3DFin/3DFin/releases/download/3DFin.exe).
+
+Older versions of 3DFin may also be downloaded from [Releases](https://github.com/3DFin/3DFin/releases/). From there, simply navigate to the desired version and click on __3DFin.exe__.
+
+3DFin may be launched from the command line as well after downloading the repository. To do so, simply change the working directory to `src` folder and use the following command:
+
+```
+
+python -m three_d_fin
+
+```
+
+For this last alternative to work you must install the required dependencies listed in `pyproject.toml` (/3DFin/3DFin/pyproject.toml).
 
 
 # Further releases
