@@ -64,6 +64,7 @@ class CloudComparePluginProcessing(FinProcessing):
 
 
     def check_already_computed_data(self) -> bool:
+        """See base class documentation"""
         self._construct_output_path()
         entity_names = ["dtm", "Highest points", "Fitted sections", "Axes",  "Tree locator", "Stems in stripe"]
         for i in range(self.base_cloud.getParent().getChildrenNumber()):
@@ -102,13 +103,14 @@ class CloudComparePluginProcessing(FinProcessing):
             return
 
         entity_names = ["dtm", "Highest points", "Fitted sections", "Axes",  "Tree locator", "Stems in stripe"]
-        
+
         for name in entity_names: # search for name and after that for id, else iterator would be invalidated
             for i in range(self.base_group.getChildrenNumber()):
                 entity = self.base_group.getChild(i)
                 if name == entity.getName():
                     self.cc_instance.removeFromDB(entity)
-            
+                    break # avoid iterator invalidation
+
         # Check for scalar fields....
         id_dist_axes = self.base_cloud.getScalarFieldIndexByName("dist_axes")
         if id_dist_axes > -1:
@@ -370,7 +372,7 @@ def main():
     cc.freezeUI(True)
     try:
         pycc.RunInThread(_create_app_and_run, plugin_functor, scalar_fields)
-        # _create_app_and_run(plugin_functor, scalar_fields)
+        #_create_app_and_run(plugin_functor, scalar_fields)
     except Exception:
         raise RuntimeError(
             "Something went wrong"
