@@ -12,36 +12,36 @@ class StandaloneLASProcessing(FinProcessing):
 
     def _construct_output_path(self):
         basename_las = Path(self.config.misc.input_file).stem
-        self.basepath_output = Path(self.config.misc.output_dir) / Path(basename_las)
+        self.output_basepath = Path(self.config.misc.output_dir) / Path(basename_las)
 
     def check_already_computed_data(self) -> bool:
         """Check for already computed data in target directory."""
         self._construct_output_path()
         any_of = False
         # Check existence of las output
-        any_of |= Path(str(self.basepath_output) + "_dtm_points.las").exists()
-        any_of |= Path(str(self.basepath_output) + "_stripe.las").exists()
-        any_of |= Path(str(self.basepath_output) + "_tree_ID_dist_axes.las").exists()
-        any_of |= Path(str(self.basepath_output) + "_tree_heights.las").exists()
-        any_of |= Path(str(self.basepath_output) + "_circ.las").exists()
-        any_of |= Path(str(self.basepath_output) + "_axes.las").exists()
-        any_of |= Path(str(self.basepath_output) + "_tree_locator.las").exists()
+        any_of |= Path(str(self.output_basepath) + "_dtm_points.las").exists()
+        any_of |= Path(str(self.output_basepath) + "_stripe.las").exists()
+        any_of |= Path(str(self.output_basepath) + "_tree_ID_dist_axes.las").exists()
+        any_of |= Path(str(self.output_basepath) + "_tree_heights.las").exists()
+        any_of |= Path(str(self.output_basepath) + "_circ.las").exists()
+        any_of |= Path(str(self.output_basepath) + "_axes.las").exists()
+        any_of |= Path(str(self.output_basepath) + "_tree_locator.las").exists()
 
         # Check existence of tabular output
         if self.config.misc.export_txt:
-            any_of |= Path(str(self.basepath_output) + "_diameters.txt").exists()
-            any_of |= Path(str(self.basepath_output) + "_X_c.txt").exists()
-            any_of |= Path(str(self.basepath_output) + "_Y_c.txt").exists()
-            any_of |= Path(str(self.basepath_output) + "_check_circle.txt").exists()
-            any_of |= Path(str(self.basepath_output) + "_n_points_in.txt").exists()
-            any_of |= Path(str(self.basepath_output) + "_sector_perct.txt").exists()
-            any_of |= Path(str(self.basepath_output) + "_outliers.txt").exists()
-            any_of |= Path(str(self.basepath_output) + "_dbh_and_heights.txt").exists()
-            any_of |= Path(str(self.basepath_output) + "_sections.txt").exists()
+            any_of |= Path(str(self.output_basepath) + "_diameters.txt").exists()
+            any_of |= Path(str(self.output_basepath) + "_X_c.txt").exists()
+            any_of |= Path(str(self.output_basepath) + "_Y_c.txt").exists()
+            any_of |= Path(str(self.output_basepath) + "_check_circle.txt").exists()
+            any_of |= Path(str(self.output_basepath) + "_n_points_in.txt").exists()
+            any_of |= Path(str(self.output_basepath) + "_sector_perct.txt").exists()
+            any_of |= Path(str(self.output_basepath) + "_outliers.txt").exists()
+            any_of |= Path(str(self.output_basepath) + "_dbh_and_heights.txt").exists()
+            any_of |= Path(str(self.output_basepath) + "_sections.txt").exists()
         else:
-            any_of |= Path(str(self.basepath_output) + ".xlsx").exists()
+            any_of |= Path(str(self.output_basepath) + ".xlsx").exists()
         # Check existence of ini output
-        any_of |= Path(str(self.basepath_output) + "_config.ini").exists()
+        any_of |= Path(str(self.output_basepath) + "_config.ini").exists()
 
         return any_of
 
@@ -75,7 +75,7 @@ class StandaloneLASProcessing(FinProcessing):
         las_dtm_points.y = dtm[:, 1]
         las_dtm_points.z = dtm[:, 2]
 
-        las_dtm_points.write(str(self.basepath_output) + "_dtm_points.las")
+        las_dtm_points.write(str(self.output_basepath) + "_dtm_points.las")
 
     def _export_stripe(self, clust_stripe: np.ndarray):
         las_stripe = laspy.create(point_format=2, file_version="1.2")
@@ -85,7 +85,7 @@ class StandaloneLASProcessing(FinProcessing):
 
         las_stripe.add_extra_dim(laspy.ExtraBytesParams(name="tree_ID", type=np.int32))
         las_stripe.tree_ID = clust_stripe[:, -1]
-        las_stripe.write(str(self.basepath_output) + "_stripe.las")
+        las_stripe.write(str(self.output_basepath) + "_stripe.las")
 
     def _enrich_base_cloud(
         self, assigned_cloud: np.ndarray, z0_values: Optional[np.ndarray]
@@ -112,7 +112,7 @@ class StandaloneLASProcessing(FinProcessing):
                     laspy.ExtraBytesParams(name="Z0", type=np.float64)
                 )
             self.base_cloud.Z0 = z0_values
-        self.base_cloud.write(str(self.basepath_output) + "_tree_ID_dist_axes.las")
+        self.base_cloud.write(str(self.output_basepath) + "_tree_ID_dist_axes.las")
 
     def _export_tree_height(self, tree_heights):
         las_tree_heights = laspy.create(point_format=2, file_version="1.2")
@@ -128,7 +128,7 @@ class StandaloneLASProcessing(FinProcessing):
         las_tree_heights.z0 = tree_heights[:, 3]
         # vertical deviation binary indicator
         las_tree_heights.deviated = tree_heights[:, 4]
-        las_tree_heights.write(str(self.basepath_output) + "_tree_heights.las")
+        las_tree_heights.write(str(self.output_basepath) + "_tree_heights.las")
 
     def _export_circles(self, circles_coords: np.ndarray):
         # LAS file containing circle coordinates.
@@ -159,7 +159,7 @@ class StandaloneLASProcessing(FinProcessing):
         las_circ.outlier_prob = circles_coords[:, 9]
         las_circ.quality = circles_coords[:, 10]
 
-        las_circ.write(str(self.basepath_output) + "_circ.las")
+        las_circ.write(str(self.output_basepath) + "_circ.las")
 
     def _export_axes(self, axes_points: np.ndarray, tilt: np.ndarray):
         las_axes = laspy.create(point_format=2, file_version="1.2")
@@ -171,7 +171,7 @@ class StandaloneLASProcessing(FinProcessing):
         )
         las_axes.tilting_degree = tilt
 
-        las_axes.write(str(self.basepath_output) + "_axes.las")
+        las_axes.write(str(self.output_basepath) + "_axes.las")
 
     def _export_tree_locations(
         self, tree_locations: np.ndarray, dbh_values: np.ndarray
@@ -185,4 +185,4 @@ class StandaloneLASProcessing(FinProcessing):
         )
         las_tree_locations.diameters = dbh_values[:, 0]
 
-        las_tree_locations.write(str(self.basepath_output) + "_tree_locator.las")
+        las_tree_locations.write(str(self.output_basepath) + "_tree_locator.las")

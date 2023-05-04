@@ -1,10 +1,12 @@
 import platform
+from pathlib import Path
 from typing import Optional
 
 import numpy as np
 import pycc
 
 from three_d_fin.gui.layout import Application
+from three_d_fin.processing.abstract_processing import FinProcessing
 
 
 class ThreeDFinCC(pycc.PythonPluginInterface):
@@ -19,21 +21,105 @@ class ThreeDFinCC(pycc.PythonPluginInterface):
         return [pycc.Action(name="3DFin", target=main)]
 
 
-class CloudComparePluginProcessing:
+class CloudComparePluginProcessing(FinProcessing):
     """Implement the FinProcessing interface for CloudCompare in a plugin context."""
 
     base_group: pycc.ccHObject
 
     delayed_add_to_db: list[tuple[pycc.ccHObject, bool]] = list()
 
+    @staticmethod
+    def write_sf(point_cloud: pycc.ccPointCloud, scalar_field: np.ndarray, name: str):
+        """Write a scalar field on a pycc.PointCloud.
+
+        Parameters
+        ----------
+        point_cloud : pycc.ccPointCloud
+            Point cloud targetted by the 3DFin processing.
+        scalar_field : np.ndarray
+            Numpy vector discribing the scalar field.
+        name: str
+            Name of the scalar_field to write.
+        """
+        idx_sf = point_cloud.addScalarField(name)
+        sf_array = point_cloud.getScalarField(idx_sf).asArray()
+        sf_array[:] = scalar_field.astype(np.float32)[:]
+        point_cloud.getScalarField(idx_sf).computeMinAndMax()
+
+    def __init__(
+        self, cc_instance: pycc.ccPythonInstance, point_cloud: pycc.ccPointCloud
+    ):
+        """Construct the functor object.
+
+        Parameters
+        ----------
+        cc_instance : pycc.ccPythonInstance
+            Current cc application, wrapped by CloudCompare-PythonPlugin.
+        point_cloud : pycc.ccPointCloud
+            Point cloud targetted by the 3DFin processing.
+        """
+        self.base_cloud = point_cloud
+        self.base_group = point_cloud.getParent()
+        self.cc_instance = cc_instance
+
+
+    def check_already_computed_data(self) -> bool:
+        self._construct_output_path()
+        entity_names = ["dtm", "Highest points", "Fitted sections", "Axes",  "Tree locator", "Stems in stripe"]
+        for i in range(self.base_cloud.getParent().getChildrenNumber()):
+            name = self.base_group.getChild(i).getName()
+            if name in entity_names:
+                self.overwrite = True
+                return True
+
+        any_of = False
+        # Check for scalar fields....
+        any_of |= self.base_cloud.getScalarFieldIndexByName("dist_axes") == -1
+        any_of |= self.base_cloud.getScalarFieldIndexByName("tree_ID") == -1
+        # Check existence of tabular output
+        if self.config.misc.export_txt:
+            any_of |= Path(str(self.output_basepath) + "_diameters.txt").exists()
+            any_of |= Path(str(self.output_basepath) + "_X_c.txt").exists()
+            any_of |= Path(str(self.output_basepath) + "_Y_c.txt").exists()
+            any_of |= Path(str(self.output_basepath) + "_check_circle.txt").exists()
+            any_of |= Path(str(self.output_basepath) + "_n_points_in.txt").exists()
+            any_of |= Path(str(self.output_basepath) + "_sector_perct.txt").exists()
+            any_of |= Path(str(self.output_basepath) + "_outliers.txt").exists()
+            any_of |= Path(str(self.output_basepath) + "_dbh_and_heights.txt").exists()
+            any_of |= Path(str(self.output_basepath) + "_sections.txt").exists()
+        else:
+            any_of |= Path(str(self.output_basepath) + ".xlsx").exists()
+        # Check existence of ini output
+        any_of |= Path(str(self.output_basepath) + "_config.ini").exists()
+        self.overwrite = any_of
+        return any_of
+
     def _construct_output_path(self):
-        pass
+        self.output_basepath = Path(self.config.misc.output_dir) / Path(self.base_cloud.getName())
 
     def _pre_processing_hook(self):
-        self.base_group = self.point_cloud.getParent()
+        if not self.overwrite:
+            return
+
+        entity_names = ["dtm", "Highest points", "Fitted sections", "Axes",  "Tree locator", "Stems in stripe"]
+        
+        for name in entity_names: # search for name and after that for id, else iterator would be invalidated
+            for i in range(self.base_group.getChildrenNumber()):
+                entity = self.base_group.getChild(i)
+                if name == entity.getName():
+                    self.cc_instance.removeFromDB(entity)
+            
+        # Check for scalar fields....
+        id_dist_axes = self.base_cloud.getScalarFieldIndexByName("dist_axes")
+        if id_dist_axes > -1:
+            self.base_cloud.deleteScalarField(id_dist_axes)
+
+        id_tree_ID = self.base_cloud.getScalarFieldIndexByName("tree_ID")
+        if id_tree_ID > -1:
+            self.base_cloud.deleteScalarField(id_tree_ID)
 
     def _post_processing_hook(self):
-        # TODO delay all AddToDb call here
+        # TODO we could delay all AddToDb call here
         pass
 
     def _load_base_cloud(self):
@@ -41,9 +127,9 @@ class CloudComparePluginProcessing:
 
     def _get_xyz_z0_from_base(self) -> np.ndarray:
         return np.c_[
-            self.point_cloud.points(),
-            self.point_cloud.getScalarField(
-                self.point_cloud.getScalarFieldIndexByName(self.config.basic.z0_name)
+            self.base_cloud.points(),
+            self.base_cloud.getScalarField(
+                self.base_cloud.getScalarFieldIndexByName(self.config.basic.z0_name)
             ).asArray(),
         ]
 
@@ -51,7 +137,7 @@ class CloudComparePluginProcessing:
         # TODO(RJ) double conversion is only needed for DTM processing,
         # But maybe it's worth generalizing it.
         # CSF expects also fortran type arrays.
-        return self.point_cloud.points().astype(np.double)
+        return self.base_cloud.points().astype(np.double)
 
     def _export_dtm(self, dtm: np.ndarray):
         cloud_dtm = pycc.ccPointCloud(dtm[:, 0], dtm[:, 1], dtm[:, 2])
@@ -78,12 +164,12 @@ class CloudComparePluginProcessing:
         self, assigned_cloud: np.ndarray, z0_values: Optional[np.ndarray]
     ):
         CloudComparePluginProcessing.write_sf(
-            self.point_cloud, assigned_cloud[:, 5], "dist_axes"
+            self.base_cloud, assigned_cloud[:, 5], "dist_axes"
         )
         CloudComparePluginProcessing.write_sf(
-            self.point_cloud, assigned_cloud[:, 4], "tree_ID"
+            self.base_cloud, assigned_cloud[:, 4], "tree_ID"
         )
-        self.point_cloud.setEnabled(False)
+        self.base_cloud.setEnabled(False)
 
         if not self.config.misc.is_normalized:
             # In the case the user still want to use our CSF normalization but already have
@@ -92,13 +178,13 @@ class CloudComparePluginProcessing:
             # "Z0_dtm" scalar field
             # TODO: Maybe name this field in accordance with z0_name value
             if self.base_cloud.getScalarFieldIndexByName("Z0") == -1:
-                CloudComparePluginProcessing.write_sf(self.point_cloud, z0_values, "Z0")
+                CloudComparePluginProcessing.write_sf(self.base_cloud, z0_values, "Z0")
             else:
                 z0_dtm_id = self.base_cloud.getScalarFieldIndexByName("Z0_dtm")
                 if z0_dtm_id != -1:
-                    CloudComparePluginProcessing.base_group.deleteScalarField(z0_dtm_id)
+                    self.base_cloud.deleteScalarField(z0_dtm_id)
                 CloudComparePluginProcessing.write_sf(
-                    self.point_cloud, z0_values, "Z0_dtm"
+                    self.base_cloud, z0_values, "Z0_dtm"
                 )
 
     def _export_tree_height(self, tree_heights: np.ndarray):
@@ -289,5 +375,6 @@ def main():
         raise RuntimeError(
             "Something went wrong"
         ) from None  # TODO: Catch exceptions into modals.
-    cc.freezeUI(False)
-    cc.updateUI()
+    finally:
+        cc.freezeUI(False)
+        cc.updateUI()

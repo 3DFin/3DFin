@@ -34,17 +34,30 @@ class FinProcessing(ABC):
         """
         self.config = config
 
-    @abstractmethod
     def check_already_computed_data(self) -> bool:
-        """Check if the processing algorithm output is likely to collides with data from a previous computation.
+        """Check if the processing algorithm output is likely to collides with data.
 
         Returns
         -------
         previous_data : bool
-            True if the algorithm output could be in competition with data from a previous computation,
-            False otherwise.
+            True if the algorithm output could be in competition with data from
+            a previous computation, False otherwise. Default implementation always
+            return False.
         """
-        pass
+        return False
+
+    def set_overwrite(self, overwrite: bool):
+        """Set the overwrite attribute.
+
+        it could be used by implementers to decide whether they have to delete
+        some data from previous computation.
+
+        Parameters
+        ----------
+        overwrite : bool
+            Self explanatory, the overwrite attribute.
+        """
+        self.overwrite = overwrite
 
     @abstractmethod
     def _construct_output_path(self):
@@ -500,7 +513,7 @@ class FinProcessing(ABC):
         # -------------------------------------------------------------------------------------------------------------
         export_tabular_data(
             config,
-            self.basepath_output,
+            self.output_basepath,
             X_c,
             Y_c,
             R,
@@ -521,7 +534,7 @@ class FinProcessing(ABC):
 
         elapsed_t = timeit.default_timer() - t_t
 
-        config.to_config_file(Path(str(self.basepath_output) + "_config.ini"))
+        config.to_config_file(Path(str(self.output_basepath) + "_config.ini"))
 
         # -------------------------------------------------------------------------------------------------------------
         print("---------------------------------------------")
