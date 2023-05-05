@@ -204,6 +204,16 @@ class FinProcessing(ABC):
     def _export_tree_locations(
         self, tree_locations: np.ndarray, dbh_values: np.ndarray
     ):
+        """Export the tree locations. 
+
+        Parameters:
+        -----------
+        tree_locations : np.ndarray
+            A numpy array of shape (n, 5) where n is the number of trees in the cloud.
+            It consists of (x), (y), (z)  oordinates of the base of the tree. 
+        dbh_values : np.ndarray
+            Matrix containing the DBH values of individualized trees.
+        """
         pass
 
     def process(self):
@@ -250,7 +260,7 @@ class FinProcessing(ABC):
         -----------------------------------------------------------------------------
 
         After all computations are complete, the following files are output:
-        Filenames are: [original file name] + [specific suffix] + [.txt, .las or .ini]
+        Filenames are: [original file name] + [specific suffix] + [.txt, .xlsx, .las or .ini]
 
         LAS files (mainly for checking visually the outputs).
         They can be open straightaway in CloudCompare, where 'colour visualization' of fields with additional information is straightforward
