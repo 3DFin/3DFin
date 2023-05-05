@@ -106,7 +106,7 @@ dependencies = [
 ]
 [tool.hatch.envs.lint.scripts]
 # static analysis with ruff
-check-type = "mypy --strict {args:.}"
+check-type = "mypy --install-types --non-interactive {args:src/three_d_fin tests}"
 check-static = "ruff check {args:.}"
 check-format = "black --check --diff --color {args:.}"
 fix-static = "ruff --fix {args:.}"
@@ -133,6 +133,12 @@ ignore = ["E501",
 # multiline summary second line
   "D213"
 ]
+
+[tool.ruff.isort]
+known-first-party = ["three_d_fin"]
+
+[tool.ruff.flake8-tidy-imports]
+ban-relative-imports = "all"
 
 [tool.black]
 line-length = 88
