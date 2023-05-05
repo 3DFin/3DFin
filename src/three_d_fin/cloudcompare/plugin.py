@@ -26,6 +26,8 @@ class CloudComparePluginProcessing(FinProcessing):
 
     base_group: pycc.ccHObject
 
+    group_name: str
+
     delayed_add_to_db: list[tuple[pycc.ccHObject, bool]] = list()
 
     @staticmethod
@@ -59,19 +61,11 @@ class CloudComparePluginProcessing(FinProcessing):
             Point cloud targetted by the 3DFin processing.
         """
         self.base_cloud = point_cloud
-        self.base_group = point_cloud.getParent()
         self.cc_instance = cc_instance
 
-
     def check_already_computed_data(self) -> bool:
-        """See base class documentation"""
+        """See base class documentation."""
         self._construct_output_path()
-        entity_names = ["dtm", "Highest points", "Fitted sections", "Axes",  "Tree locator", "Stems in stripe"]
-        for i in range(self.base_cloud.getParent().getChildrenNumber()):
-            name = self.base_group.getChild(i).getName()
-            if name in entity_names:
-                self.overwrite = True
-                return True
 
         any_of = False
         # Check for scalar fields....
@@ -96,35 +90,22 @@ class CloudComparePluginProcessing(FinProcessing):
         return any_of
 
     def _construct_output_path(self):
-        self.output_basepath = Path(self.config.misc.output_dir) / Path(self.base_cloud.getName())
+        # We still use the stem attribute since in CC cloud could name could be based on filenames
+        self.output_basepath = (
+            Path(self.config.misc.output_dir) / Path(self.base_cloud.getName()).stem
+        )
+        self.group_name = f"{Path(self.base_cloud.getName()).stem}_3DFin"
 
     def _pre_processing_hook(self):
-        if not self.overwrite:
-            return
-
-        entity_names = ["dtm", "Highest points", "Fitted sections", "Axes",  "Tree locator", "Stems in stripe"]
-
-        for name in entity_names: # search for name and after that for id, else iterator would be invalidated
-            for i in range(self.base_group.getChildrenNumber()):
-                entity = self.base_group.getChild(i)
-                if name == entity.getName():
-                    self.cc_instance.removeFromDB(entity)
-                    break # avoid iterator invalidation
-
-        # Check for scalar fields....
-        id_dist_axes = self.base_cloud.getScalarFieldIndexByName("dist_axes")
-        if id_dist_axes > -1:
-            self.base_cloud.deleteScalarField(id_dist_axes)
-
-        id_tree_ID = self.base_cloud.getScalarFieldIndexByName("tree_ID")
-        if id_tree_ID > -1:
-            self.base_cloud.deleteScalarField(id_tree_ID)
+        self.base_group = pycc.ccHObject(self.group_name)
+        self.base_cloud.setEnabled(False)
 
     def _post_processing_hook(self):
-        # TODO we could delay all AddToDb call here
-        pass
+        # Could be usedto delay addToDB calls.
+        self.cc_instance.addToDB(self.base_group)
 
     def _load_base_cloud(self):
+        # This is already loaded at object instanciation.
         pass
 
     def _get_xyz_z0_from_base(self) -> np.ndarray:
@@ -165,29 +146,32 @@ class CloudComparePluginProcessing(FinProcessing):
     def _enrich_base_cloud(
         self, assigned_cloud: np.ndarray, z0_values: Optional[np.ndarray]
     ):
+        copy_base_cloud = pycc.ccPointCloud(self.base_cloud.getName())
+        copy_base_cloud.reserve(self.base_cloud.size())
+
+        for point_idx in range(self.base_cloud.size()):
+            copy_base_cloud.addPoint(self.base_cloud.getPoint(point_idx))
+
         CloudComparePluginProcessing.write_sf(
-            self.base_cloud, assigned_cloud[:, 5], "dist_axes"
+            copy_base_cloud, assigned_cloud[:, 5], "dist_axes"
         )
         CloudComparePluginProcessing.write_sf(
-            self.base_cloud, assigned_cloud[:, 4], "tree_ID"
+            copy_base_cloud, assigned_cloud[:, 4], "tree_ID"
         )
-        self.base_cloud.setEnabled(False)
 
         if not self.config.misc.is_normalized:
-            # In the case the user still want to use our CSF normalization but already have
-            # a field called Z0, adding the field with the same name will raise an exception.
-            # So we have to check its existance before. if it's exist, the value is putted in
-            # "Z0_dtm" scalar field
-            # TODO: Maybe name this field in accordance with z0_name value
-            if self.base_cloud.getScalarFieldIndexByName("Z0") == -1:
-                CloudComparePluginProcessing.write_sf(self.base_cloud, z0_values, "Z0")
-            else:
-                z0_dtm_id = self.base_cloud.getScalarFieldIndexByName("Z0_dtm")
-                if z0_dtm_id != -1:
-                    self.base_cloud.deleteScalarField(z0_dtm_id)
-                CloudComparePluginProcessing.write_sf(
-                    self.base_cloud, z0_values, "Z0_dtm"
-                )
+            CloudComparePluginProcessing.write_sf(copy_base_cloud, z0_values, "Z0")
+        else:
+            idx = self.base_cloud.getScalarFieldIndexByName(self.config.basic.z0_name)
+            assert idx != -1
+            copy_idx = copy_base_cloud.addScalarField(self.config.basic.z0_name)
+            sf = copy_base_cloud.getScalarField(copy_idx)
+            sf.asArray()[:] = self.base_cloudcloud.getScalarField(idx).asArray()[:]
+            sf.computeMinAndMax()
+
+        copy_base_cloud.setEnabled(False)
+        self.base_group.addChild(copy_base_cloud)
+        self.cc_instance.addToDB(copy_base_cloud)
 
     def _export_tree_height(self, tree_heights: np.ndarray):
         cloud_tree_heights = pycc.ccPointCloud(
@@ -343,11 +327,10 @@ def _create_app_and_run(
 
 
 def main():
-    """Plugin main action."""
+    """3DFin CloudCompare Plugin main action."""
     cc = pycc.GetInstance()
 
     entities = cc.getSelectedEntities()
-    print(f"Selected entities: {entities}")
 
     if not entities or len(entities) > 1:
         raise RuntimeError("Please select one point cloud")
@@ -362,20 +345,16 @@ def main():
     for i in range(point_cloud.getNumberOfScalarFields()):
         scalar_fields.append(point_cloud.getScalarFieldName(i))
 
-    # TODO: Detect if a user already have computed something on this cloud
-    # (based on scalar field and entities in the DBTree)
-    # and propose to force recompute (erase) or suggest to duplicate the point cloud.
-
     # TODO: Handle big coodinates (could be tested but maybe wait for CC API update).
     plugin_functor = CloudComparePluginProcessing(cc, point_cloud)
 
     cc.freezeUI(True)
     try:
         pycc.RunInThread(_create_app_and_run, plugin_functor, scalar_fields)
-        #_create_app_and_run(plugin_functor, scalar_fields)
+        # _create_app_and_run(plugin_functor, scalar_fields)
     except Exception:
         raise RuntimeError(
-            "Something went wrong"
+            "Something went wrong!"
         ) from None  # TODO: Catch exceptions into modals.
     finally:
         cc.freezeUI(False)

@@ -191,6 +191,10 @@ class FinProcessing(ABC):
         if self.config is None:
             raise Exception("Please set configuration before running any processing")
 
+        # Construct output_path
+        self._construct_output_path()
+
+        # optional pre processing_hook
         self._pre_processing_hook()
         # -------------------------------------------------------------------------------------------------
         # NON MODIFIABLE. These parameters should never be modified by the user.
@@ -202,9 +206,6 @@ class FinProcessing(ABC):
 
         # Aliasing config
         config = self.config
-
-        # construct output_path
-        self._construct_output_path()
 
         t_t = timeit.default_timer()
 
