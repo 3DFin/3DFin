@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Optional
 
 import laspy
 import numpy as np
@@ -87,9 +86,7 @@ class StandaloneLASProcessing(FinProcessing):
         las_stripe.tree_ID = clust_stripe[:, -1]
         las_stripe.write(str(self.output_basepath) + "_stripe.las")
 
-    def _enrich_base_cloud(
-        self, assigned_cloud: np.ndarray, z0_values: Optional[np.ndarray]
-    ):
+    def _enrich_base_cloud(self, assigned_cloud: np.ndarray):
         self.base_cloud.add_extra_dims(
             [
                 laspy.ExtraBytesParams(name="dist_axes", type=np.float64),
@@ -111,7 +108,12 @@ class StandaloneLASProcessing(FinProcessing):
                 self.base_cloud.add_extra_dim(
                     laspy.ExtraBytesParams(name="Z0", type=np.float64)
                 )
-            self.base_cloud.Z0 = z0_values
+                self.base_cloud.Z0 = assigned_cloud[:, 3]
+            elif not self.config.misc.is_normalized:
+                self.base_cloud.add_extra_dim(
+                    laspy.ExtraBytesParams(name="Z0", type=np.float64)
+                )
+                self.base_cloud.Z0 = assigned_cloud[:, 3]
         self.base_cloud.write(str(self.output_basepath) + "_tree_ID_dist_axes.las")
 
     def _export_tree_height(self, tree_heights):

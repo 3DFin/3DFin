@@ -1,6 +1,5 @@
 import platform
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 import pycc
@@ -27,8 +26,6 @@ class CloudComparePluginProcessing(FinProcessing):
     base_group: pycc.ccHObject
 
     group_name: str
-
-    delayed_add_to_db: list[tuple[pycc.ccHObject, bool]] = list()
 
     @staticmethod
     def write_sf(point_cloud: pycc.ccPointCloud, scalar_field: np.ndarray, name: str):
@@ -143,9 +140,7 @@ class CloudComparePluginProcessing(FinProcessing):
         self.base_group.addChild(cloud_stripe)
         self.cc_instance.addToDB(cloud_stripe)
 
-    def _enrich_base_cloud(
-        self, assigned_cloud: np.ndarray, z0_values: Optional[np.ndarray]
-    ):
+    def _enrich_base_cloud(self, assigned_cloud: np.ndarray):
         copy_base_cloud = pycc.ccPointCloud(self.base_cloud.getName())
         copy_base_cloud.reserve(self.base_cloud.size())
 
@@ -159,15 +154,10 @@ class CloudComparePluginProcessing(FinProcessing):
             copy_base_cloud, assigned_cloud[:, 4], "tree_ID"
         )
 
-        if not self.config.misc.is_normalized:
-            CloudComparePluginProcessing.write_sf(copy_base_cloud, z0_values, "Z0")
-        else:
-            idx = self.base_cloud.getScalarFieldIndexByName(self.config.basic.z0_name)
-            assert idx != -1
-            copy_idx = copy_base_cloud.addScalarField(self.config.basic.z0_name)
-            sf = copy_base_cloud.getScalarField(copy_idx)
-            sf.asArray()[:] = self.base_cloudcloud.getScalarField(idx).asArray()[:]
-            sf.computeMinAndMax()
+        # Use assigned_cloud z0 anyway
+        CloudComparePluginProcessing.write_sf(
+            copy_base_cloud, assigned_cloud[:, 3], "Z0"
+        )
 
         copy_base_cloud.setEnabled(False)
         self.base_group.addChild(copy_base_cloud)

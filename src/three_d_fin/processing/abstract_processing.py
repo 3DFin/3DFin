@@ -13,7 +13,8 @@ from three_d_fin.processing.io import export_tabular_data
 class FinProcessing(ABC):
     """Define a 3DFin algorithm and its I/O requirements.
 
-    I/O are defined as abstract methods that must be overridden by implementors .
+    I/O are defined as abstract methods that must be overridden by implementers.
+
     """
 
     config: Optional[FinConfiguration] = None
@@ -24,7 +25,7 @@ class FinProcessing(ABC):
 
     overwrite: bool = False
 
-    def set_config(self, config: FinConfiguration):
+    def set_config(self, config: FinConfiguration) -> None:
         """Set the configuration.
 
         Parameters
@@ -46,7 +47,7 @@ class FinProcessing(ABC):
         """
         return False
 
-    def set_overwrite(self, overwrite: bool):
+    def set_overwrite(self, overwrite: bool) -> None:
         """Set the overwrite attribute.
 
         it could be used by implementers to decide whether they have to delete
@@ -60,53 +61,143 @@ class FinProcessing(ABC):
         self.overwrite = overwrite
 
     @abstractmethod
-    def _construct_output_path(self):
+    def _construct_output_path(self) -> None:
+        """Construct the ouput path for the algorithm output.
+
+        This method is called at the start of the process() method.
+        it is used to construct the output_basepath attibute.
+        """
         pass
 
     @abstractmethod
-    def _pre_processing_hook(self):
+    def _pre_processing_hook(self) -> None:
+        """Execute instructions before the main algorithm.
+
+        Implementers could either use this hook or the constructor to
+        introduce pre processing steps.
+        """
         pass
 
     @abstractmethod
-    def _post_processing_hook(self):
+    def _post_processing_hook(self) -> None:
+        """Execute instructions after the main algorithm."""
         pass
 
     @abstractmethod
-    def _load_base_cloud(self):
+    def _load_base_cloud(self) -> None:
+        """Load the base cloud from a provider.
+
+        The base cloud is the point cloud from which the algoritm will run.
+        it is used to set the base_cloud attribute. It could also could be set
+        from the constructor.
+        """
         pass
 
     @abstractmethod
     def _get_xyz_z0_from_base(self) -> np.ndarray:
+        """Extract the x, y, z and z0 coordinates from the base_cloud.
+
+        Returns
+        -------
+        xyz_z0 : np.ndarray
+            A numpy array of shape (n, 4) where n is the number of points in the
+            cloud. (x), (y), (z) and Z0 coordinates are stored in the first, second,
+            third and fourth columns respectively.
+        """
         pass
 
     @abstractmethod
     def _get_xyz_from_base(self) -> np.ndarray:
+        """Extract the x, y, z and z0 coordinates from the base_cloud.
+
+        Returns
+        -------
+        xyz : np.ndarray
+            A numpy array of shape (n, 3) where n is the number of points in the
+            cloud. (x), (y), (z) coordinates are stored in the first, second,
+            third columns respectively.
+        """
         pass
 
     @abstractmethod
     def _export_dtm(self, dtm: np.ndarray):
+        """Export the DTM.
+
+        Parameters
+        ----------
+        dtm : np.ndarray
+            A numpy array of shape (n, 3) where n is the number of points in the cloud.
+            (x), (y) and (z) coordinates are stored in the first, second,
+            third columns respectively.
+        """
         pass
 
     @abstractmethod
     def _export_stripe(self, clust_stripe: np.ndarray):
+        """Export the stem extracted from the stripe.
+
+        Parameters
+        ----------
+        clust_stripe : np.ndarray
+            A numpy array of shape (n, 4) where n is the number of points in the cloud.
+            It consists of 4 columns: (x), (y) and (z) coordinates, and a 4th column containing
+            the cluster_ID of the cluster that each point belongs to.
+        """
         pass
 
     @abstractmethod
-    def _enrich_base_cloud(
-        self, assigned_cloud: np.ndarray, z0_values: Optional[np.ndarray]
-    ):
+    def _enrich_base_cloud(self, assigned_cloud: np.ndarray):
+        """Enrich the base cloud with the cluster ID and the z0 values and export it.
+
+        Parameters
+        ----------
+        assigned_cloud : np.ndarray
+            A numpy array of shape (n, 6) where n is the number of points in the cloud.
+            It consists of 6 columns: (x), (y), (z) and z0 coordinates,
+            5th column containing tree ID that each point belongs to and a 6th column containing 
+            point distance to closest axis.
+        """
         pass
 
     @abstractmethod
     def _export_tree_height(self, tree_heights: np.ndarray):
+        """Export the tree heights.
+
+        Parameters:
+        -----------
+        tree_heights : np.ndarray
+            Matrix containing the heights of individualized trees.
+            A numpy array of shape (n, 5) where n is the number of trees in the cloud.
+            It consists of (x), (y), (z) and (z0) coordinates of the highest point of the tree 
+            and a 5th column containing a binary indicator: 
+            0 - tree was too deviated from vertical, and height may not be accurate, 
+            or 1 - tree was not too deviated from vertical, thus height may be trusted
+        """
         pass
 
     @abstractmethod
     def _export_circles(self, circles_coords: np.ndarray):
+        """Export the circles.
+        
+        Parameters:
+        -----------
+        circles_coords : np.ndarray
+            Matrix containing the coordinates of the circles and their associated
+            meta data.
+        """
         pass
 
     @abstractmethod
     def _export_axes(self, axes_points: np.ndarray, tilt: np.ndarray):
+        """Export the axes.
+        
+        Parameters:
+        -----------
+        axes_point : numpy.ndarray
+            Matrix that describes the point cloud of the axes
+        tilt : numpy.ndarray
+            Matrix that describes the tilt of each axes
+        """  
         pass
 
     @abstractmethod
