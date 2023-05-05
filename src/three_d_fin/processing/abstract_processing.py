@@ -368,7 +368,7 @@ class FinProcessing(ABC):
 
         print("  ")
         print("---------------------------------------------")
-        print("3.-Exporting .LAS files including complete cloud and stripe...")
+        print("3.-Exporting complete cloud and stripe...")
         print("---------------------------------------------")
 
         t_las = timeit.default_timer()
