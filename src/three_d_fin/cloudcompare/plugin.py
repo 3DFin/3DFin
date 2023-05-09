@@ -13,6 +13,11 @@ class ThreeDFinCC(pycc.PythonPluginInterface):
     def __init__(self):
         """Construct the object."""
         pycc.PythonPluginInterface.__init__(self)
+        # Be sure to load our custom colorscale
+        color_scale_path = str(
+            (Path(__file__).parents[1] / "assets" / "3dfin_color_scale.xml").resolve()
+        )
+        pycc.ccColorScale.LoadFromXML(color_scale_path)
 
     def getIcon(self) -> str:
         """Get the path to the plugin icon.

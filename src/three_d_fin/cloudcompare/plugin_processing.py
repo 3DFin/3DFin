@@ -146,8 +146,14 @@ class CloudComparePluginProcessing(FinProcessing):
         )
 
         copy_base_cloud.toggleSF()
-        copy_base_cloud.setCurrentDisplayedScalarField(1)  # tree_ID
+        copy_base_cloud.setCurrentDisplayedScalarField(0)  # dist_axes
+
+        # Set our custom color scale
         copy_base_cloud.setEnabled(False)
+        color_scale_uuid = "{25ec76a1-9b8d-4e4a-a129-21ae313ef8ba}"
+        color_scale_manager = pycc.ccColorScalesManager.GetUniqueInstance()
+        color_scale = color_scale_manager.getScale(color_scale_uuid)
+        copy_base_cloud.getCurrentDisplayedScalarField().setColorScale(color_scale)
 
         self.base_group.addChild(copy_base_cloud)
         self.cc_instance.addToDB(copy_base_cloud)
