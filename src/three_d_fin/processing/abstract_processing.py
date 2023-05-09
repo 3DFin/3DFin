@@ -478,10 +478,7 @@ class FinProcessing(ABC):
         self._export_stripe(clust_stripe)
 
         # Whole cloud including new
-        if not config.misc.is_normalized:
-            self._enrich_base_cloud(assigned_cloud, z0_values)
-        else:
-            self._enrich_base_cloud(assigned_cloud, None)
+        self._enrich_base_cloud(assigned_cloud)
 
         elapsed_las = timeit.default_timer() - t_las
         print("Total time:", "   %.2f" % elapsed_las, "s")

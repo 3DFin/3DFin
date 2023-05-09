@@ -145,7 +145,10 @@ class CloudComparePluginProcessing(FinProcessing):
             copy_base_cloud, assigned_cloud[:, 3], "Z0"
         )
 
+        copy_base_cloud.toggleSF()
+        copy_base_cloud.setCurrentDisplayedScalarField(1)  # tree_ID
         copy_base_cloud.setEnabled(False)
+
         self.base_group.addChild(copy_base_cloud)
         self.cc_instance.addToDB(copy_base_cloud)
 
