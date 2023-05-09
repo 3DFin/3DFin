@@ -154,7 +154,7 @@ class FinProcessing(ABC):
         assigned_cloud : np.ndarray
             A numpy array of shape (n, 6) where n is the number of points in the cloud.
             It consists of 6 columns: (x), (y), (z) and z0 coordinates,
-            5th column containing tree ID that each point belongs to and a 6th column containing 
+            5th column containing tree ID that each point belongs to and a 6th column containing
             point distance to closest axis.
         """
         pass
@@ -163,14 +163,14 @@ class FinProcessing(ABC):
     def _export_tree_height(self, tree_heights: np.ndarray):
         """Export the tree heights.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         tree_heights : np.ndarray
             Matrix containing the heights of individualized trees.
             A numpy array of shape (n, 5) where n is the number of trees in the cloud.
-            It consists of (x), (y), (z) and (z0) coordinates of the highest point of the tree 
-            and a 5th column containing a binary indicator: 
-            0 - tree was too deviated from vertical, and height may not be accurate, 
+            It consists of (x), (y), (z) and (z0) coordinates of the highest point of the tree
+            and a 5th column containing a binary indicator:
+            0 - tree was too deviated from vertical, and height may not be accurate,
             or 1 - tree was not too deviated from vertical, thus height may be trusted
         """
         pass
@@ -178,9 +178,9 @@ class FinProcessing(ABC):
     @abstractmethod
     def _export_circles(self, circles_coords: np.ndarray):
         """Export the circles.
-        
-        Parameters:
-        -----------
+
+        Parameters
+        ----------
         circles_coords : np.ndarray
             Matrix containing the coordinates of the circles and their associated
             meta data.
@@ -190,27 +190,28 @@ class FinProcessing(ABC):
     @abstractmethod
     def _export_axes(self, axes_points: np.ndarray, tilt: np.ndarray):
         """Export the axes.
-        
-        Parameters:
-        -----------
-        axes_point : numpy.ndarray
-            Matrix that describes the point cloud of the axes
+
+        Parameters
+        ----------
+        axes_points : numpy.ndarray
+            Matrix that describes the point cloud of the axes.
         tilt : numpy.ndarray
             Matrix that describes the tilt of each axes
-        """  
+        """
         pass
 
     @abstractmethod
     def _export_tree_locations(
         self, tree_locations: np.ndarray, dbh_values: np.ndarray
     ):
-        """Export the tree locations. 
+        """Export the tree locations.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         tree_locations : np.ndarray
-            A numpy array of shape (n, 5) where n is the number of trees in the cloud.
-            It consists of (x), (y), (z)  oordinates of the base of the tree. 
+            A numpy array of shape (n, 3) where n is the number of trees in the cloud.
+            It consists of (x), (y), (z) coordinates of the base
+            of the tree.
         dbh_values : np.ndarray
             Matrix containing the DBH values of individualized trees.
         """
