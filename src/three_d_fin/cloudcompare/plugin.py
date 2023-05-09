@@ -14,10 +14,13 @@ class ThreeDFinCC(pycc.PythonPluginInterface):
     def __init__(self):
         """Construct the object."""
         pycc.PythonPluginInterface.__init__(self)
+    
+    def getIcon(self) -> str:
+        return str((Path(__file__).parents[1] / "assets" / "3dfin_logo_plugin.png").resolve())
 
     def getActions(self) -> list[pycc.Action]:
         """List of actions exposed by the plugin."""
-        return [pycc.Action(name="3DFin", target=main)]
+        return [pycc.Action(name="3D Forest INventory", icon=self.getIcon(), target=main)]
 
 
 class CloudComparePluginProcessing(FinProcessing):
