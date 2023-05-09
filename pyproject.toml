@@ -38,6 +38,14 @@ dependencies = [
 ]
 dynamic = ["version"]
 
+# Entry point for CloudCompare plugin
+[project.entry-points."cloudcompare.plugins"]
+3DFin = "three_d_fin.cloudcompare.plugin:ThreeDFinCC"
+
+# Entry point for GUI and CLI
+[project.scripts]
+3DFin = "three_d_fin.processing:launch_application"
+
 [tool.hatch.version]
 path = "src/three_d_fin/__about__.py"
 
@@ -46,8 +54,6 @@ Documentation = "https://github.com/3DFin/3DFin#README.md"
 Issues = "https://github.com/3DFin/3DFin/issues"
 Source = "https://github.com/3DFin/3DFin"
 
-[project.scripts]
-3DFin = "three_d_fin.processing:launch_application"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/three_d_fin"]
@@ -100,7 +106,7 @@ dependencies = [
 ]
 [tool.hatch.envs.lint.scripts]
 # static analysis with ruff
-check-type = "mypy --strict {args:.}"
+check-type = "mypy --install-types --non-interactive {args:src/three_d_fin tests}"
 check-static = "ruff check {args:.}"
 check-format = "black --check --diff --color {args:.}"
 fix-static = "ruff --fix {args:.}"
@@ -127,6 +133,12 @@ ignore = ["E501",
 # multiline summary second line
   "D213"
 ]
+
+[tool.ruff.isort]
+known-first-party = ["three_d_fin"]
+
+[tool.ruff.flake8-tidy-imports]
+ban-relative-imports = "all"
 
 [tool.black]
 line-length = 88

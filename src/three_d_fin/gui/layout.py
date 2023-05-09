@@ -4,7 +4,7 @@ import tkinter as tk
 from inspect import cleandoc
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
-from typing import Any, Callable, Optional
+from typing import Any, Optional
 
 import laspy
 from PIL import Image, ImageTk
@@ -13,6 +13,7 @@ from pydantic.fields import ModelField
 
 from three_d_fin import __about__
 from three_d_fin.gui.tooltip import ToolTip
+from three_d_fin.processing.abstract_processing import FinProcessing
 from three_d_fin.processing.configuration import (
     FinConfiguration,
 )
@@ -23,17 +24,18 @@ class Application(tk.Tk):
 
     def __init__(
         self,
-        processing_callback: Callable[[dict[str, dict[str, Any]]], None],
+        processing_object: FinProcessing,
         file_externally_defined: bool = False,
-        cloud_fields: Optional[list[str]] = None,
+        cloud_fields: Optional[set[str]] = None,
     ):
         """Construct the 3DFin GUI Application.
 
         Parameters
         ----------
-        processing_callback : Callable[[dict[str, dict[str, Any]]]
-            Callback/Functor that is responsible for the computing logic.
-            It is triggered by the "compute" button of the GUI.
+        processing_object : FinProcessing
+            An implementation of the abstract FinProcessing class.
+            it is responsible for the computing logic.
+            Its process() method is triggered by the "compute" button of the GUI.
         file_externally_defined : bool
             Whether or not the file/filename was already defined by a third party.
             if True, input_las input and buttons will be disabled.
@@ -44,7 +46,7 @@ class Application(tk.Tk):
             TODO: we can imagine, no z0 fields and z == z0
         """
         tk.Tk.__init__(self)
-        self.processing_callback = processing_callback
+        self.processing_object = processing_object
         self.file_externally_defined = file_externally_defined
         self.cloud_fields = cloud_fields
         self._bootstrap()
@@ -228,10 +230,15 @@ class Application(tk.Tk):
         config_dict = config.dict()
         for config_section in config_dict:
             for key_param, value_param in config_dict[config_section].items():
-                getattr(self, key_param).set(value_param)
-                # fix a minor presentation issue when no file is defined
-                if key_param == "input_file" and value_param is None:
+                # Default z0_name should match one of the supplied list if present.
+                if (key_param == "z0_name") and self.cloud_fields is not None:
+                    if value_param in self.cloud_fields:
+                        getattr(self, key_param).set(value_param)
+                # Fix a minor presentation issue when no file is defined
+                elif key_param == "input_file" and value_param is None:
                     getattr(self, key_param).set("")
+                else:
+                    getattr(self, key_param).set(value_param)
 
     def get_parameters(self) -> dict[str, dict[str, str]]:
         """Get parameters from widgets and return them organized in a dictionary.
@@ -277,10 +284,10 @@ class Application(tk.Tk):
             z0_entry = ttk.Entry(self.basic_tab, width=7, textvariable=self.z0_name)
             z0_entry.grid(column=3, row=7, sticky="EW")
         else:
-            # Try to find the default field
-            z0_entry = ttk.OptionMenu(self.basic_tab, self.z0_name, *self.cloud_fields)
+            z0_entry = ttk.OptionMenu(
+                self.basic_tab, self.z0_name, self.z0_name.get(), *self.cloud_fields
+            )
             z0_entry.grid(column=3, row=7, columnspan=2, sticky="EW")
-            self.z0_name.set(self.cloud_fields[0])
 
         z0_entry.configure(state="disabled")
 
@@ -1736,9 +1743,10 @@ class Application(tk.Tk):
         # by another mean than input from the GUI, we do not want to show field related
         # to Las input.
         if self.file_externally_defined:
-            self.label_file.grid_forget()
-            self.input_file_button.grid_forget()
-            self.input_file_entry.grid_forget()
+            self.label_file.config(state=tk.DISABLED)
+            self.label_file.config(text="File already set by the application")
+            self.input_file_button.config(state=tk.DISABLED)
+            self.input_file_entry.config(state=tk.DISABLED)
 
         self.output_dir_entry = ttk.Entry(
             bottom_frame, width=30, textvariable=self.output_dir
@@ -1793,15 +1801,11 @@ class Application(tk.Tk):
         """Validate I/O entries and run the processing callback."""
         params = self.get_parameters()
 
-        # TODO: some check are redundant with validation with pydantic
         # define a lambda to popup error for convenience
         def _show_error(error_msg: str) -> str:
             return messagebox.showerror(
                 parent=self, title="3DFin Error", message=error_msg
             )
-
-        # TODO: Here we could check if the output directory already contains some
-        # compatible processing results to ask if we want to overwrite them.
 
         # Pydantic checks, we check the validity of the data
         try:
@@ -1824,8 +1828,20 @@ class Application(tk.Tk):
             _show_error(final_msg)
             return
 
+        self.processing_object.set_config(fin_config)
+        # Here we will check in an astract way if the output could collides
+        # with previous computation. and ask if we want to overwrite them.
+        if self.processing_object.check_already_computed_data():
+            overwrite = messagebox.askokcancel(
+                title="3DFin",
+                message="The output target already contains results from a previous 3DFin computation, do you want to overwrite them?",
+            )
+            if not overwrite:
+                return
+
+        # Now we do the processing in itself
         # TODO: handle exception in processing here
-        self.processing_callback(fin_config)
+        self.processing_object.process()
 
     def _bootstrap(self) -> None:
         """Create the GUI."""
