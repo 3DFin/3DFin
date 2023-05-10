@@ -69,7 +69,7 @@ class StandaloneLASProcessing(FinProcessing):
         ).transpose()
 
     def _export_dtm(self, dtm: np.ndarray):
-        las_dtm_points = laspy.create(point_format=6, file_version="1.4")
+        las_dtm_points = laspy.create(point_format=2, file_version="1.4")
         las_dtm_points.x = dtm[:, 0]
         las_dtm_points.y = dtm[:, 1]
         las_dtm_points.z = dtm[:, 2]
@@ -77,7 +77,7 @@ class StandaloneLASProcessing(FinProcessing):
         las_dtm_points.write(str(self.output_basepath) + "_dtm_points.las")
 
     def _export_stripe(self, clust_stripe: np.ndarray):
-        las_stripe = laspy.create(point_format=6, file_version="1.4")
+        las_stripe = laspy.create(point_format=2, file_version="1.4")
         las_stripe.x = clust_stripe[:, 0]
         las_stripe.y = clust_stripe[:, 1]
         las_stripe.z = clust_stripe[:, 2]
@@ -109,10 +109,18 @@ class StandaloneLASProcessing(FinProcessing):
                     laspy.ExtraBytesParams(name="Z0", type=np.float64)
                 )
             self.base_cloud.Z0 = assigned_cloud[:, 3]
+
+        if self.base_cloud.header.version < laspy.header.Version(major=1, minor=4):
+            # The base file is maybe not in point_format == 6 but since it's a copy it won't hurt
+            # the base file in it selft
+            self.base_cloud = laspy.convert(
+                self.base_cloud, point_format_id=2, file_version="1.4"
+            )
+
         self.base_cloud.write(str(self.output_basepath) + "_tree_ID_dist_axes.las")
 
     def _export_tree_height(self, tree_heights):
-        las_tree_heights = laspy.create(point_format=6, file_version="1.4")
+        las_tree_heights = laspy.create(point_format=2, file_version="1.4")
         las_tree_heights.x = tree_heights[:, 0]
         las_tree_heights.y = tree_heights[:, 1]
         las_tree_heights.z = tree_heights[:, 2]
@@ -125,11 +133,12 @@ class StandaloneLASProcessing(FinProcessing):
         las_tree_heights.z0 = tree_heights[:, 3]
         # vertical deviation binary indicator
         las_tree_heights.deviated = tree_heights[:, 4]
+
         las_tree_heights.write(str(self.output_basepath) + "_tree_heights.las")
 
     def _export_circles(self, circles_coords: np.ndarray):
         # LAS file containing circle coordinates.
-        las_circ = laspy.create(point_format=6, file_version="1.4")
+        las_circ = laspy.create(point_format=2, file_version="1.4")
         las_circ.x = circles_coords[:, 0]
         las_circ.y = circles_coords[:, 1]
         las_circ.z = circles_coords[:, 2]
@@ -159,7 +168,7 @@ class StandaloneLASProcessing(FinProcessing):
         las_circ.write(str(self.output_basepath) + "_circ.las")
 
     def _export_axes(self, axes_points: np.ndarray, tilt: np.ndarray):
-        las_axes = laspy.create(point_format=6, file_version="1.4")
+        las_axes = laspy.create(point_format=2, file_version="1.4")
         las_axes.x = axes_points[:, 0]
         las_axes.y = axes_points[:, 1]
         las_axes.z = axes_points[:, 2]
@@ -173,7 +182,7 @@ class StandaloneLASProcessing(FinProcessing):
     def _export_tree_locations(
         self, tree_locations: np.ndarray, dbh_values: np.ndarray
     ):
-        las_tree_locations = laspy.create(point_format=6, file_version="1.4")
+        las_tree_locations = laspy.create(point_format=2, file_version="1.4")
         las_tree_locations.x = tree_locations[:, 0]
         las_tree_locations.y = tree_locations[:, 1]
         las_tree_locations.z = tree_locations[:, 2]
