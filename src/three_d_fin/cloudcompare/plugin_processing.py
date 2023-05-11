@@ -130,8 +130,10 @@ class CloudComparePluginProcessing(FinProcessing):
         copy_base_cloud = pycc.ccPointCloud(self.base_cloud.getName())
         copy_base_cloud.reserve(self.base_cloud.size())
 
-        for point_idx in range(self.base_cloud.size()):
-            copy_base_cloud.addPoint(self.base_cloud.getPoint(point_idx))
+        # Could be a pycc.ccPointCloud.clone() but we do not want to clone all SFs
+        copy_base_cloud.addPoints(
+            assigned_cloud[:, 0], assigned_cloud[:, 1], assigned_cloud[:, 2]
+        )
 
         CloudComparePluginProcessing.write_sf(
             copy_base_cloud, assigned_cloud[:, 5], "dist_axes"
