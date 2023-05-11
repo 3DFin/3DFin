@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CloudCompare>
+    <ColorScale version="1">
+        <Properties>
+            <name>3dFIN</name>
+            <uuid>{25ec76a1-9b8d-4e4a-a129-21ae313ef8ba}</uuid>
+            <absolute>0</absolute>
+        </Properties>
+        <Data>
+            <step r="91" g="155" b="213" pos="0"/>
+            <step r="112" g="173" b="71" pos="0.285714285714"/>
+            <step r="255" g="192" b="0" pos="0.642857142857"/>
+            <step r="237" g="125" b="49" pos="1"/>
+        </Data>
+    </ColorScale>
+</CloudCompare>
