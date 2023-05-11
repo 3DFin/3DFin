@@ -476,9 +476,7 @@ class FinProcessing(ABC):
         t_las = timeit.default_timer()
         # Export Stripe
 
-        clean_stripe = clust_stripe[
-            np.isin(clust_stripe[:, -1], tree_vector[:, 0])
-        ]
+        clean_stripe = clust_stripe[np.isin(clust_stripe[:, -1], tree_vector[:, 0])]
 
         self._export_stripe(clean_stripe)
 
