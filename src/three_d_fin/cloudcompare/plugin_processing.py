@@ -102,7 +102,6 @@ class CloudComparePluginProcessing(FinProcessing):
     def _get_xyz_from_base(self) -> np.ndarray:
         # TODO(RJ) double conversion is only needed for DTM processing,
         # But maybe it's worth generalizing it.
-        # CSF expects also fortran type arrays.
         return self.base_cloud.points().astype(np.double)
 
     def _export_dtm(self, dtm: np.ndarray):
