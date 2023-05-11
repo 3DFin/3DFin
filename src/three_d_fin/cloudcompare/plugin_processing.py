@@ -192,33 +192,46 @@ class CloudComparePluginProcessing(FinProcessing):
         self.cc_instance.addToDB(cloud_tree_heights, autoExpandDBTree=False)
 
     def _export_circles(self, circles_coords: np.ndarray):
-        cloud_circles = pycc.ccPointCloud(
-            circles_coords[:, 0], circles_coords[:, 1], circles_coords[:, 2]
-        )
-        cloud_circles.setName("Fitted sections")
-        CloudComparePluginProcessing.write_sf(
-            cloud_circles, circles_coords[:, 4], "tree_ID"
-        )
-        CloudComparePluginProcessing.write_sf(
-            cloud_circles, circles_coords[:, 5], "sector_occupancy_percent"
-        )
-        CloudComparePluginProcessing.write_sf(
-            cloud_circles, circles_coords[:, 6], "pts_inner_circle"
-        )
-        CloudComparePluginProcessing.write_sf(cloud_circles, circles_coords[:, 7], "Z0")
-        CloudComparePluginProcessing.write_sf(
-            cloud_circles, circles_coords[:, 8], "Diameter"
-        )
-        CloudComparePluginProcessing.write_sf(
-            cloud_circles, circles_coords[:, 9], "outlier_prob"
-        )
-        CloudComparePluginProcessing.write_sf(
-            cloud_circles, circles_coords[:, 10], "quality"
-        )
-        cloud_circles.toggleSF()
-        cloud_circles.setCurrentDisplayedScalarField(6)  # = quality
-        self.base_group.addChild(cloud_circles)
-        self.cc_instance.addToDB(cloud_circles)
+        print(circles_coords.shape)
+        for base_id in range(0, circles_coords.shape[0], self.config.expert.circa):
+            stop_id = base_id + self.config.expert.circa
+            cloud_circles = pycc.ccPointCloud(
+                circles_coords[base_id : stop_id, 0],
+                circles_coords[base_id : stop_id, 1],
+                circles_coords[base_id : stop_id, 2],
+            )
+            cloud_circles.setName("Fitted sections")
+            CloudComparePluginProcessing.write_sf(
+                cloud_circles, circles_coords[base_id : stop_id, 4], "tree_ID"
+            )
+            CloudComparePluginProcessing.write_sf(
+                cloud_circles, circles_coords[base_id : stop_id, 5], "sector_occupancy_percent"
+            )
+            CloudComparePluginProcessing.write_sf(
+                cloud_circles, circles_coords[base_id : stop_id, 6], "pts_inner_circle"
+            )
+            CloudComparePluginProcessing.write_sf(
+                cloud_circles, circles_coords[base_id : stop_id, 7], "Z0"
+            )
+            CloudComparePluginProcessing.write_sf(
+                cloud_circles, circles_coords[base_id : stop_id, 8], "Diameter"
+            )
+            CloudComparePluginProcessing.write_sf(
+                cloud_circles, circles_coords[base_id : stop_id, 9], "outlier_prob"
+            )
+            CloudComparePluginProcessing.write_sf(
+                cloud_circles, circles_coords[base_id : stop_id, 10], "quality"
+            )
+            cloud_circles.toggleSF()
+            cloud_circles.setCurrentDisplayedScalarField(5)  # outlier_prob
+            polyline_circles = pycc.ccPolyline(cloud_circles)
+            polyline_circles.setClosed(True)
+            polyline_circles.addPointIndex(0, cloud_circles.size())
+            polyline_circles.addChild(cloud_circles)
+            self.base_group.addChild(polyline_circles)
+            self.cc_instance.addToDB(polyline_circles)
+            self.cc_instance.addToDB(cloud_circles)
+
 
     def _export_axes(self, axes_points: np.ndarray, tilt: np.ndarray):
         cloud_axes = pycc.ccPointCloud(
