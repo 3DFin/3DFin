@@ -8,14 +8,16 @@ import numpy as np
 
 from three_d_fin.processing.configuration import FinConfiguration
 from three_d_fin.processing.io import export_tabular_data
+from three_d_fin.processing.progress import Progress
 
 
 class FinProcessing(ABC):
     """Define a 3DFin algorithm and its I/O requirements.
 
     I/O are defined as abstract methods that must be overridden by implementers.
-
     """
+
+    progress: Progress = Progress()
 
     config: Optional[FinConfiguration] = None
 
@@ -466,6 +468,7 @@ class FinProcessing(ABC):
             Y_field,
             Z_field,
             tree_id_field=-1,
+            progress_hook=self.progress.update,
         )
 
         print("  ")
@@ -543,6 +546,7 @@ class FinProcessing(ABC):
             config.expert.number_sectors,
             config.expert.m_number_sectors,
             config.expert.circle_width,
+            progress_hook=self.progress.update,
         )
 
         # Once every circle on every tree is fitted, outliers are detected.
