@@ -50,7 +50,7 @@ class FinProcessing(ABC):
     def set_overwrite(self, overwrite: bool) -> None:
         """Set the overwrite attribute.
 
-        it could be used by implementers to decide whether they have to delete
+        It could be used by implementers to decide whether they have to delete
         some data from previous computation.
 
         Parameters
@@ -65,7 +65,7 @@ class FinProcessing(ABC):
         """Construct the ouput path for the algorithm output.
 
         This method is called at the start of the process() method.
-        it is used to construct the output_basepath attibute.
+        It is used to construct the output_basepath attibute.
         """
         pass
 
@@ -88,7 +88,7 @@ class FinProcessing(ABC):
         """Load the base cloud from a provider.
 
         The base cloud is the point cloud from which the algoritm will run.
-        it is used to set the base_cloud attribute. It could also could be set
+        It is used to set the base_cloud attribute. It could also could be set
         from the constructor.
         """
         pass
