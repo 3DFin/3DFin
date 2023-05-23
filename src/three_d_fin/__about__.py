@@ -9,7 +9,7 @@ __copyright_info_2__ = (
     "software, and you are welcome to redistribute it under certain conditions."
 )
 
-__copyright_info_3__ = "See LICENSE at the botton of this tab for further details."
+__copyright_info_3__ = "See LICENSE at the bottom of this tab for further details."
 
 __license_msg__ = (
     "See License at the bottom of 'About' tab for more details or visit "
