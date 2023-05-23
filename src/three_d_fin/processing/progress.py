@@ -67,7 +67,6 @@ class Progress(object):
 
         If count is equal to 0, the progress bar is started.
         If count is equal to total, the progress bar is finished.
-        Only refresh if the progress bar has advanced (count % (total * n_chars) == 0
 
         Parameters
         ----------
