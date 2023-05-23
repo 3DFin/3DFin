@@ -624,9 +624,10 @@ class Application(tk.Tk):
             column=1, row=9, columnspan=15, sticky="W", padx=20, pady=5
         )
 
-        sections_text = "A) Sections along the stem B) Detail of computed sections "
-        "showing the distance\nbetween them and their width "
-        "C) Circle fitting to the points of a section."
+        sections_text =("A) Sections along the stem B) Detail of computed sections \n"
+            "showing the distance between them and their width \n" 
+            "C) Circle fitting to the points of a section."
+        )
 
         ttk.Label(self.advanced_tab, text=cleandoc(sections_text)).grid(
             column=1, row=10, columnspan=15, sticky="NW", padx=20, pady=5
