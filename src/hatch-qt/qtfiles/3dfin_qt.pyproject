@@ -1,0 +1,3 @@
+{
+    "files": ["gui_ressources.qrc","main_window.ui","expert_dlg.ui"]
+}

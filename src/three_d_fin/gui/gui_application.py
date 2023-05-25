@@ -26,6 +26,7 @@ class MainWindow(QMainWindow):
 
         # Click on the "documentation"
         self.ui.documentation_link_btn.clicked.connect(self.show_documentation)
+        
         # Click on the "?" button on the expert table
         self.ui.expert_info_btn.clicked.connect(self.show_expert_dialog)
 

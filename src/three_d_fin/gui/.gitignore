@@ -1,7 +1,7 @@
 # qt generated files
 main_window.py
 expert_dlg.py
-ressources.py
+gui_ressources_rc.py
 
 # project file
 qtfiles/*.pyproject.user

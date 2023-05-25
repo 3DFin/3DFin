@@ -1,0 +1,26 @@
+<RCC>
+    <qresource prefix="/assets">
+        <file>../../three_d_fin/assets/3dfin_logo.png</file>
+        <file>../../three_d_fin/assets/normalized_cloud.png</file>
+        <file>../../three_d_fin/assets/original_cloud.png</file>
+        <file>../../three_d_fin/assets/stripe.png</file>
+        <file>../../three_d_fin/assets/section_details.png</file>
+        <file>../../three_d_fin/assets/sectors.png</file>
+        <file>../../three_d_fin/assets/carlos_pic_1.jpg</file>
+        <file>../../three_d_fin/assets/celestino_pic_1.jpg</file>
+        <file>../../three_d_fin/assets/cetemas_logo_1.png</file>
+        <file>../../three_d_fin/assets/covadonga_pic_1.jpg</file>
+        <file>../../three_d_fin/assets/cris_pic_1.jpg</file>
+        <file>../../three_d_fin/assets/csic_logo_1.png</file>
+        <file>../../three_d_fin/assets/diego_pic_1.jpg</file>
+        <file>../../three_d_fin/assets/icon_window.ico</file>
+        <file>../../three_d_fin/assets/nerc_logo_1.png</file>
+        <file>../../three_d_fin/assets/spain_logo_1.png</file>
+        <file>../../three_d_fin/assets/stefan_pic_1.jpg</file>
+        <file>../../three_d_fin/assets/tadas_pic_1.jpg</file>
+        <file>../../three_d_fin/assets/uniovi_logo_1.png</file>
+        <file>../../three_d_fin/assets/swansea_logo_1.png</file>
+        <file>../../three_d_fin/assets/icon_window.ico</file>
+        <file>../../three_d_fin/assets/info_icon.png</file>
+    </qresource>
+</RCC>
