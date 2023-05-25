@@ -1,12 +1,12 @@
 import sys
 import os
-import signal
+from pathlib import Path
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog, QFileDialog
 from PyQt5 import QtCore, QtGui
 
-from _3dfin import Ui_MainWindow
-from _3dfin_expert_dlg import Ui_Dialog
+from three_d_fin.gui.main_window import Ui_MainWindow
+from three_d_fin.gui.expert_dlg import Ui_Dialog
 
 class ExpertDialog(QDialog):
     def __init__(self, parent=None):
@@ -22,7 +22,7 @@ class MainWindow(QMainWindow):
 
         # Force current index to be 0, since QT creator could change that
         self.ui.tabWidget.setCurrentIndex(0)
-        self.setWindowIcon(QtGui.QIcon(":/assets/assets/icon_window.ico"))
+        self.setWindowIcon(QtGui.QIcon(":/assets/three_d_fin/assets/icon_window.ico"))
 
         # Click on the "documentation"
         self.ui.documentation_link_btn.clicked.connect(self.show_documentation)
@@ -33,7 +33,7 @@ class MainWindow(QMainWindow):
         # Click on input
         self.ui.input_file_btn.clicked.connect(self.input_file_clicked)
     
-        # Click on outpout
+        # Click on output
         self.ui.output_dir_btn.clicked.connect(self.output_dir_clicked)
 
         # Click on compute
@@ -48,9 +48,12 @@ class MainWindow(QMainWindow):
         """Show the documentation.
 
         Open the default PDF viewer to show the documentation.
-        TODO: change url / embed in ressource file (+temp dir unpacking)
         """
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl.fromLocalFile("D:/tree_indiv/3DFin/src/three_d_fin/assets/documentation.pdf"));
+        try:
+            base_path = Path(sys._MEIPASS)
+        except Exception:
+            base_path = Path(__file__).absolute().parents[1] / "documentation"
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl.fromLocalFile(str(Path(base_path / "documentation.pdf"))));
 
     def input_file_clicked(self):
         input_dialog = QFileDialog(self)

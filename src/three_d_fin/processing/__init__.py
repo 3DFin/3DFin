@@ -83,7 +83,7 @@ def launch_application() -> int:
         # TODO it's always sucess for now but we should do exception handling
         return EXIT_SUCCESS
 
-    # Else, the CLI case
+    # else, the CLI case
     # First, read the param file and sanitize the input
     config_path = Path(cli_parse.params_file)
     if not config_path.exists() or not config_path.is_file():

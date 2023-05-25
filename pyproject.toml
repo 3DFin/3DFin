@@ -77,7 +77,7 @@ qt-ressource = "pyrcc5 {args} src/hatch-qt/qtfiles/gui_ressources.qrc -o src/thr
 qt-all = ["qt-moc", "qt-ressource"]
 
 [tool.hatch.build]
-exclude = ["src/hatch-qt", "generate_exe", ".github"]
+exclude = ["src/hatch-qt", "src/three_d_fin/assets", "generate_exe", ".github"]
 
 [tool.hatch.build.hooks.custom]
 require-runtime-dependencies = true #TODO: maybe an overkill, could be just pyqt5
