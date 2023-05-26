@@ -475,7 +475,10 @@ class FinProcessing(ABC):
 
         t_las = timeit.default_timer()
         # Export Stripe
-        self._export_stripe(clust_stripe)
+
+        clean_stripe = clust_stripe[np.isin(clust_stripe[:, -1], tree_vector[:, 0])]
+
+        self._export_stripe(clean_stripe)
 
         # Whole cloud including new
         self._enrich_base_cloud(assigned_cloud)
