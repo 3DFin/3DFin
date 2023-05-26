@@ -2,9 +2,17 @@ import sys
 from pathlib import Path
 from typing import Optional
 
+import laspy
 from pydantic import ValidationError
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtWidgets import QComboBox, QDialog, QFileDialog, QMainWindow, QWidget
+from PyQt5.QtWidgets import (
+    QComboBox,
+    QDialog,
+    QFileDialog,
+    QMainWindow,
+    QMessageBox,
+    QWidget,
+)
 
 from three_d_fin.gui.expert_dlg import Ui_Dialog
 from three_d_fin.gui.main_window import Ui_MainWindow
@@ -64,14 +72,18 @@ class Application(QMainWindow):
         self.ui.expert_info_btn.clicked.connect(self.show_expert_dialog)
 
         # Click on input
-        self.ui.input_file_btn.clicked.connect(self.input_file_clicked)
+        self.ui.input_file_btn.clicked.connect(self._ask_input_file)
 
         # Click on output
-        self.ui.output_dir_btn.clicked.connect(self.output_dir_clicked)
+        self.ui.output_dir_btn.clicked.connect(self._ask_output_dir)
 
         # Click on compute
         self.ui.compute_btn.clicked.connect(self.compute_clicked)
 
+         # Connect is_normalized
+        self.ui.is_normalized_chk.toggled.connect(self.normalize_toggled)
+
+        # Handle the case of a predefined and limited choice of cloud_fields
         if self.cloud_fields is not None:
             layout = self.ui.z0_name_in.parent().layout()
             field_combo = QComboBox(self)
@@ -79,10 +91,14 @@ class Application(QMainWindow):
             layout.replaceWidget(self.ui.z0_name_in, field_combo)
             self.ui.z0_name_in.setParent(None)
             self.ui.z0_name_in = field_combo
-
-        # Connect is_normalized
-        self.ui.is_normalized_chk.toggled.connect(self.normalize_toggled)
-
+       
+        # Handle the case where the input file is defined by another mean
+        if self.file_externally_defined:
+            self.ui.input_file_lbl.setDisabled(True)
+            self.ui.input_file_lbl.setText("File already set by the application")
+            self.ui.input_file_btn.setDisabled(True)
+            self.ui.input_file_in.setDisabled(True)
+       
         self._load_config_or_default()
         self._populate_fields()
 
@@ -117,7 +133,6 @@ class Application(QMainWindow):
                     if value_param in self.cloud_fields:
                         id_default = self.cloud_fields.index(value_param)
                         self.ui.z0_name_in.setCurrentIndex(id_default)
-                        # self.ui.z0_name_in.set(value_param) #currentText()
                 # Fix a minor presentation issue when no file is defined
                 elif key_param == "input_file" and value_param is None:
                     self.ui.input_file_in.setText("")
@@ -151,15 +166,56 @@ class Application(QMainWindow):
             QtCore.QUrl.fromLocalFile(str(Path(base_path / "documentation.pdf")))
         )
 
-    def input_file_clicked(self):
-        input_dialog = QFileDialog(self)
-        if input_dialog.exec_():
-            self.ui.input_file_in.setText(input_dialog.selectedFiles()[0])
+    def _ask_input_file(self):
+        """Ask for a proper input las file.
 
-    def output_dir_clicked(self):
-        input_dialog = QFileDialog(self)
-        if input_dialog.exec_():
-            self.ui.output_dir_in.setText(input_dialog.selectedFiles()[0])
+        Current selected file is checked for validity (existence and type)
+        in order to setup the initial dir and the initial file in
+        the dialog. If a file is selected then it is checked to be a valid
+        Las file before adding its path to the related input field.
+        the output directory is changed accordingly (default to input las file
+        parent directory)
+        """
+        initial_path = Path(self.ui.input_file_in.text())
+        is_initial_file = (
+            True if initial_path.exists() and initial_path.is_file() else False
+        )
+        initial_dir = initial_path.parent.resolve() if is_initial_file else Path.home()
+        las_file, _ = QFileDialog.getOpenFileName(
+            self,
+            "3DFin input file",
+            str(initial_dir),
+            "las files (*.las *.Las *.Laz *.laz)",
+        )
+
+        if las_file == "" or None:
+            return
+
+        try:
+            laspy.open(las_file, read_evlrs=False)
+        except laspy.LaspyException:
+            QMessageBox.critical(self, "3DFin Error", "Invalid input file")
+            return
+
+        self.ui.input_file_in.setText(str(Path(las_file).resolve()))
+        self.ui.output_dir_in.setText(str(Path(las_file).parent.resolve()))
+
+    def _ask_output_dir(self):
+        """Ask for a proper output directory."""
+        initial_path = Path(self.ui.output_dir_in.text())
+        has_valid_initial_dir = (
+            True if initial_path.exists() and initial_path.is_dir() else False
+        )
+        initial_dir = initial_path if has_valid_initial_dir else Path.home()
+        self.ui.output_dir_in.setText(str(initial_dir.resolve()))
+
+        output_dir = QFileDialog.getExistingDirectory(
+            self, "3DFin output directory", str(initial_dir)
+        )
+
+        # If the dialog was not closed/canceled
+        if output_dir != "" and not None:
+            self.ui.output_dir_in.setText(str(Path(output_dir).resolve()))
 
     def compute_clicked(self):
         placeholder = QDialog(self)
