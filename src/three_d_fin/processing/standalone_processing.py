@@ -87,12 +87,20 @@ class StandaloneLASProcessing(FinProcessing):
         las_stripe.write(str(self.output_basepath) + "_stripe.las")
 
     def _enrich_base_cloud(self, assigned_cloud: np.ndarray):
-        self.base_cloud.add_extra_dims(
-            [
-                laspy.ExtraBytesParams(name="dist_axes", type=np.float64),
-                laspy.ExtraBytesParams(name="tree_ID", type=np.int32),
-            ]
-        )
+        extra_fields = list()
+
+        # We have to check extra field existence before. It could be a cloud from a previous run
+        # or user may already have these fields for a reason or another
+
+        if not hasattr(self.base_cloud, "dist_axes"):
+            extra_fields.append(
+                laspy.ExtraBytesParams(name="dist_axes", type=np.float64)
+            )
+        if not hasattr(self.base_cloud, "tree_ID"):
+            extra_fields.append(laspy.ExtraBytesParams(name="tree_ID", type=np.int32))
+
+        # Batch add of extra fields. Minimize the memory allocation
+        self.base_cloud.add_extra_dims(extra_fields)
 
         self.base_cloud.dist_axes = assigned_cloud[:, 5]
         self.base_cloud.tree_ID = assigned_cloud[:, 4]
@@ -103,8 +111,7 @@ class StandaloneLASProcessing(FinProcessing):
             # So we have to check its existence before.
             # In this case no need to ask if we want to override, since it's saved
             # in another file instance
-            # TODO: Maybe name this field in accordance with z0_name value
-            if self.base_cloud.Z0 is None:
+            if not hasattr(self.base_cloud, "Z0"):
                 self.base_cloud.add_extra_dim(
                     laspy.ExtraBytesParams(name="Z0", type=np.float64)
                 )
