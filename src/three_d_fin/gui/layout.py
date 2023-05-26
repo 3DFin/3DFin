@@ -624,9 +624,11 @@ class Application(tk.Tk):
             column=1, row=9, columnspan=15, sticky="W", padx=20, pady=5
         )
 
-        sections_text = "A) Sections along the stem B) Detail of computed sections "
-        "showing the distance\nbetween them and their width "
-        "C) Circle fitting to the points of a section."
+        sections_text = (
+            "A) Sections along the stem B) Detail of computed sections \n"
+            "showing the distance between them and their width \n"
+            "C) Circle fitting to the points of a section."
+        )
 
         ttk.Label(self.advanced_tab, text=cleandoc(sections_text)).grid(
             column=1, row=10, columnspan=15, sticky="NW", padx=20, pady=5
@@ -1238,7 +1240,7 @@ class Application(tk.Tk):
             circle_width_info,
             text="Width, in meters, around the circumference to look\n"
             "for points.\n"
-            "Defaul value: 0.02 meters.",
+            "Default value: 0.02 meters.",
         )
 
         circa_info = ttk.Label(self.expert_tab, image=self.info_icon)
@@ -1388,16 +1390,6 @@ class Application(tk.Tk):
         self.about_tab = ttk.Frame(self.note)
         self.note.add(self.about_tab, text="About")
 
-        nerc_project = (
-            "'Advancing 3D Fuel Mapping for Wildfire Behaviour and "
-            "Risk Mitigation Modelling'"
-        )
-
-        csic_project = (
-            "‘Advancing carbon emission estimations from wildfires applying "
-            "artificial intelligence to 3D terrestrial point clouds’"
-        )
-
         ### TEAM MEMBERS ###
         carloscabo = (
             "Carlos Cabo (carloscabo.uniovi@gmail.com). PhD in Geomatics. "
@@ -1499,7 +1491,9 @@ class Application(tk.Tk):
         about_1_lab.grid(row=4, column=1, columnspan=3, sticky="W")
 
         nerc_project_lab = ttk.Label(
-            self.scrollable_info, text=nerc_project, font=("Helvetica", 10, "italic")
+            self.scrollable_info,
+            text=__about__.__nerc_project__,
+            font=("Helvetica", 10, "italic"),
         )
         nerc_project_lab.grid(row=5, column=1, columnspan=3)
 
@@ -1507,7 +1501,9 @@ class Application(tk.Tk):
         about_2_lab.grid(row=6, column=1, columnspan=3, sticky="W")
 
         csic_project_lab = ttk.Label(
-            self.scrollable_info, text=csic_project, font=("Helvetica", 10, "italic")
+            self.scrollable_info,
+            text=__about__.__csic_project__,
+            font=("Helvetica", 10, "italic"),
         )
         csic_project_lab.grid(row=7, column=1, columnspan=3)
 
