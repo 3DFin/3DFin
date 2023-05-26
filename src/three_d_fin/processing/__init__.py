@@ -29,8 +29,6 @@ def launch_application() -> int:
     from three_d_fin.processing.configuration import FinConfiguration, MiscParameters
     from three_d_fin.processing.standalone_processing import StandaloneLASProcessing
 
-
-
     EXIT_ERROR = 1
     EXIT_SUCCESS = 0
 
@@ -85,8 +83,8 @@ def launch_application() -> int:
         os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
         QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
         app = QApplication(sys.argv)
-        widget = Application(fin_processing)
-        widget.show()
+        app_widget = Application(fin_processing)
+        app_widget.show()
         app.exec_()
         # TODO it's always sucess for now but we should do exception handling
         return EXIT_SUCCESS

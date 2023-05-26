@@ -4,7 +4,7 @@ from typing import Optional
 
 from pydantic import ValidationError
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtWidgets import QDialog, QFileDialog, QMainWindow, QWidget
+from PyQt5.QtWidgets import QComboBox, QDialog, QFileDialog, QMainWindow, QWidget
 
 from three_d_fin.gui.expert_dlg import Ui_Dialog
 from three_d_fin.gui.main_window import Ui_MainWindow
@@ -18,6 +18,7 @@ class ExpertDialog(QDialog):
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
 
+
 class Application(QMainWindow):
     params = FinConfiguration
 
@@ -26,7 +27,7 @@ class Application(QMainWindow):
         processing_object: FinProcessing,
         file_externally_defined: bool = False,
         cloud_fields: Optional[set[str]] = None,
-        parent: QWidget = None
+        parent: QWidget = None,
     ):
         """Construct the 3DFin GUI Application.
 
@@ -71,6 +72,14 @@ class Application(QMainWindow):
         # Click on compute
         self.ui.compute_btn.clicked.connect(self.compute_clicked)
 
+        if self.cloud_fields is not None:
+            layout = self.ui.z0_name_in.parent().layout()
+            field_combo = QComboBox(self)
+            field_combo.addItems(self.cloud_fields)
+            layout.replaceWidget(self.ui.z0_name_in, field_combo)
+            self.ui.z0_name_in.setParent(None)
+            self.ui.z0_name_in = field_combo
+
         # Connect is_normalized
         self.ui.is_normalized_chk.toggled.connect(self.normalize_toggled)
 
@@ -104,23 +113,26 @@ class Application(QMainWindow):
         for config_section in config_dict:
             for key_param, value_param in config_dict[config_section].items():
                 # Default z0_name should match one of the supplied list if present.
-                # TODO
-                #if (key_param == "z0_name") and self.cloud_fields is not None:
-                #    if value_param in self.cloud_fields:
-                #        getattr(self.ui, key_param).set(value_param)
+                if key_param == "z0_name" and self.cloud_fields is not None:
+                    if value_param in self.cloud_fields:
+                        id_default = self.cloud_fields.index(value_param)
+                        self.ui.z0_name_in.setCurrentIndex(id_default)
+                        # self.ui.z0_name_in.set(value_param) #currentText()
                 # Fix a minor presentation issue when no file is defined
-                if key_param == "input_file" and value_param is None:
+                elif key_param == "input_file" and value_param is None:
                     self.ui.input_file_in.setText("")
                 elif key_param == "is_normalized":
-                   self.ui.is_normalized_chk.setChecked(not value_param) # TODO change = do_normalize
+                    self.ui.is_normalized_chk.setChecked(
+                        not value_param
+                    )  # TODO change = do_normalize
                 elif key_param == "is_noisy":
                     self.ui.is_noisy_chk.setChecked(value_param)
                 elif key_param == "export_txt":
                     self.ui.export_txt_rb_1.setChecked(value_param)
-                    self.ui.export_txt_rb_2.setChecked(not value_param) 
+                    self.ui.export_txt_rb_2.setChecked(not value_param)
                 else:
                     getattr(self.ui, key_param + "_in").setText(str(value_param))
-    
+
     def show_expert_dialog(self):
         """Show the expert help/warning dialog."""
         dialog = ExpertDialog(self)
@@ -152,8 +164,8 @@ class Application(QMainWindow):
     def compute_clicked(self):
         placeholder = QDialog(self)
         placeholder.show()
-    
+
     def normalize_toggled(self):
         self.ui.is_noisy_chk.setEnabled(self.ui.is_normalized_chk.isChecked())
         self.ui.z0_name_in.setEnabled(not self.ui.is_normalized_chk.isChecked())
-        self.ui.z0_name_lbl.setEnabled(not self.ui.is_normalized_chk.isChecked())        
+        self.ui.z0_name_lbl.setEnabled(not self.ui.is_normalized_chk.isChecked())

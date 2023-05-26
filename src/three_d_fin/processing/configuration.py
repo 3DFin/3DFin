@@ -162,7 +162,9 @@ class ExpertParameters(BaseModel):
 class MiscParameters(BaseModel):
     """Handle the "misc" parameters section."""
 
-    is_normalized: bool = Field(title="Is cloud normalized", default=False) # TODO change = do_normalize, default True
+    is_normalized: bool = Field(
+        title="Is cloud normalized", default=False
+    )  # TODO change = do_normalize, default True
     is_noisy: bool = Field(title="Is cloud noisy", default=False)
     export_txt: bool = Field(title="Export tabular data to txt", default=False)
     # input file is not mandatory and could be provided by another mean.
