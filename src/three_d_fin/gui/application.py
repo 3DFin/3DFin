@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Optional
 
 import laspy
-from pydantic import ValidationError
+from pydantic import ModelField, ValidationError
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import (
     QComboBox,
@@ -66,10 +66,10 @@ class Application(QMainWindow):
         self.setWindowIcon(QtGui.QIcon(":/assets/three_d_fin/assets/icon_window.ico"))
 
         # Click on the "documentation"
-        self.ui.documentation_link_btn.clicked.connect(self.show_documentation)
+        self.ui.documentation_link_btn.clicked.connect(self._show_documentation)
 
         # Click on the "?" button on the expert table
-        self.ui.expert_info_btn.clicked.connect(self.show_expert_dialog)
+        self.ui.expert_info_btn.clicked.connect(self._show_expert_dialog)
 
         # Click on input
         self.ui.input_file_btn.clicked.connect(self._ask_input_file)
@@ -78,10 +78,10 @@ class Application(QMainWindow):
         self.ui.output_dir_btn.clicked.connect(self._ask_output_dir)
 
         # Click on compute
-        self.ui.compute_btn.clicked.connect(self.compute_clicked)
+        self.ui.compute_btn.clicked.connect(self._compute_clicked)
 
          # Connect is_normalized
-        self.ui.is_normalized_chk.toggled.connect(self.normalize_toggled)
+        self.ui.is_normalized_chk.toggled.connect(self._normalize_toggled)
 
         # Handle the case of a predefined and limited choice of cloud_fields
         if self.cloud_fields is not None:
@@ -148,12 +148,12 @@ class Application(QMainWindow):
                 else:
                     getattr(self.ui, key_param + "_in").setText(str(value_param))
 
-    def show_expert_dialog(self):
+    def _show_expert_dialog(self):
         """Show the expert help/warning dialog."""
         dialog = ExpertDialog(self)
         dialog.show()
 
-    def show_documentation(self):
+    def _show_documentation(self):
         """Show the documentation.
 
         Open the default PDF viewer to show the documentation.
@@ -217,11 +217,91 @@ class Application(QMainWindow):
         if output_dir != "" and not None:
             self.ui.output_dir_in.setText(str(Path(output_dir).resolve()))
 
-    def compute_clicked(self):
-        placeholder = QDialog(self)
-        placeholder.show()
+    def _get_parameters(self):
+        """Get parameters from widgets and return them organized in a dictionary.
 
-    def normalize_toggled(self):
+        Returns
+        -------
+        options : dict[str, dict[str, str]]
+            Dictionary of parameters. It is organized following the
+            3DFinconfig.ini file: Each parameters are sorted in sub-dict
+            ("basic", "expert", "advanced", "misc").
+        """
+        config_dict: dict[str, dict[str, str]] = dict()
+        for category_name, category_field in FinConfiguration.__fields__.items():
+            category_dict: dict[str, str] = dict()
+            for key_param in category_field.type_().__fields__:
+                if key_param == "z0_name" and self.cloud_fields is not None:
+                    if key_param in self.cloud_fields:
+                        self.ui.z0_name_in.setCurrentIndex(id_default)
+                # Fix a minor presentation issue when no file is defined
+                elif key_param == "input_file" and value_param is None:
+                    self.ui.input_file_in.setText("")
+                elif key_param == "is_normalized":
+                    self.ui.is_normalized_chk.setChecked(
+                        not value_param
+                    )  # TODO change = do_normalize
+                elif key_param == "is_noisy":
+                    self.ui.is_noisy_chk.setChecked(value_param)
+                elif key_param == "export_txt":
+                    self.ui.export_txt_rb_1.setChecked(value_param)
+                    self.ui.export_txt_rb_2.setChecked(not value_param)
+                else:
+                    category_dict[key_param] = getattr(self.ui, key_param + "_in").text()
+               
+            config_dict[category_name] = category_dict
+        # if the file is defined elsewhere, no need to define it
+        if self.file_externally_defined:
+            config_dict["misc"]["input_file"] = None
+        return config_dict
+    
+    def _compute_clicked(self):
+        """Validate I/O entries and run the processing callback."""
+        params = self._get_parameters()
+
+        # define a local function in order to popup errors
+        def _show_error(error_msg: str) -> str:
+            return QMessageBox.critical(
+                self, "3DFin Error", error_msg
+            )
+
+        # Pydantic checks, we check the validity of the data
+        try:
+            fin_config = FinConfiguration.parse_obj(params)
+        except ValidationError as validation_errors:
+            final_msg: str = "Invalid Parameters:\n\n"
+            for error in validation_errors.errors():
+                error_loc: list[str] = error["loc"]
+                # Get the human readable value for the field by introspection
+                # (stored in "title "attribute)
+                field: ModelField = (
+                    FinConfiguration.__fields__[error_loc[0]]
+                    .type_()
+                    .__fields__[error_loc[1]]
+                )
+                title = field.field_info.title
+                # formatting
+                final_msg = final_msg + f"{title} \n"
+                final_msg = final_msg + f"""\t -> {error["msg"]} \n"""
+            _show_error(final_msg)
+            return
+
+        self.processing_object.set_config(fin_config)
+        # Here we will check in an astract way if the output could collides
+        # with previous computation. and ask if we want to overwrite them.
+        if self.processing_object.check_already_computed_data():
+            overwrite = messagebox.askokcancel(
+                title="3DFin",
+                message="The output target already contains results from a previous 3DFin computation, do you want to overwrite them?",
+            )
+            if not overwrite:
+                return
+
+        # Now we do the processing in itself
+        # TODO: handle exception in processing here
+        self.processing_object.process()
+
+    def _normalize_toggled(self):
         self.ui.is_noisy_chk.setEnabled(self.ui.is_normalized_chk.isChecked())
         self.ui.z0_name_in.setEnabled(not self.ui.is_normalized_chk.isChecked())
         self.ui.z0_name_lbl.setEnabled(not self.ui.is_normalized_chk.isChecked())
