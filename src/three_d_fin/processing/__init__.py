@@ -1,6 +1,7 @@
 import argparse
 import configparser
 import os
+import sys
 from pathlib import Path
 
 
@@ -20,11 +21,15 @@ def launch_application() -> int:
     """
     import laspy
     import pydantic
+    from PyQt5 import QtCore
+    from PyQt5.QtWidgets import QApplication
 
     from three_d_fin import __about__
-    from three_d_fin.gui.layout import Application
+    from three_d_fin.gui.application import Application
     from three_d_fin.processing.configuration import FinConfiguration, MiscParameters
     from three_d_fin.processing.standalone_processing import StandaloneLASProcessing
+
+
 
     EXIT_ERROR = 1
     EXIT_SUCCESS = 0
@@ -77,9 +82,12 @@ def launch_application() -> int:
     fin_processing = StandaloneLASProcessing()
     # No subcommand, launch GUI
     if cli_parse.subcommand is None:
-        # create the processing object
-        fin_app = Application(fin_processing)
-        _ = fin_app.run()
+        os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+        QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+        app = QApplication(sys.argv)
+        widget = Application(fin_processing)
+        widget.show()
+        app.exec_()
         # TODO it's always sucess for now but we should do exception handling
         return EXIT_SUCCESS
 

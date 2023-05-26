@@ -32,7 +32,6 @@ dependencies = [
   "numpy>=1.24.0",
   "pandas~=2.0.0",
   "XlsxWriter~=3.1.0",
-  "Pillow~=9.5.0",
   "dendromatics~=0.1.0",
   "pydantic~=1.10.7",
   "PyQT5~=5.12",

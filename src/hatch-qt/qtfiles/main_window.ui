@@ -123,7 +123,7 @@
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap>:/assets/three_d_fin/assets/original_cloud.png</pixmap>
+           <pixmap resource="gui_ressources.qrc">:/assets/three_d_fin/assets/original_cloud.png</pixmap>
           </property>
           <property name="alignment">
            <set>Qt::AlignHCenter|Qt::AlignTop</set>
@@ -151,7 +151,7 @@
               <string/>
              </property>
              <property name="pixmap">
-              <pixmap>:/assets/three_d_fin/assets/3dfin_logo.png</pixmap>
+              <pixmap resource="gui_ressources.qrc">:/assets/three_d_fin/assets/3dfin_logo.png</pixmap>
              </property>
             </widget>
            </item>
@@ -224,7 +224,7 @@ Further details may be found in next tabs and in the documentation.</string>
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap>:/assets/three_d_fin/assets/normalized_cloud.png</pixmap>
+           <pixmap resource="gui_ressources.qrc">:/assets/three_d_fin/assets/normalized_cloud.png</pixmap>
           </property>
           <property name="alignment">
            <set>Qt::AlignHCenter|Qt::AlignTop</set>
@@ -246,93 +246,10 @@ Further details may be found in next tabs and in the documentation.</string>
            <enum>QFrame::Raised</enum>
           </property>
           <layout class="QGridLayout" name="gridLayout_3">
-           <item row="7" column="1">
-            <widget class="QLineEdit" name="number_of_iterations_in">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>72</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="1">
-            <widget class="QLineEdit" name="z0_name_in">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>72</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QCheckBox" name="is_noisy_chk">
-             <property name="text">
-              <string>Clean noise on dtm</string>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="2">
-            <widget class="QLabel" name="lower_limit_un">
-             <property name="text">
-              <string>meters</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="z0_name_lbl">
-             <property name="text">
-              <string>Normalized height field name</string>
-             </property>
-            </widget>
-           </item>
            <item row="5" column="0">
             <widget class="QLabel" name="upper_limit_lbl">
              <property name="text">
               <string>Strippe Upper Limit</string>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="0">
-            <widget class="QLabel" name="number_of_iterations_lbl">
-             <property name="text">
-              <string>Pruning Intensity</string>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="1">
-            <widget class="QLineEdit" name="lower_limit_in">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>72</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QCheckBox" name="is_normalized_chk">
-             <property name="text">
-              <string>Normalize point cloud</string>
              </property>
             </widget>
            </item>
@@ -352,6 +269,13 @@ Further details may be found in next tabs and in the documentation.</string>
              </property>
             </widget>
            </item>
+           <item row="3" column="0">
+            <widget class="QRadioButton" name="export_txt_rb_1">
+             <property name="text">
+              <string>CSV</string>
+             </property>
+            </widget>
+           </item>
            <item row="5" column="1">
             <widget class="QLineEdit" name="upper_limit_in">
              <property name="sizePolicy">
@@ -368,13 +292,6 @@ Further details may be found in next tabs and in the documentation.</string>
              </property>
             </widget>
            </item>
-           <item row="7" column="2">
-            <widget class="QLabel" name="number_of_iterations_un">
-             <property name="text">
-              <string>0-5</string>
-             </property>
-            </widget>
-           </item>
            <item row="5" column="2">
             <widget class="QLabel" name="upper_limit_un">
              <property name="text">
@@ -382,10 +299,40 @@ Further details may be found in next tabs and in the documentation.</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="0">
-            <widget class="QRadioButton" name="export_txt_rb_1">
+           <item row="3" column="1">
+            <widget class="QRadioButton" name="export_txt_rb_2">
              <property name="text">
-              <string>CSV</string>
+              <string>XLSX</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0">
+            <widget class="QLabel" name="number_of_iterations_lbl">
+             <property name="text">
+              <string>Pruning Intensity</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QLineEdit" name="z0_name_in">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>72</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="2">
+            <widget class="QLabel" name="lower_limit_un">
+             <property name="text">
+              <string>meters</string>
              </property>
             </widget>
            </item>
@@ -396,10 +343,63 @@ Further details may be found in next tabs and in the documentation.</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
-            <widget class="QRadioButton" name="export_txt_rb_2">
+           <item row="4" column="0">
+            <widget class="QLabel" name="z0_name_lbl">
              <property name="text">
-              <string>XLSX</string>
+              <string>Normalized height field name</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QCheckBox" name="is_noisy_chk">
+             <property name="text">
+              <string>Clean noise on dtm</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="2">
+            <widget class="QLabel" name="number_of_iterations_un">
+             <property name="text">
+              <string>0-5</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QLineEdit" name="lower_limit_in">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>72</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="1">
+            <widget class="QLineEdit" name="number_of_iterations_in">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>72</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QCheckBox" name="is_normalized_chk">
+             <property name="text">
+              <string>Normalize point cloud</string>
              </property>
             </widget>
            </item>
@@ -434,7 +434,7 @@ Further details may be found in next tabs and in the documentation.</string>
               <string/>
              </property>
              <property name="pixmap">
-              <pixmap>:/assets/three_d_fin/assets/section_details.png</pixmap>
+              <pixmap resource="gui_ressources.qrc">:/assets/three_d_fin/assets/section_details.png</pixmap>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -456,7 +456,7 @@ Further details may be found in next tabs and in the documentation.</string>
               <string/>
              </property>
              <property name="pixmap">
-              <pixmap>:/assets/three_d_fin/assets/sectors.png</pixmap>
+              <pixmap resource="gui_ressources.qrc">:/assets/three_d_fin/assets/sectors.png</pixmap>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -1339,7 +1339,7 @@ You can get a brief description of what they do by hovering the mouse over the i
          </widget>
         </item>
         <item row="17" column="4">
-         <widget class="QLabel" name="res_cloth_in">
+         <widget class="QLabel" name="res_cloth_lbl">
           <property name="text">
            <string>Cloth resolution</string>
           </property>
@@ -1441,7 +1441,7 @@ You can get a brief description of what they do by hovering the mouse over the i
          </widget>
         </item>
         <item row="17" column="5">
-         <widget class="QLineEdit" name="res_cloth_in_2">
+         <widget class="QLineEdit" name="res_cloth_in">
           <property name="maximumSize">
            <size>
             <width>72</width>
@@ -1567,7 +1567,7 @@ You can get a brief description of what they do by hovering the mouse over the i
            <string/>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="gui_ressources.qrc">
             <normaloff>:/assets/three_d_fin/assets/info_icon.png</normaloff>:/assets/three_d_fin/assets/info_icon.png</iconset>
           </property>
           <property name="iconSize">
