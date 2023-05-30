@@ -38,7 +38,7 @@ class ExpertDialog(QDialog):
 class Application(QMainWindow):
     """The GUI Application."""
 
-    params = FinConfiguration
+    params: FinConfiguration = FinConfiguration()
 
     def __init__(
         self,
@@ -62,10 +62,9 @@ class Application(QMainWindow):
             List of candidates fields for the Z0 field. If present (not None),
             the z0_entry will be turned into a dropdown menu. If present but void,
             height normalization radio buttons will be disabled.
-            TODO: we can imagine, no z0 fields and z == z0
         parent : Optional[QWidget]
-            An optional parent. Should be none if runned as standalone but could
-            be a parent QWidget of the base application if runned as a plugin
+            An optional parent. Should be None if runned as standalone but could
+            be a parent QWidget from the base application if runned as a plugin
         """
         super().__init__(parent)
         self.ui = Ui_MainWindow()

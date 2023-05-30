@@ -9,7 +9,7 @@ a = Analysis(
     pathex=["../src/three_d_fin/"],
     binaries=[],
     datas=[
-        ("../src/three_d_fin/assets/documentation.pdf", "."),
+        ("../src/three_d_fin/documentation/documentation.pdf", "."),
     ],
     hiddenimports=[
         "jakteristics.utils",
