@@ -3,7 +3,8 @@ from pathlib import Path
 from typing import Optional
 
 import laspy
-from pydantic import ModelField, ValidationError
+from pydantic import ValidationError
+from pydantic.fields import ModelField
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import (
     QComboBox,
@@ -80,7 +81,7 @@ class Application(QMainWindow):
         # Click on compute
         self.ui.compute_btn.clicked.connect(self._compute_clicked)
 
-         # Connect is_normalized
+        # Connect is_normalized
         self.ui.is_normalized_chk.toggled.connect(self._normalize_toggled)
 
         # Handle the case of a predefined and limited choice of cloud_fields
@@ -91,14 +92,14 @@ class Application(QMainWindow):
             layout.replaceWidget(self.ui.z0_name_in, field_combo)
             self.ui.z0_name_in.setParent(None)
             self.ui.z0_name_in = field_combo
-       
+
         # Handle the case where the input file is defined by another mean
         if self.file_externally_defined:
             self.ui.input_file_lbl.setDisabled(True)
             self.ui.input_file_lbl.setText("File already set by the application")
             self.ui.input_file_btn.setDisabled(True)
             self.ui.input_file_in.setDisabled(True)
-       
+
         self._load_config_or_default()
         self._populate_fields()
 
@@ -224,7 +225,7 @@ class Application(QMainWindow):
         -------
         options : dict[str, dict[str, str]]
             Dictionary of parameters. It is organized following the
-            3DFinconfig.ini file: Each parameters are sorted in sub-dict
+            3DFinconfig.ini file: Each parameters are sorted in a sub-dict
             ("basic", "expert", "advanced", "misc").
         """
         config_dict: dict[str, dict[str, str]] = dict()
@@ -232,38 +233,34 @@ class Application(QMainWindow):
             category_dict: dict[str, str] = dict()
             for key_param in category_field.type_().__fields__:
                 if key_param == "z0_name" and self.cloud_fields is not None:
-                    if key_param in self.cloud_fields:
-                        self.ui.z0_name_in.setCurrentIndex(id_default)
-                # Fix a minor presentation issue when no file is defined
-                elif key_param == "input_file" and value_param is None:
-                    self.ui.input_file_in.setText("")
+                    category_dict[key_param] = self.ui.z0_name_in.currentText()
+                # When file is externally defined, force it to None to avoid validation errors
+                elif key_param == "input_file" and self.file_externally_defined:
+                    category_dict[key_param] = None
                 elif key_param == "is_normalized":
-                    self.ui.is_normalized_chk.setChecked(
-                        not value_param
+                    category_dict[
+                        key_param
+                    ] = (
+                        not self.ui.is_normalized_chk.isChecked()
                     )  # TODO change = do_normalize
                 elif key_param == "is_noisy":
-                    self.ui.is_noisy_chk.setChecked(value_param)
+                    category_dict[key_param] = self.ui.is_noisy_chk.isChecked()
                 elif key_param == "export_txt":
-                    self.ui.export_txt_rb_1.setChecked(value_param)
-                    self.ui.export_txt_rb_2.setChecked(not value_param)
+                    category_dict[key_param] = not self.ui.export_txt_rb_1.isChecked()
                 else:
-                    category_dict[key_param] = getattr(self.ui, key_param + "_in").text()
-               
+                    category_dict[key_param] = getattr(
+                        self.ui, key_param + "_in"
+                    ).text()
             config_dict[category_name] = category_dict
-        # if the file is defined elsewhere, no need to define it
-        if self.file_externally_defined:
-            config_dict["misc"]["input_file"] = None
         return config_dict
-    
+
     def _compute_clicked(self):
         """Validate I/O entries and run the processing callback."""
         params = self._get_parameters()
 
         # define a local function in order to popup errors
         def _show_error(error_msg: str) -> str:
-            return QMessageBox.critical(
-                self, "3DFin Error", error_msg
-            )
+            return QMessageBox.critical(self, "3DFin Error", error_msg)
 
         # Pydantic checks, we check the validity of the data
         try:
@@ -287,14 +284,16 @@ class Application(QMainWindow):
             return
 
         self.processing_object.set_config(fin_config)
-        # Here we will check in an astract way if the output could collides
-        # with previous computation. and ask if we want to overwrite them.
+
+        # Here we will check in an astract way if the output could collide
+        # with previous computations... and ask if we want to overwrite them.
         if self.processing_object.check_already_computed_data():
-            overwrite = messagebox.askokcancel(
-                title="3DFin",
-                message="The output target already contains results from a previous 3DFin computation, do you want to overwrite them?",
+            overwrite = QMessageBox.question(
+                self,
+                "3DFin",
+                "The output target already contains results from a previous 3DFin computation, do you want to overwrite them?",
             )
-            if not overwrite:
+            if not overwrite == QMessageBox.Yes:
                 return
 
         # Now we do the processing in itself
