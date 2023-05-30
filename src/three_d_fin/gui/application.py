@@ -22,13 +22,22 @@ from three_d_fin.processing.configuration import FinConfiguration
 
 
 class ExpertDialog(QDialog):
+    """Create the expert / about dialog.
+
+    For now, it's an empty shell but it is left as is for further
+    programatically added parameters.
+    """
+
     def __init__(self, parent=None):
+        """Init the dialog."""
         super().__init__(parent)
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
 
 
 class Application(QMainWindow):
+    """The GUI Application."""
+
     params = FinConfiguration
 
     def __init__(
@@ -54,6 +63,9 @@ class Application(QMainWindow):
             the z0_entry will be turned into a dropdown menu. If present but void,
             height normalization radio buttons will be disabled.
             TODO: we can imagine, no z0 fields and z == z0
+        parent : Optional[QWidget]
+            An optional parent. Should be none if runned as standalone but could
+            be a parent QWidget of the base application if runned as a plugin
         """
         super().__init__(parent)
         self.ui = Ui_MainWindow()
@@ -150,7 +162,7 @@ class Application(QMainWindow):
                     getattr(self.ui, key_param + "_in").setText(str(value_param))
 
     def _show_expert_dialog(self):
-        """Show the expert help/warning dialog."""
+        """Show the expert help/about dialog."""
         dialog = ExpertDialog(self)
         dialog.show()
 
