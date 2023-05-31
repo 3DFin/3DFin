@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from PyQt5.QtCore import QEventLoop, QThread
+
 import pycc
 
 from three_d_fin.cloudcompare.plugin_processing import CloudComparePluginProcessing
@@ -57,8 +59,10 @@ def _create_app_and_run(
     plugin_widget = Application(
         plugin_processing, file_externally_defined=True, cloud_fields=scalar_fields
     )
+    loop = QEventLoop()
     plugin_widget.show()
-
+    plugin_widget.set_event_loop(loop)
+    loop.exec_()
 
 def main():
     """3DFin CloudCompare Plugin main action."""
@@ -84,8 +88,8 @@ def main():
 
     cc.freezeUI(True)
     try:
-        pycc.RunInThread(_create_app_and_run, plugin_functor, scalar_fields)
-        # _create_app_and_run(plugin_functor, scalar_fields)
+         # pycc.RunInThread(_create_app_and_run, plugin_functor, scalar_fields)
+         _create_app_and_run(plugin_functor, scalar_fields)
     except Exception:
         raise RuntimeError(
             "Something went wrong!"

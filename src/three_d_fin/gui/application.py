@@ -6,6 +6,7 @@ import laspy
 from pydantic import ValidationError
 from pydantic.fields import ModelField
 from PyQt5 import QtCore, QtGui
+from PyQt5.QtCore import QEventLoop
 from PyQt5.QtWidgets import (
     QComboBox,
     QDialog,
@@ -39,6 +40,8 @@ class Application(QMainWindow):
     """The GUI Application."""
 
     params: FinConfiguration = FinConfiguration()
+
+    event_loop: QEventLoop = None
 
     def __init__(
         self,
@@ -315,3 +318,12 @@ class Application(QMainWindow):
         self.ui.is_noisy_chk.setEnabled(self.ui.is_normalized_chk.isChecked())
         self.ui.z0_name_in.setEnabled(not self.ui.is_normalized_chk.isChecked())
         self.ui.z0_name_lbl.setEnabled(not self.ui.is_normalized_chk.isChecked())
+    
+    def set_event_loop(self, loop):
+        self.event_loop = loop
+    
+    def closeEvent(self, a0):        
+        super().closeEvent(a0)
+        if self.event_loop is not None:
+            self.event_loop.exit()
+
