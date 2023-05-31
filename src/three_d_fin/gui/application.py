@@ -6,7 +6,7 @@ import laspy
 from pydantic import ValidationError
 from pydantic.fields import ModelField
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtCore import QEventLoop
+from PyQt5.QtCore import QEventLoop, QObject, pyqtSignal, QThread
 from PyQt5.QtWidgets import (
     QComboBox,
     QDialog,
@@ -22,6 +22,17 @@ from three_d_fin.processing.abstract_processing import FinProcessing
 from three_d_fin.processing.configuration import FinConfiguration
 
 
+class ApplicationWorker(QObject):
+    finished = pyqtSignal()
+    progress = pyqtSignal(int)
+    def __init__(self, processing_object: FinProcessing, parent=None):
+        super().__init__(parent)
+        self.processing_object = processing_object
+
+    def run(self):
+        self.processing_object.process()
+
+
 class ExpertDialog(QDialog):
     """Create the expert / about dialog.
 
@@ -34,7 +45,6 @@ class ExpertDialog(QDialog):
         super().__init__(parent)
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
-
 
 class Application(QMainWindow):
     """The GUI Application."""
@@ -312,7 +322,17 @@ class Application(QMainWindow):
 
         # Now we do the processing in itself
         # TODO: handle exception in processing here
-        self.processing_object.process()
+        self.thread = QThread()
+        # Create a worker object
+        self.worker = ApplicationWorker(self.processing_object)
+        # Move worker to the thread
+        self.worker.moveToThread(self.thread)
+        self.thread.started.connect(self.worker.run)
+        self.worker.finished.connect(self.thread.quit)
+        self.worker.finished.connect(self.worker.deleteLater)
+        self.thread.finished.connect(self.thread.deleteLater)
+        self.thread.start()
+        #self.processing_object.process()
 
     def _normalize_toggled(self):
         self.ui.is_noisy_chk.setEnabled(self.ui.is_normalized_chk.isChecked())
