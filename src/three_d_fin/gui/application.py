@@ -6,7 +6,7 @@ import laspy
 from pydantic import ValidationError
 from pydantic.fields import ModelField
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtCore import QEventLoop, QObject, pyqtSignal, QThread
+from PyQt5.QtCore import QEventLoop, QObject, QThread, pyqtSignal
 from PyQt5.QtWidgets import (
     QComboBox,
     QDialog,
@@ -23,14 +23,37 @@ from three_d_fin.processing.configuration import FinConfiguration
 
 
 class ApplicationWorker(QObject):
+    """Simple worker to handle FinProcessing in a dedicated QThread."""
+
     finished = pyqtSignal()
-    progress = pyqtSignal(int)
+    error = pyqtSignal()
+
     def __init__(self, processing_object: FinProcessing, parent=None):
+        """Construct the Worker.
+
+        Parameters
+        ----------
+        processing_object : FinProcessing
+            An implementation of the abstract FinProcessing class.
+            it is responsible for the computing logic.
+            Its process() method is triggered by the "compute" button of the GUI.
+        parent : Optional[QWidget]
+            An optional parent. Should be None if runned as standalone but could
+            be a parent QWidget from the base application if runned as a plugin
+        """
         super().__init__(parent)
         self.processing_object = processing_object
 
     def run(self):
-        self.processing_object.process()
+        """Run the FinProcessing object.
+
+        This method is called by the QThread
+        """
+        try:
+            self.processing_object.process()
+        except Exception:
+            self.error.emit()  # TODO: emit something usefull
+        self.finished.emit()
 
 
 class ExpertDialog(QDialog):
@@ -45,6 +68,7 @@ class ExpertDialog(QDialog):
         super().__init__(parent)
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
+
 
 class Application(QMainWindow):
     """The GUI Application."""
@@ -320,30 +344,63 @@ class Application(QMainWindow):
             if overwrite == QMessageBox.No:
                 return
 
+        def _disable_btn():
+            self.ui.compute_btn.setDisabled(True)
+            self.ui.compute_btn.setText("Computing...")
+
+        def _enable_btn():
+            self.ui.compute_btn.setDisabled(False)
+            self.ui.compute_btn.setText("Compute")
+
+        def _error_handling():
+            _enable_btn()
+            QMessageBox.critical(self, "3DFin error", "Something went wrong!")
+
         # Now we do the processing in itself
-        # TODO: handle exception in processing here
         self.thread = QThread()
         # Create a worker object
         self.worker = ApplicationWorker(self.processing_object)
-        # Move worker to the thread
+        _disable_btn()
+        # Move the worker to the thread
         self.worker.moveToThread(self.thread)
         self.thread.started.connect(self.worker.run)
         self.worker.finished.connect(self.thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)
+
+        # TODO: handle exception in processing here
+        self.worker.finished.connect(_enable_btn)
+        self.worker.error.connect(_error_handling)
         self.thread.start()
-        #self.processing_object.process()
 
     def _normalize_toggled(self):
         self.ui.is_noisy_chk.setEnabled(self.ui.is_normalized_chk.isChecked())
         self.ui.z0_name_in.setEnabled(not self.ui.is_normalized_chk.isChecked())
         self.ui.z0_name_lbl.setEnabled(not self.ui.is_normalized_chk.isChecked())
-    
+
     def set_event_loop(self, loop):
+        """Set an optional event loop.
+
+        In some context (e.g. CloudCompare plugin), we need to set a dedicated
+        event loop to the application.
+
+        Parameters
+        ----------
+        loop : QEventLoop
+            The event loop to set
+        """
         self.event_loop = loop
-    
-    def closeEvent(self, a0):        
+
+    def closeEvent(self, a0):
+        """Close the application.
+
+        The event loop is exited if it was set.
+
+        Parameters
+        ----------
+        a0 : QCloseEvent
+            The close event
+        """
         super().closeEvent(a0)
         if self.event_loop is not None:
             self.event_loop.exit()
-

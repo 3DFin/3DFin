@@ -3,7 +3,6 @@ import configparser
 import os
 import sys
 from pathlib import Path
-from PyQt5.QtCore import QEventLoop
 
 
 def launch_application() -> int:
