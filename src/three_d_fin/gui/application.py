@@ -304,7 +304,7 @@ class Application(QMainWindow):
                 "3DFin",
                 "The output target already contains results from a previous 3DFin computation, do you want to overwrite them?",
             )
-            if not overwrite == QMessageBox.Yes:
+            if overwrite == QMessageBox.No:
                 return
 
         # Now we do the processing in itself
