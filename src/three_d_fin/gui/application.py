@@ -188,15 +188,18 @@ class Application(QMainWindow):
                 # Fix a minor presentation issue when no file is defined
                 elif key_param == "input_file" and value_param is None:
                     self.ui.input_file_in.setText("")
+                    self.ui.input_file_lbl.setToolTip(tooltip_text)
+                    self.ui.input_file_in.setToolTip(tooltip_text)
                 elif key_param == "is_normalized":
-                    self.ui.is_normalized_chk.setChecked(
-                        not value_param
-                    )  # TODO change = do_normalize
+                    self.ui.is_normalized_chk.setChecked(not value_param)
+                    self.ui.is_normalized_chk.setToolTip(tooltip_text)
                 elif key_param == "is_noisy":
                     self.ui.is_noisy_chk.setChecked(value_param)
+                    self.ui.is_noisy_chk.setToolTip(tooltip_text)
                 elif key_param == "export_txt":
                     self.ui.export_txt_rb_1.setChecked(value_param)
                     self.ui.export_txt_rb_2.setChecked(not value_param)
+                    self.ui.export_txt_lbl.setToolTip(tooltip_text)
                 else:
                     getattr(self.ui, key_param + "_in").setText(str(value_param))
                     getattr(self.ui, key_param + "_in").setToolTip(tooltip_text)
@@ -293,11 +296,7 @@ class Application(QMainWindow):
                 elif key_param == "input_file" and self.file_externally_defined:
                     category_dict[key_param] = None
                 elif key_param == "is_normalized":
-                    category_dict[
-                        key_param
-                    ] = (
-                        not self.ui.is_normalized_chk.isChecked()
-                    )  # TODO change = do_normalize
+                    category_dict[key_param] = not self.ui.is_normalized_chk.isChecked()
                 elif key_param == "is_noisy":
                     category_dict[key_param] = self.ui.is_noisy_chk.isChecked()
                 elif key_param == "export_txt":

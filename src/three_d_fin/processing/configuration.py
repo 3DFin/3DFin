@@ -380,14 +380,34 @@ class MiscParameters(BaseModel):
     """Handle the "misc" parameters section."""
 
     is_normalized: bool = Field(
-        title="Normalize point cloud", default=False
+        title="Normalize point cloud",
+        description="If the point cloud is not height-normalized, a Digital Terrain "
+        "Model will be generated to compute normalized heights for all points.",
+        default=False,
     )  # TODO change = do_normalize, default True
-    is_noisy: bool = Field(title="Clean noise on DTM", default=False)
-    export_txt: bool = Field(title="Format of output tabular data", default=False)
+    is_noisy: bool = Field(
+        title="Clean noise on DTM",
+        description="If it is expected to be noise below ground level (or if you know "
+        "that there is noise), a denoising step will be added before "
+        "generating the Digital Terrain Model.",
+        default=False,
+    )
+    export_txt: bool = Field(
+        title="Format of output tabular data",
+        description="Outputs are gathered in a xlsx (Excel) file by default.\n"
+        'Selecting "TXT files" will make the program output several txt files '
+        "with the raw data, which may be more convenient for processing "
+        "the data via scripting.",
+        default=False,
+    )
     # input file is not mandatory and could be provided by another mean.
-    input_file: Optional[FilePath] = Field(title="Input file", default=None)
+    input_file: Optional[FilePath] = Field(
+        title="Input file", description="Input File (*.las, *.laz)", default=None
+    )
     output_dir: DirectoryPath = Field(
-        title="Output dir", default_factory=lambda: Path.home()
+        title="Output dir",
+        description="output directory",
+        default_factory=lambda: Path.home(),
     )
 
     @validator("input_file")
@@ -418,13 +438,12 @@ class FinConfiguration(BaseModel):
 
         Could raise exceptions (ValidationError, FileNotFound, configparser.Error)
 
-
         Parameters
         ----------
         filename: Path
             the Path to the .ini file to load
         init_misc: bool
-            whenether to init "misc" section to default if not present in the file
+            whether to init "misc" section to default parameters if not present in the file
 
         Returns
         -------
