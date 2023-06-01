@@ -404,8 +404,11 @@ class FinProcessing(ABC):
             # Cleaning the DTM
             dtm = dm.clean_cloth(cloth_nodes)
 
+            # Completing the DTM
+            completed_dtm = dm.complete_dtm(dtm)
+
             # export DTM
-            self._export_dtm(dtm)
+            self._export_dtm(completed_dtm)
 
             elapsed = timeit.default_timer() - t
             print("        ", "%.2f" % elapsed, "s: exporting the DTM")
