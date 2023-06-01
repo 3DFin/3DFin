@@ -179,6 +179,7 @@ class Application(QMainWindow):
             for key_param, value_param in config_dict[config_section].items():
                 # Default z0_name should match one of the supplied list if present.
                 tooltip_text = FinConfiguration.field_tooltip(config_section, key_param)
+                hint_text = FinConfiguration.field_hint(config_section, key_param)
                 if key_param == "z0_name" and self.cloud_fields is not None:
                     if value_param in self.cloud_fields:
                         id_default = self.cloud_fields.index(value_param)
@@ -204,6 +205,7 @@ class Application(QMainWindow):
                     getattr(self.ui, key_param + "_in").setText(str(value_param))
                     getattr(self.ui, key_param + "_in").setToolTip(tooltip_text)
                     getattr(self.ui, key_param + "_lbl").setToolTip(tooltip_text)
+                    getattr(self.ui, key_param + "_un").setText(hint_text)
 
     def _show_expert_dialog(self):
         """Show the expert help/about dialog."""

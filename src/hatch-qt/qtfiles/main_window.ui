@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>836</width>
-    <height>714</height>
+    <height>736</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -45,7 +45,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="basicTab">
        <attribute name="title">
@@ -246,100 +246,10 @@ Further details may be found in next tabs and in the documentation.</string>
            <enum>QFrame::Raised</enum>
           </property>
           <layout class="QGridLayout" name="gridLayout_3">
-           <item row="5" column="0">
-            <widget class="QLabel" name="upper_limit_lbl">
-             <property name="text">
-              <string>Strippe Upper Limit</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="export_txt_lbl">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Format of output tabular data</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QRadioButton" name="export_txt_rb_1">
-             <property name="text">
-              <string>CSV</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="1">
-            <widget class="QLineEdit" name="upper_limit_in">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>72</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
-           </item>
            <item row="5" column="2">
             <widget class="QLabel" name="upper_limit_un">
              <property name="text">
               <string>meters</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QRadioButton" name="export_txt_rb_2">
-             <property name="text">
-              <string>XLSX</string>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="0">
-            <widget class="QLabel" name="number_of_iterations_lbl">
-             <property name="text">
-              <string>Pruning Intensity</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="1">
-            <widget class="QLineEdit" name="z0_name_in">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>72</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="2">
-            <widget class="QLabel" name="lower_limit_un">
-             <property name="text">
-              <string>meters</string>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="0">
-            <widget class="QLabel" name="lower_limit_lbl">
-             <property name="text">
-              <string>Strippe Lower Limit</string>
              </property>
             </widget>
            </item>
@@ -350,33 +260,17 @@ Further details may be found in next tabs and in the documentation.</string>
              </property>
             </widget>
            </item>
+           <item row="3" column="1">
+            <widget class="QRadioButton" name="export_txt_rb_2">
+             <property name="text">
+              <string>XLSX</string>
+             </property>
+            </widget>
+           </item>
            <item row="1" column="0">
             <widget class="QCheckBox" name="is_noisy_chk">
              <property name="text">
               <string>Clean noise on dtm</string>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="2">
-            <widget class="QLabel" name="number_of_iterations_un">
-             <property name="text">
-              <string>0-5</string>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="1">
-            <widget class="QLineEdit" name="lower_limit_in">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>72</width>
-               <height>16777215</height>
-              </size>
              </property>
             </widget>
            </item>
@@ -396,10 +290,123 @@ Further details may be found in next tabs and in the documentation.</string>
              </property>
             </widget>
            </item>
+           <item row="5" column="1">
+            <widget class="QLineEdit" name="upper_limit_in">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>72</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="lower_limit_lbl">
+             <property name="text">
+              <string>Strippe Lower Limit</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QLineEdit" name="lower_limit_in">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>72</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="2">
+            <widget class="QLabel" name="number_of_iterations_un">
+             <property name="text">
+              <string>0-5</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QRadioButton" name="export_txt_rb_1">
+             <property name="text">
+              <string>CSV</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="export_txt_lbl">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Format of output tabular data</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="upper_limit_lbl">
+             <property name="text">
+              <string>Strippe Upper Limit</string>
+             </property>
+            </widget>
+           </item>
            <item row="0" column="0">
             <widget class="QCheckBox" name="is_normalized_chk">
              <property name="text">
               <string>Normalize point cloud</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="2">
+            <widget class="QLabel" name="lower_limit_un">
+             <property name="text">
+              <string>meters</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QLineEdit" name="z0_name_in">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>72</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0">
+            <widget class="QLabel" name="number_of_iterations_lbl">
+             <property name="text">
+              <string>Pruning Intensity</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="2">
+            <widget class="QLabel" name="z0_name_un">
+             <property name="text">
+              <string/>
              </property>
             </widget>
            </item>
@@ -758,35 +765,15 @@ You can get a brief description of what they do by hovering the mouse over the i
         <string>Expert</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_9">
-        <item row="2" column="1">
-         <widget class="QLineEdit" name="res_z_stripe_in">
-          <property name="maximumSize">
-           <size>
-            <width>72</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="5">
-         <widget class="QLineEdit" name="number_sectors_in">
-          <property name="maximumSize">
-           <size>
-            <width>72</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="9" column="2">
-         <widget class="QLabel" name="res_xy_un">
+        <item row="13" column="6">
+         <widget class="QLabel" name="axis_upstep_un">
           <property name="text">
            <string>meters</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="5">
-         <widget class="QLineEdit" name="minimum_diameter_in">
+        <item row="13" column="5">
+         <widget class="QLineEdit" name="axis_upstep_in">
           <property name="maximumSize">
            <size>
             <width>72</width>
@@ -795,272 +782,10 @@ You can get a brief description of what they do by hovering the mouse over the i
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="res_xy_stripe_lbl">
+        <item row="2" column="4">
+         <widget class="QLabel" name="diameter_proportion_lbl">
           <property name="text">
-           <string>(x,y) voxel resolution</string>
-          </property>
-         </widget>
-        </item>
-        <item row="12" column="1">
-         <widget class="QLineEdit" name="verticality_scale_stems_in">
-          <property name="maximumSize">
-           <size>
-            <width>72</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="17" column="0">
-         <widget class="QLabel" name="maximum_dev_lbl">
-          <property name="text">
-           <string>Maximum vertical deviation from axis</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="QLineEdit" name="number_of_points_in">
-          <property name="maximumSize">
-           <size>
-            <width>72</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="17" column="1">
-         <widget class="QLineEdit" name="maximum_dev_in">
-          <property name="maximumSize">
-           <size>
-            <width>72</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="14" column="1">
-         <widget class="QLineEdit" name="maximum_d_in">
-          <property name="maximumSize">
-           <size>
-            <width>72</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="15" column="0">
-         <widget class="QLabel" name="distance_to_axis_lbl">
-          <property name="text">
-           <string>Distance from axis</string>
-          </property>
-         </widget>
-        </item>
-        <item row="10" column="2">
-         <widget class="QLabel" name="res_z_un">
-          <property name="text">
-           <string>meters</string>
-          </property>
-         </widget>
-        </item>
-        <item row="11" column="0">
-         <widget class="QLabel" name="minimum_points_lbl">
-          <property name="text">
-           <string>Minimum points</string>
-          </property>
-         </widget>
-        </item>
-        <item row="15" column="1">
-         <widget class="QLineEdit" name="distance_to_axis_in">
-          <property name="maximumSize">
-           <size>
-            <width>72</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="10" column="1">
-         <widget class="QLineEdit" name="res_z_in">
-          <property name="maximumSize">
-           <size>
-            <width>72</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QLabel" name="res_xy_stripe_un">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>meters</string>
-          </property>
-         </widget>
-        </item>
-        <item row="11" column="2">
-         <widget class="QLabel" name="minimum_points_un">
-          <property name="text">
-           <string>meters</string>
-          </property>
-         </widget>
-        </item>
-        <item row="16" column="0">
-         <widget class="QLabel" name="res_heights_lbl">
-          <property name="text">
-           <string>Voxel resolution for height computation</string>
-          </property>
-         </widget>
-        </item>
-        <item row="12" column="0">
-         <widget class="QLabel" name="verticality_scale_stems_lbl">
-          <property name="text">
-           <string>Vicinity radius (verticality computation)</string>
-          </property>
-         </widget>
-        </item>
-        <item row="14" column="2">
-         <widget class="QLabel" name="maximum_d_un">
-          <property name="text">
-           <string>meters</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="res_z_stripe_lbl">
-          <property name="text">
-           <string>(z) voxel resolution</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="4">
-         <widget class="QLabel" name="minimum_diameter_lbl">
-          <property name="text">
-           <string>Minimum expected diameter</string>
-          </property>
-         </widget>
-        </item>
-        <item row="14" column="0">
-         <widget class="QLabel" name="maximum_d_lbl">
-          <property name="text">
-           <string>Maximum distance to tree axis</string>
-          </property>
-         </widget>
-        </item>
-        <item row="10" column="0">
-         <widget class="QLabel" name="res_z_lbl">
-          <property name="text">
-           <string>(z) voxel resolution</string>
-          </property>
-         </widget>
-        </item>
-        <item row="16" column="2">
-         <widget class="QLabel" name="res_heights_un">
-          <property name="text">
-           <string>meters</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="4">
-         <widget class="QLabel" name="point_threshold_lbl">
-          <property name="text">
-           <string>Points within inner circle</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="5">
-         <widget class="QLineEdit" name="point_distance_in">
-          <property name="maximumSize">
-           <size>
-            <width>72</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="4">
-         <widget class="QLabel" name="number_points_section_lbl">
-          <property name="text">
-           <string>Points within section</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
-         <widget class="QLineEdit" name="verticality_scale_stripe_in">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>72</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="6">
-         <widget class="QLabel" name="minimum_diameter_un">
-          <property name="text">
-           <string>meters</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="2">
-         <widget class="QLabel" name="verticality_thresh_stripe_un">
-          <property name="text">
-           <string>(0,1)</string>
-          </property>
-         </widget>
-        </item>
-        <item row="9" column="1">
-         <widget class="QLineEdit" name="res_xy_in">
-          <property name="maximumSize">
-           <size>
-            <width>72</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="13" column="2">
-         <widget class="QLabel" name="verticality_thresh_stems_un">
-          <property name="text">
-           <string>meters</string>
-          </property>
-         </widget>
-        </item>
-        <item row="15" column="2">
-         <widget class="QLabel" name="distance_to_axis_un">
-          <property name="text">
-           <string>meters</string>
-          </property>
-         </widget>
-        </item>
-        <item row="17" column="2">
-         <widget class="QLabel" name="maximum_dev_un">
-          <property name="text">
-           <string>degrees</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="verticality_thresh_stripe_lbl">
-          <property name="text">
-           <string>Verticality threshold</string>
+           <string>Inner/outer circle proportion</string>
           </property>
          </widget>
         </item>
@@ -1084,29 +809,8 @@ You can get a brief description of what they do by hovering the mouse over the i
           </property>
          </widget>
         </item>
-        <item row="6" column="0">
-         <widget class="QLabel" name="height_range_lbl">
-          <property name="text">
-           <string>Vertical Range</string>
-          </property>
-         </widget>
-        </item>
-        <item row="13" column="0">
-         <widget class="QLabel" name="verticality_thresh_stems_lbl">
-          <property name="text">
-           <string>Verticality threshold</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="2">
-         <widget class="QLabel" name="res_z_stripe_un">
-          <property name="text">
-           <string>meters</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="5">
-         <widget class="QLineEdit" name="diameter_proportion_in">
+        <item row="16" column="1">
+         <widget class="QLineEdit" name="res_heights_in">
           <property name="maximumSize">
            <size>
             <width>72</width>
@@ -1115,20 +819,68 @@ You can get a brief description of what they do by hovering the mouse over the i
           </property>
          </widget>
         </item>
-        <item row="4" column="2">
-         <widget class="QLabel" name="verticality_scale_stripe_un">
+        <item row="4" column="4">
+         <widget class="QLabel" name="point_threshold_lbl">
           <property name="text">
-           <string>meters</string>
+           <string>Points within inner circle</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="5">
-         <widget class="QLineEdit" name="number_points_section_in">
+        <item row="3" column="4">
+         <widget class="QLabel" name="minimum_diameter_lbl">
+          <property name="text">
+           <string>Minimum expected diameter</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="number_of_points_in">
           <property name="maximumSize">
            <size>
             <width>72</width>
             <height>16777215</height>
            </size>
+          </property>
+         </widget>
+        </item>
+        <item row="12" column="0">
+         <widget class="QLabel" name="verticality_scale_stems_lbl">
+          <property name="text">
+           <string>Vicinity radius (verticality computation)</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3" rowspan="18">
+         <widget class="Line" name="expert_vert_line">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="12" column="4">
+         <widget class="QLabel" name="axis_downstep_lbl">
+          <property name="text">
+           <string>Axis downstep from stripe center</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLabel" name="res_xy_stripe_un">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>meters</string>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="0">
+         <widget class="QLabel" name="res_z_lbl">
+          <property name="text">
+           <string>(z) voxel resolution</string>
           </property>
          </widget>
         </item>
@@ -1145,298 +897,17 @@ You can get a brief description of what they do by hovering the mouse over the i
           </property>
          </widget>
         </item>
-        <item row="16" column="1">
-         <widget class="QLineEdit" name="res_heights_in">
-          <property name="maximumSize">
-           <size>
-            <width>72</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="6">
-         <widget class="QLabel" name="point_distance_un">
+        <item row="14" column="2">
+         <widget class="QLabel" name="maximum_d_un">
           <property name="text">
            <string>meters</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="3" rowspan="18">
-         <widget class="Line" name="expert_vert_line">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="4">
-         <widget class="QLabel" name="point_distance_lbl">
+        <item row="6" column="0">
+         <widget class="QLabel" name="height_range_lbl">
           <property name="text">
-           <string>Maximum point distance</string>
-          </property>
-         </widget>
-        </item>
-        <item row="12" column="2">
-         <widget class="QLabel" name="verticality_scale_stems_un">
-          <property name="text">
-           <string>(0,1)</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="5">
-         <widget class="QLineEdit" name="point_threshold_in">
-          <property name="maximumSize">
-           <size>
-            <width>72</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="number_of_points_lbl">
-          <property name="text">
-           <string>Number of points</string>
-          </property>
-         </widget>
-        </item>
-        <item row="9" column="0">
-         <widget class="QLabel" name="res_xy_lbl">
-          <property name="text">
-           <string>(x, y) voxel resolution</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="1">
-         <widget class="QLineEdit" name="height_range_in">
-          <property name="maximumSize">
-           <size>
-            <width>72</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="4">
-         <widget class="QLabel" name="number_sectors_lbl">
-          <property name="text">
-           <string>Number of sectors</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="6">
-         <widget class="QLabel" name="diameter_proportion_un">
-          <property name="text">
-           <string>[0,1]</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="verticality_scale_stripe_lbl">
-          <property name="text">
-           <string>Vicinity radius (verticality computation)</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="4">
-         <widget class="QLabel" name="diameter_proportion_lbl">
-          <property name="text">
-           <string>Inner/outer circle proportion</string>
-          </property>
-         </widget>
-        </item>
-        <item row="13" column="1">
-         <widget class="QLineEdit" name="verticality_thresh_stems_in">
-          <property name="maximumSize">
-           <size>
-            <width>72</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="4">
-         <widget class="QLabel" name="m_number_sectors_lbl">
-          <property name="text">
-           <string>Number of occupied sectors</string>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="5">
-         <widget class="QLineEdit" name="m_number_sectors_in">
-          <property name="maximumSize">
-           <size>
-            <width>72</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="4">
-         <widget class="QLabel" name="circle_width_lbl">
-          <property name="text">
-           <string>Circle width</string>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="5">
-         <widget class="QLineEdit" name="circle_width_in">
-          <property name="maximumSize">
-           <size>
-            <width>72</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="6">
-         <widget class="QLabel" name="circle_width_un">
-          <property name="text">
-           <string>centimeters</string>
-          </property>
-         </widget>
-        </item>
-        <item row="10" column="4">
-         <widget class="QLabel" name="circa_lbl">
-          <property name="text">
-           <string># of points to draw each circle</string>
-          </property>
-         </widget>
-        </item>
-        <item row="11" column="4">
-         <widget class="QLabel" name="p_interval_lbl">
-          <property name="text">
-           <string>Interval at which points are drawn</string>
-          </property>
-         </widget>
-        </item>
-        <item row="12" column="4">
-         <widget class="QLabel" name="axis_downstep_lbl">
-          <property name="text">
-           <string>Axis downstep from stripe center</string>
-          </property>
-         </widget>
-        </item>
-        <item row="13" column="4">
-         <widget class="QLabel" name="axis_upstep_lbl">
-          <property name="text">
-           <string>Axis upstep from stripe center</string>
-          </property>
-         </widget>
-        </item>
-        <item row="15" column="4">
-         <widget class="QLabel" name="res_ground_lbl">
-          <property name="text">
-           <string>(x, y) voxel resolution</string>
-          </property>
-         </widget>
-        </item>
-        <item row="16" column="4">
-         <widget class="QLabel" name="min_points_ground_lbl">
-          <property name="text">
-           <string>Minimum number of points</string>
-          </property>
-         </widget>
-        </item>
-        <item row="17" column="4">
-         <widget class="QLabel" name="res_cloth_lbl">
-          <property name="text">
-           <string>Cloth resolution</string>
-          </property>
-         </widget>
-        </item>
-        <item row="11" column="6">
-         <widget class="QLabel" name="p_interval_un">
-          <property name="text">
-           <string>meters</string>
-          </property>
-         </widget>
-        </item>
-        <item row="12" column="6">
-         <widget class="QLabel" name="axis_downstep_un">
-          <property name="text">
-           <string>meters</string>
-          </property>
-         </widget>
-        </item>
-        <item row="13" column="6">
-         <widget class="QLabel" name="axis_upstep_un">
-          <property name="text">
-           <string>meters</string>
-          </property>
-         </widget>
-        </item>
-        <item row="15" column="6">
-         <widget class="QLabel" name="res_ground_un">
-          <property name="text">
-           <string>meters</string>
-          </property>
-         </widget>
-        </item>
-        <item row="17" column="6">
-         <widget class="QLabel" name="res_cloth_un">
-          <property name="text">
-           <string>meters</string>
-          </property>
-         </widget>
-        </item>
-        <item row="10" column="5">
-         <widget class="QLineEdit" name="circa_in">
-          <property name="maximumSize">
-           <size>
-            <width>72</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="11" column="5">
-         <widget class="QLineEdit" name="p_interval_in">
-          <property name="maximumSize">
-           <size>
-            <width>72</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="12" column="5">
-         <widget class="QLineEdit" name="axis_downstep_in">
-          <property name="maximumSize">
-           <size>
-            <width>72</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="13" column="5">
-         <widget class="QLineEdit" name="axis_upstep_in">
-          <property name="maximumSize">
-           <size>
-            <width>72</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="15" column="5">
-         <widget class="QLineEdit" name="res_ground_in">
-          <property name="maximumSize">
-           <size>
-            <width>72</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="16" column="5">
-         <widget class="QLineEdit" name="min_points_ground_in">
-          <property name="maximumSize">
-           <size>
-            <width>72</width>
-            <height>16777215</height>
-           </size>
+           <string>Vertical Range</string>
           </property>
          </widget>
         </item>
@@ -1450,63 +921,13 @@ You can get a brief description of what they do by hovering the mouse over the i
           </property>
          </widget>
         </item>
-        <item row="8" column="0" colspan="2">
-         <widget class="QLabel" name="stem_extraction_lbl">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>10</pointsize>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Stem extraction and tree individualization</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignHCenter|Qt::AlignTop</set>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0" colspan="2">
-         <widget class="QLabel" name="stem_id_lbl">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>10</pointsize>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Stem identification within the stripe</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignHCenter|Qt::AlignTop</set>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="4" colspan="2">
-         <widget class="QLabel" name="computing_sections_lbl">
-          <property name="font">
-           <font>
-            <pointsize>10</pointsize>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Computing sections</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
+        <item row="15" column="1">
+         <widget class="QLineEdit" name="distance_to_axis_in">
+          <property name="maximumSize">
+           <size>
+            <width>72</width>
+            <height>16777215</height>
+           </size>
           </property>
          </widget>
         </item>
@@ -1529,6 +950,140 @@ You can get a brief description of what they do by hovering the mouse over the i
           </property>
          </widget>
         </item>
+        <item row="6" column="1">
+         <widget class="QLineEdit" name="height_range_in">
+          <property name="maximumSize">
+           <size>
+            <width>72</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="6">
+         <widget class="QLabel" name="minimum_diameter_un">
+          <property name="text">
+           <string>meters</string>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="6">
+         <widget class="QLabel" name="p_interval_un">
+          <property name="text">
+           <string>meters</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="5">
+         <widget class="QLineEdit" name="number_points_section_in">
+          <property name="maximumSize">
+           <size>
+            <width>72</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="0">
+         <widget class="QLabel" name="minimum_points_lbl">
+          <property name="text">
+           <string>Minimum points</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2">
+         <widget class="QLabel" name="number_of_points_un">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="2">
+         <widget class="QLabel" name="res_z_un">
+          <property name="text">
+           <string>meters</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="5">
+         <widget class="QLineEdit" name="minimum_diameter_in">
+          <property name="maximumSize">
+           <size>
+            <width>72</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="4">
+         <widget class="QLabel" name="number_points_section_lbl">
+          <property name="text">
+           <string>Points within section</string>
+          </property>
+         </widget>
+        </item>
+        <item row="17" column="4">
+         <widget class="QLabel" name="res_cloth_lbl">
+          <property name="text">
+           <string>Cloth resolution</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="5">
+         <widget class="QLineEdit" name="number_sectors_in">
+          <property name="maximumSize">
+           <size>
+            <width>72</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="12" column="6">
+         <widget class="QLabel" name="axis_downstep_un">
+          <property name="text">
+           <string>meters</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="2">
+         <widget class="QLabel" name="verticality_scale_stripe_un">
+          <property name="text">
+           <string>meters</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="6">
+         <widget class="QLabel" name="diameter_proportion_un">
+          <property name="text">
+           <string>[0,1]</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="5">
+         <widget class="QLineEdit" name="diameter_proportion_in">
+          <property name="maximumSize">
+           <size>
+            <width>72</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="14" column="0">
+         <widget class="QLabel" name="maximum_d_lbl">
+          <property name="text">
+           <string>Maximum distance to tree axis</string>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="4">
+         <widget class="QLabel" name="p_interval_lbl">
+          <property name="text">
+           <string>Interval at which points are drawn</string>
+          </property>
+         </widget>
+        </item>
         <item row="14" column="4" colspan="2">
          <widget class="QLabel" name="height_normalization_lb">
           <property name="font">
@@ -1545,10 +1100,71 @@ You can get a brief description of what they do by hovering the mouse over the i
           </property>
          </widget>
         </item>
-        <item row="7" column="0" colspan="2">
-         <widget class="QLabel" name="spacing_lbl">
+        <item row="6" column="4">
+         <widget class="QLabel" name="number_sectors_lbl">
           <property name="text">
-           <string/>
+           <string>Number of sectors</string>
+          </property>
+         </widget>
+        </item>
+        <item row="17" column="1">
+         <widget class="QLineEdit" name="maximum_dev_in">
+          <property name="maximumSize">
+           <size>
+            <width>72</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="res_xy_stripe_lbl">
+          <property name="text">
+           <string>(x,y) voxel resolution</string>
+          </property>
+         </widget>
+        </item>
+        <item row="14" column="1">
+         <widget class="QLineEdit" name="maximum_d_in">
+          <property name="maximumSize">
+           <size>
+            <width>72</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="12" column="2">
+         <widget class="QLabel" name="verticality_scale_stems_un">
+          <property name="text">
+           <string>(0,1)</string>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="2">
+         <widget class="QLabel" name="minimum_points_un">
+          <property name="text">
+           <string>meters</string>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="1">
+         <widget class="QLineEdit" name="res_xy_in">
+          <property name="maximumSize">
+           <size>
+            <width>72</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="5">
+         <widget class="QLineEdit" name="point_distance_in">
+          <property name="maximumSize">
+           <size>
+            <width>72</width>
+            <height>16777215</height>
+           </size>
           </property>
          </widget>
         </item>
@@ -1581,6 +1197,453 @@ You can get a brief description of what they do by hovering the mouse over the i
           </property>
           <property name="flat">
            <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="13" column="4">
+         <widget class="QLabel" name="axis_upstep_lbl">
+          <property name="text">
+           <string>Axis upstep from stripe center</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QLineEdit" name="verticality_scale_stripe_in">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>72</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QLabel" name="res_z_stripe_un">
+          <property name="text">
+           <string>meters</string>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="1">
+         <widget class="QLineEdit" name="res_z_in">
+          <property name="maximumSize">
+           <size>
+            <width>72</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="verticality_scale_stripe_lbl">
+          <property name="text">
+           <string>Vicinity radius (verticality computation)</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="0" colspan="2">
+         <widget class="QLabel" name="stem_extraction_lbl">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Stem extraction and tree individualization</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignHCenter|Qt::AlignTop</set>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="5">
+         <widget class="QLineEdit" name="circle_width_in">
+          <property name="maximumSize">
+           <size>
+            <width>72</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="12" column="5">
+         <widget class="QLineEdit" name="axis_downstep_in">
+          <property name="maximumSize">
+           <size>
+            <width>72</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="5">
+         <widget class="QLineEdit" name="point_threshold_in">
+          <property name="maximumSize">
+           <size>
+            <width>72</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="0">
+         <widget class="QLabel" name="res_xy_lbl">
+          <property name="text">
+           <string>(x, y) voxel resolution</string>
+          </property>
+         </widget>
+        </item>
+        <item row="17" column="2">
+         <widget class="QLabel" name="maximum_dev_un">
+          <property name="text">
+           <string>degrees</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="5">
+         <widget class="QLineEdit" name="m_number_sectors_in">
+          <property name="maximumSize">
+           <size>
+            <width>72</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="res_z_stripe_in">
+          <property name="maximumSize">
+           <size>
+            <width>72</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="6">
+         <widget class="QLabel" name="circle_width_un">
+          <property name="text">
+           <string>centimeters</string>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="4">
+         <widget class="QLabel" name="circa_lbl">
+          <property name="text">
+           <string># of points to draw each circle</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="2">
+         <widget class="QLabel" name="verticality_thresh_stripe_un">
+          <property name="text">
+           <string>(0,1)</string>
+          </property>
+         </widget>
+        </item>
+        <item row="12" column="1">
+         <widget class="QLineEdit" name="verticality_scale_stems_in">
+          <property name="maximumSize">
+           <size>
+            <width>72</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="17" column="0">
+         <widget class="QLabel" name="maximum_dev_lbl">
+          <property name="text">
+           <string>Maximum vertical deviation from axis</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="6">
+         <widget class="QLabel" name="point_distance_un">
+          <property name="text">
+           <string>meters</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="number_of_points_lbl">
+          <property name="text">
+           <string>Number of points</string>
+          </property>
+         </widget>
+        </item>
+        <item row="13" column="1">
+         <widget class="QLineEdit" name="verticality_thresh_stems_in">
+          <property name="maximumSize">
+           <size>
+            <width>72</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="13" column="2">
+         <widget class="QLabel" name="verticality_thresh_stems_un">
+          <property name="text">
+           <string>meters</string>
+          </property>
+         </widget>
+        </item>
+        <item row="15" column="4">
+         <widget class="QLabel" name="res_ground_lbl">
+          <property name="text">
+           <string>(x, y) voxel resolution</string>
+          </property>
+         </widget>
+        </item>
+        <item row="16" column="4">
+         <widget class="QLabel" name="min_points_ground_lbl">
+          <property name="text">
+           <string>Minimum number of points</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="4">
+         <widget class="QLabel" name="circle_width_lbl">
+          <property name="text">
+           <string>Circle width</string>
+          </property>
+         </widget>
+        </item>
+        <item row="16" column="2">
+         <widget class="QLabel" name="res_heights_un">
+          <property name="text">
+           <string>meters</string>
+          </property>
+         </widget>
+        </item>
+        <item row="17" column="6">
+         <widget class="QLabel" name="res_cloth_un">
+          <property name="text">
+           <string>meters</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="res_z_stripe_lbl">
+          <property name="text">
+           <string>(z) voxel resolution</string>
+          </property>
+         </widget>
+        </item>
+        <item row="16" column="0">
+         <widget class="QLabel" name="res_heights_lbl">
+          <property name="text">
+           <string>Voxel resolution for height computation</string>
+          </property>
+         </widget>
+        </item>
+        <item row="15" column="6">
+         <widget class="QLabel" name="res_ground_un">
+          <property name="text">
+           <string>meters</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0" colspan="2">
+         <widget class="QLabel" name="spacing_lbl">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="4">
+         <widget class="QLabel" name="m_number_sectors_lbl">
+          <property name="text">
+           <string>Number of occupied sectors</string>
+          </property>
+         </widget>
+        </item>
+        <item row="15" column="5">
+         <widget class="QLineEdit" name="res_ground_in">
+          <property name="maximumSize">
+           <size>
+            <width>72</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="2">
+         <widget class="QLabel" name="height_range_un">
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="verticality_thresh_stripe_lbl">
+          <property name="text">
+           <string>Verticality threshold</string>
+          </property>
+         </widget>
+        </item>
+        <item row="15" column="0">
+         <widget class="QLabel" name="distance_to_axis_lbl">
+          <property name="text">
+           <string>Distance from axis</string>
+          </property>
+         </widget>
+        </item>
+        <item row="13" column="0">
+         <widget class="QLabel" name="verticality_thresh_stems_lbl">
+          <property name="text">
+           <string>Verticality threshold</string>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="2">
+         <widget class="QLabel" name="res_xy_un">
+          <property name="text">
+           <string>meters</string>
+          </property>
+         </widget>
+        </item>
+        <item row="15" column="2">
+         <widget class="QLabel" name="distance_to_axis_un">
+          <property name="text">
+           <string>meters</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="4">
+         <widget class="QLabel" name="point_distance_lbl">
+          <property name="text">
+           <string>Maximum point distance</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="4" colspan="2">
+         <widget class="QLabel" name="computing_sections_lbl">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Computing sections</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="5">
+         <widget class="QLineEdit" name="circa_in">
+          <property name="maximumSize">
+           <size>
+            <width>72</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="5">
+         <widget class="QLineEdit" name="p_interval_in">
+          <property name="maximumSize">
+           <size>
+            <width>72</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" colspan="2">
+         <widget class="QLabel" name="stem_id_lbl">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Stem identification within the stripe</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignHCenter|Qt::AlignTop</set>
+          </property>
+         </widget>
+        </item>
+        <item row="16" column="5">
+         <widget class="QLineEdit" name="min_points_ground_in">
+          <property name="maximumSize">
+           <size>
+            <width>72</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="6">
+         <widget class="QLabel" name="number_points_section_un">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="6">
+         <widget class="QLabel" name="point_threshold_un">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="6">
+         <widget class="QLabel" name="number_sectors_un">
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="6">
+         <widget class="QLabel" name="m_number_sectors_un">
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="6">
+         <widget class="QLabel" name="circa_un">
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
+        <item row="16" column="6">
+         <widget class="QLabel" name="min_points_ground_un">
+          <property name="text">
+           <string>TextLabel</string>
           </property>
          </widget>
         </item>

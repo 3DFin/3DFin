@@ -365,6 +365,7 @@ class ExpertParameters(BaseModel):
         "regarded as noise and thus eliminated.",
         gt=0,
         default=2,
+        hint="totololo"
     )
     # Resolution of cloth grid
     res_cloth: float = Field(
@@ -477,13 +478,27 @@ class FinConfiguration(BaseModel):
         """
         field = cls.__fields__.get(category_key).type_().__fields__.get(field_key)
         description = field.field_info.description
-        default_str = f"Default: {field.field_info.default}"
+        default_txt = f"Default: {field.field_info.default}"
         if description is None:
-            tooltip_str = f"{default_str}"
+            tooltip_txt = f"{default_txt}"
         else:
-            tooltip_str = f"{description}\n{default_str}"
-        return tooltip_str
+            tooltip_txt = f"{description}\n{default_txt}"
+        return tooltip_txt
+    @classmethod
+    def field_hint(cls: "FinConfiguration", category_key: str, field_key: str):
+        """Generate a tooltip text for a given field.
 
+        Parameters
+        ----------
+        category_key: str
+            the key (name) of the category of the field
+        field_key: str
+            the key (name) of the field
+        """
+        field = cls.__fields__.get(category_key).type_().__fields__.get(field_key)
+        hint = field.field_info.extra.pop("hint", None)
+        return str(hint)
+    
     def to_config_file(self, filename: Path):
         """Import parameters from a .ini file.
 
