@@ -172,16 +172,19 @@ class Application(QMainWindow):
         self.params = FinConfiguration()
 
     def _populate_fields(self):
-        """Populate fields, label, tooltip based on FinConfiguration."""
+        """Populate fields with default value, labels, tooltips based on FinConfiguration."""
         # params and QT fields have the same name, we take advantage of that
         config_dict = self.params.dict()
         for config_section in config_dict:
             for key_param, value_param in config_dict[config_section].items():
                 # Default z0_name should match one of the supplied list if present.
+                tooltip_text = FinConfiguration.field_tooltip(config_section, key_param)
                 if key_param == "z0_name" and self.cloud_fields is not None:
                     if value_param in self.cloud_fields:
                         id_default = self.cloud_fields.index(value_param)
                         self.ui.z0_name_in.setCurrentIndex(id_default)
+                    self.ui.z0_name_in.setToolTip(tooltip_text)
+                    self.ui.z0_name_lbl.setToolTip(tooltip_text)
                 # Fix a minor presentation issue when no file is defined
                 elif key_param == "input_file" and value_param is None:
                     self.ui.input_file_in.setText("")
@@ -196,6 +199,8 @@ class Application(QMainWindow):
                     self.ui.export_txt_rb_2.setChecked(not value_param)
                 else:
                     getattr(self.ui, key_param + "_in").setText(str(value_param))
+                    getattr(self.ui, key_param + "_in").setToolTip(tooltip_text)
+                    getattr(self.ui, key_param + "_lbl").setToolTip(tooltip_text)
 
     def _show_expert_dialog(self):
         """Show the expert help/about dialog."""
@@ -212,7 +217,9 @@ class Application(QMainWindow):
         except Exception:
             base_path = Path(__file__).absolute().parents[1] / "documentation"
         QtGui.QDesktopServices.openUrl(
-            QtCore.QUrl.fromLocalFile(str(Path(base_path / "documentation.pdf")))
+            QtCore.QUrl.fromLocalFile(
+                str(Path(base_path / "documentation.pdf").resolve())
+            )
         )
 
     def _ask_input_file(self):
@@ -344,6 +351,7 @@ class Application(QMainWindow):
             if overwrite == QMessageBox.No:
                 return
 
+        # Handle changes in the GUI when compute is launch/finished
         def _disable_btn():
             self.ui.compute_btn.setDisabled(True)
             self.ui.compute_btn.setText("Computing...")
@@ -404,3 +412,6 @@ class Application(QMainWindow):
         super().closeEvent(a0)
         if self.event_loop is not None:
             self.event_loop.exit()
+        # TODO: quit thread without messing with the event loop
+        # if self.thread is not None and self.thread.isRunning():
+        #    self.thread.exit()

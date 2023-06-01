@@ -583,7 +583,7 @@ You can get a brief description of what they do by hovering the mouse over the i
             </widget>
            </item>
            <item row="3" column="0">
-            <widget class="QLabel" name="maximum_height_lb">
+            <widget class="QLabel" name="maximum_height_lbl">
              <property name="text">
               <string>Highest section</string>
              </property>
@@ -1256,14 +1256,14 @@ You can get a brief description of what they do by hovering the mouse over the i
          </widget>
         </item>
         <item row="7" column="4">
-         <widget class="QLabel" name="m_number_sectors_in">
+         <widget class="QLabel" name="m_number_sectors_lbl">
           <property name="text">
            <string>Number of occupied sectors</string>
           </property>
          </widget>
         </item>
         <item row="7" column="5">
-         <widget class="QLineEdit" name="m_number_sectors_in_2">
+         <widget class="QLineEdit" name="m_number_sectors_in">
           <property name="maximumSize">
            <size>
             <width>72</width>
