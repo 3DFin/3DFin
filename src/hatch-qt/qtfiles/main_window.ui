@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>836</width>
-    <height>736</height>
+    <width>820</width>
+    <height>700</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -45,7 +45,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="basicTab">
        <attribute name="title">
@@ -247,7 +247,7 @@ Further details may be found in next tabs and in the documentation.</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_3">
            <item row="5" column="2">
-            <widget class="QLabel" name="upper_limit_un">
+            <widget class="QLabel" name="upper_limit_ht">
              <property name="text">
               <string>meters</string>
              </property>
@@ -330,7 +330,7 @@ Further details may be found in next tabs and in the documentation.</string>
             </widget>
            </item>
            <item row="7" column="2">
-            <widget class="QLabel" name="number_of_iterations_un">
+            <widget class="QLabel" name="number_of_iterations_ht">
              <property name="text">
               <string>0-5</string>
              </property>
@@ -374,7 +374,7 @@ Further details may be found in next tabs and in the documentation.</string>
             </widget>
            </item>
            <item row="6" column="2">
-            <widget class="QLabel" name="lower_limit_un">
+            <widget class="QLabel" name="lower_limit_ht">
              <property name="text">
               <string>meters</string>
              </property>
@@ -404,7 +404,7 @@ Further details may be found in next tabs and in the documentation.</string>
             </widget>
            </item>
            <item row="4" column="2">
-            <widget class="QLabel" name="z0_name_un">
+            <widget class="QLabel" name="z0_name_ht">
              <property name="text">
               <string/>
              </property>
@@ -714,42 +714,42 @@ You can get a brief description of what they do by hovering the mouse over the i
             </widget>
            </item>
            <item row="1" column="2">
-            <widget class="QLabel" name="stem_search_diameter_un">
+            <widget class="QLabel" name="stem_search_diameter_ht">
              <property name="text">
               <string>meters</string>
              </property>
             </widget>
            </item>
            <item row="2" column="2">
-            <widget class="QLabel" name="minimum_height_un">
+            <widget class="QLabel" name="minimum_height_ht">
              <property name="text">
               <string>meters</string>
              </property>
             </widget>
            </item>
            <item row="3" column="2">
-            <widget class="QLabel" name="maximum_height_un">
+            <widget class="QLabel" name="maximum_height_ht">
              <property name="text">
               <string>meters</string>
              </property>
             </widget>
            </item>
            <item row="4" column="2">
-            <widget class="QLabel" name="section_len_un">
+            <widget class="QLabel" name="section_len_ht">
              <property name="text">
               <string>meters</string>
              </property>
             </widget>
            </item>
            <item row="5" column="2">
-            <widget class="QLabel" name="section_wid_un">
+            <widget class="QLabel" name="section_wid_ht">
              <property name="text">
               <string>meters</string>
              </property>
             </widget>
            </item>
            <item row="0" column="2">
-            <widget class="QLabel" name="maximum_diameter_un">
+            <widget class="QLabel" name="maximum_diameter_ht">
              <property name="text">
               <string>meters</string>
              </property>
@@ -766,7 +766,7 @@ You can get a brief description of what they do by hovering the mouse over the i
        </attribute>
        <layout class="QGridLayout" name="gridLayout_9">
         <item row="13" column="6">
-         <widget class="QLabel" name="axis_upstep_un">
+         <widget class="QLabel" name="axis_upstep_ht">
           <property name="text">
            <string>meters</string>
           </property>
@@ -865,7 +865,7 @@ You can get a brief description of what they do by hovering the mouse over the i
          </widget>
         </item>
         <item row="1" column="2">
-         <widget class="QLabel" name="res_xy_stripe_un">
+         <widget class="QLabel" name="res_xy_stripe_ht">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -898,7 +898,7 @@ You can get a brief description of what they do by hovering the mouse over the i
          </widget>
         </item>
         <item row="14" column="2">
-         <widget class="QLabel" name="maximum_d_un">
+         <widget class="QLabel" name="maximum_d_ht">
           <property name="text">
            <string>meters</string>
           </property>
@@ -961,14 +961,14 @@ You can get a brief description of what they do by hovering the mouse over the i
          </widget>
         </item>
         <item row="3" column="6">
-         <widget class="QLabel" name="minimum_diameter_un">
+         <widget class="QLabel" name="minimum_diameter_ht">
           <property name="text">
            <string>meters</string>
           </property>
          </widget>
         </item>
         <item row="11" column="6">
-         <widget class="QLabel" name="p_interval_un">
+         <widget class="QLabel" name="p_interval_ht">
           <property name="text">
            <string>meters</string>
           </property>
@@ -992,14 +992,14 @@ You can get a brief description of what they do by hovering the mouse over the i
          </widget>
         </item>
         <item row="3" column="2">
-         <widget class="QLabel" name="number_of_points_un">
+         <widget class="QLabel" name="number_of_points_ht">
           <property name="text">
            <string/>
           </property>
          </widget>
         </item>
         <item row="10" column="2">
-         <widget class="QLabel" name="res_z_un">
+         <widget class="QLabel" name="res_z_ht">
           <property name="text">
            <string>meters</string>
           </property>
@@ -1040,21 +1040,21 @@ You can get a brief description of what they do by hovering the mouse over the i
          </widget>
         </item>
         <item row="12" column="6">
-         <widget class="QLabel" name="axis_downstep_un">
+         <widget class="QLabel" name="axis_downstep_ht">
           <property name="text">
            <string>meters</string>
           </property>
          </widget>
         </item>
         <item row="4" column="2">
-         <widget class="QLabel" name="verticality_scale_stripe_un">
+         <widget class="QLabel" name="verticality_scale_stripe_ht">
           <property name="text">
            <string>meters</string>
           </property>
          </widget>
         </item>
         <item row="2" column="6">
-         <widget class="QLabel" name="diameter_proportion_un">
+         <widget class="QLabel" name="diameter_proportion_ht">
           <property name="text">
            <string>[0,1]</string>
           </property>
@@ -1135,14 +1135,14 @@ You can get a brief description of what they do by hovering the mouse over the i
          </widget>
         </item>
         <item row="12" column="2">
-         <widget class="QLabel" name="verticality_scale_stems_un">
+         <widget class="QLabel" name="verticality_scale_stems_ht">
           <property name="text">
            <string>meters</string>
           </property>
          </widget>
         </item>
         <item row="11" column="2">
-         <widget class="QLabel" name="minimum_points_un">
+         <widget class="QLabel" name="minimum_points_ht">
           <property name="text">
            <string/>
           </property>
@@ -1230,7 +1230,7 @@ You can get a brief description of what they do by hovering the mouse over the i
          </widget>
         </item>
         <item row="2" column="2">
-         <widget class="QLabel" name="res_z_stripe_un">
+         <widget class="QLabel" name="res_z_stripe_ht">
           <property name="text">
            <string>meters</string>
           </property>
@@ -1313,7 +1313,7 @@ You can get a brief description of what they do by hovering the mouse over the i
          </widget>
         </item>
         <item row="17" column="2">
-         <widget class="QLabel" name="maximum_dev_un">
+         <widget class="QLabel" name="maximum_dev_ht">
           <property name="text">
            <string>degrees</string>
           </property>
@@ -1340,7 +1340,7 @@ You can get a brief description of what they do by hovering the mouse over the i
          </widget>
         </item>
         <item row="8" column="6">
-         <widget class="QLabel" name="circle_width_un">
+         <widget class="QLabel" name="circle_width_ht">
           <property name="text">
            <string>centimeters</string>
           </property>
@@ -1354,7 +1354,7 @@ You can get a brief description of what they do by hovering the mouse over the i
          </widget>
         </item>
         <item row="5" column="2">
-         <widget class="QLabel" name="verticality_thresh_stripe_un">
+         <widget class="QLabel" name="verticality_thresh_stripe_ht">
           <property name="text">
            <string>(0,1)</string>
           </property>
@@ -1378,7 +1378,7 @@ You can get a brief description of what they do by hovering the mouse over the i
          </widget>
         </item>
         <item row="5" column="6">
-         <widget class="QLabel" name="point_distance_un">
+         <widget class="QLabel" name="point_distance_ht">
           <property name="text">
            <string>meters</string>
           </property>
@@ -1402,7 +1402,7 @@ You can get a brief description of what they do by hovering the mouse over the i
          </widget>
         </item>
         <item row="13" column="2">
-         <widget class="QLabel" name="verticality_thresh_stems_un">
+         <widget class="QLabel" name="verticality_thresh_stems_ht">
           <property name="text">
            <string>(0,1)</string>
           </property>
@@ -1430,14 +1430,14 @@ You can get a brief description of what they do by hovering the mouse over the i
          </widget>
         </item>
         <item row="16" column="2">
-         <widget class="QLabel" name="res_heights_un">
+         <widget class="QLabel" name="res_heights_ht">
           <property name="text">
            <string>meters</string>
           </property>
          </widget>
         </item>
         <item row="17" column="6">
-         <widget class="QLabel" name="res_cloth_un">
+         <widget class="QLabel" name="res_cloth_ht">
           <property name="text">
            <string>meters</string>
           </property>
@@ -1458,7 +1458,7 @@ You can get a brief description of what they do by hovering the mouse over the i
          </widget>
         </item>
         <item row="15" column="6">
-         <widget class="QLabel" name="res_ground_un">
+         <widget class="QLabel" name="res_ground_ht">
           <property name="text">
            <string>meters</string>
           </property>
@@ -1489,7 +1489,7 @@ You can get a brief description of what they do by hovering the mouse over the i
          </widget>
         </item>
         <item row="6" column="2">
-         <widget class="QLabel" name="height_range_un">
+         <widget class="QLabel" name="height_range_ht">
           <property name="text">
            <string/>
           </property>
@@ -1517,14 +1517,14 @@ You can get a brief description of what they do by hovering the mouse over the i
          </widget>
         </item>
         <item row="9" column="2">
-         <widget class="QLabel" name="res_xy_un">
+         <widget class="QLabel" name="res_xy_ht">
           <property name="text">
            <string>meters</string>
           </property>
          </widget>
         </item>
         <item row="15" column="2">
-         <widget class="QLabel" name="distance_to_axis_un">
+         <widget class="QLabel" name="distance_to_axis_ht">
           <property name="text">
            <string>meters</string>
           </property>
@@ -1606,42 +1606,42 @@ You can get a brief description of what they do by hovering the mouse over the i
          </widget>
         </item>
         <item row="1" column="6">
-         <widget class="QLabel" name="number_points_section_un">
+         <widget class="QLabel" name="number_points_section_ht">
           <property name="text">
            <string/>
           </property>
          </widget>
         </item>
         <item row="4" column="6">
-         <widget class="QLabel" name="point_threshold_un">
+         <widget class="QLabel" name="point_threshold_ht">
           <property name="text">
            <string/>
           </property>
          </widget>
         </item>
         <item row="6" column="6">
-         <widget class="QLabel" name="number_sectors_un">
+         <widget class="QLabel" name="number_sectors_ht">
           <property name="text">
            <string/>
           </property>
          </widget>
         </item>
         <item row="7" column="6">
-         <widget class="QLabel" name="m_number_sectors_un">
+         <widget class="QLabel" name="m_number_sectors_ht">
           <property name="text">
            <string/>
           </property>
          </widget>
         </item>
         <item row="10" column="6">
-         <widget class="QLabel" name="circa_un">
+         <widget class="QLabel" name="circa_ht">
           <property name="text">
            <string/>
           </property>
          </widget>
         </item>
         <item row="16" column="6">
-         <widget class="QLabel" name="min_points_ground_un">
+         <widget class="QLabel" name="min_points_ground_ht">
           <property name="text">
            <string/>
           </property>

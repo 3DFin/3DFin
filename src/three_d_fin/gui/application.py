@@ -209,7 +209,7 @@ class Application(QMainWindow):
                     getattr(self.ui, key_param + "_in").setText(str(value_param))
                     getattr(self.ui, key_param + "_in").setToolTip(tooltip_text)
                     getattr(self.ui, key_param + "_lbl").setToolTip(tooltip_text)
-                    getattr(self.ui, key_param + "_un").setText(hint_text)
+                    getattr(self.ui, key_param + "_ht").setText(hint_text)
 
     def _show_expert_dialog(self):
         """Show the expert help/about dialog."""
