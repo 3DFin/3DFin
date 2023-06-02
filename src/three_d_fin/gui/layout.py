@@ -859,7 +859,7 @@ class Application(tk.Tk):
 
         ttk.Label(self.expert_tab, text="meters").grid(column=4, row=10, sticky="W")
         ttk.Label(self.expert_tab, text="meters").grid(column=4, row=11, sticky="W")
-        
+
         ttk.Label(self.expert_tab, text="meters").grid(column=4, row=13, sticky="W")
         ttk.Label(self.expert_tab, text="(0, 1)").grid(column=4, row=14, sticky="W")
         ttk.Label(self.expert_tab, text="meters").grid(column=4, row=15, sticky="W")

@@ -99,7 +99,7 @@ class ExpertParameters(BaseModel):
     verticality_thresh_stems: float = Field(
         title="Verticality threshold", gt=0, lt=1, default=0.7
     )
-    # Points that are closer than d_max to an axis are assigned to that axis during 
+    # Points that are closer than d_max to an axis are assigned to that axis during
     # stem extraction and tree individualization.
     maximum_d: float = Field(title="Maximum distance to tree axis", gt=0, default=15.0)
     # Points within this distance from tree axes will be used to find tree height
