@@ -508,7 +508,7 @@ class FinConfiguration(BaseModel):
         field_key: str
             the key (name) of the field
         """
-        field = cls.__fields__.get(category_key).type_().__fields__.get(field_key)
+        field = cls.__fields__.get(category_key).type_.__fields__.get(field_key)
         description = field.field_info.description
         default_txt = f"Default: {field.field_info.default}"
         if description is None:
@@ -534,7 +534,7 @@ class FinConfiguration(BaseModel):
 
     @classmethod
     def field_type(cls: "FinConfiguration", category_key: str, field_key: str):
-        """return type of a given field.
+        """Return type of a given field.
 
         Parameters
         ----------

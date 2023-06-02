@@ -6,7 +6,13 @@ import laspy
 from pydantic import ValidationError
 from pydantic.fields import ModelField
 from PyQt5.QtCore import QEventLoop, QLocale, QObject, QThread, QUrl, pyqtSignal
-from PyQt5.QtGui import QDesktopServices, QDoubleValidator, QIcon, QIntValidator
+from PyQt5.QtGui import (
+    QCloseEvent,
+    QDesktopServices,
+    QDoubleValidator,
+    QIcon,
+    QIntValidator,
+)
 from PyQt5.QtWidgets import (
     QComboBox,
     QDialog,
@@ -16,6 +22,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from three_d_fin import __about__
 from three_d_fin.gui.expert_dlg import Ui_Dialog
 from three_d_fin.gui.main_window import Ui_MainWindow
 from three_d_fin.processing.abstract_processing import FinProcessing
@@ -26,7 +33,7 @@ class ApplicationWorker(QObject):
     """Simple worker to handle FinProcessing in a dedicated QThread."""
 
     finished = pyqtSignal()
-    error = pyqtSignal()
+    error = pyqtSignal(str)
 
     def __init__(self, processing_object: FinProcessing, parent=None):
         """Construct the Worker.
@@ -47,12 +54,14 @@ class ApplicationWorker(QObject):
     def run(self):
         """Run the FinProcessing object.
 
-        This method is called by the QThread
+        This method is called by the QThread.
+        If one Exception is raised during the process, it emits
+        the string (msg) of the Exception
         """
         try:
             self.processing_object.process()
-        except Exception:
-            self.error.emit()  # TODO: emit something usefull
+        except Exception as e:
+            self.error.emit(str(e))
         self.finished.emit()
 
 
@@ -75,14 +84,18 @@ class Application(QMainWindow):
 
     params: FinConfiguration = FinConfiguration()
 
-    event_loop: QEventLoop = None
+    event_loop: Optional[QEventLoop] = None
+
+    file_externally_defined: bool
+
+    cloud_fields: Optional[list[str]]
 
     def __init__(
         self,
         processing_object: FinProcessing,
         file_externally_defined: bool = False,
-        cloud_fields: Optional[set[str]] = None,
-        parent: QWidget = None,
+        cloud_fields: Optional[list[str]] = None,
+        parent: Optional[QWidget] = None,
     ):
         """Construct the 3DFin GUI Application.
 
@@ -106,30 +119,31 @@ class Application(QMainWindow):
         super().__init__(parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.setWindowTitle(f"3DFin v{__about__.__version__}")
         self.processing_object = processing_object
         self.file_externally_defined = file_externally_defined
         self.cloud_fields = cloud_fields
 
-        # Force current index to be 0, since QT creator could change that
+        # Force current index to be 0, since QT creator could change that on ui save
         self.ui.tabWidget.setCurrentIndex(0)
         self.setWindowIcon(QIcon(":/assets/three_d_fin/assets/icon_window.ico"))
 
-        # Click on the "documentation"
+        # Click on the "documentation" link
         self.ui.documentation_link_btn.clicked.connect(self._show_documentation)
 
         # Click on the "?" button on the expert table
         self.ui.expert_info_btn.clicked.connect(self._show_expert_dialog)
 
-        # Click on input
+        # Click on "input file" button
         self.ui.input_file_btn.clicked.connect(self._ask_input_file)
 
-        # Click on output
+        # Click on "output dir" button
         self.ui.output_dir_btn.clicked.connect(self._ask_output_dir)
 
-        # Click on compute
+        # Click on compute button
         self.ui.compute_btn.clicked.connect(self._compute_clicked)
 
-        # Connect is_normalized
+        # Connect is_normalized check signal
         self.ui.is_normalized_chk.toggled.connect(self._normalize_toggled)
 
         # Handle the case of a predefined and limited choice of cloud_fields
@@ -141,7 +155,7 @@ class Application(QMainWindow):
             self.ui.z0_name_in.setParent(None)
             self.ui.z0_name_in = field_combo
 
-        # Handle the case where the input file is defined by another mean
+        # Handle the case where the input file is provided externally
         if self.file_externally_defined:
             self.ui.input_file_lbl.setDisabled(True)
             self.ui.input_file_lbl.setText("File already set by the application")
@@ -151,7 +165,7 @@ class Application(QMainWindow):
         self._load_config_or_default()
         self._populate_fields()
 
-    def _load_config_or_default(self):
+    def _load_config_or_default(self) -> None:
         """Try to load a config file or fallback to default.
 
         TODO: Maybe it should be migrated into the FinProcessing constructor
@@ -171,7 +185,7 @@ class Application(QMainWindow):
             self.params = FinConfiguration()
         self.params = FinConfiguration()
 
-    def _populate_fields(self):
+    def _populate_fields(self) -> None:
         """Populate fields with default value, labels, tooltips based on FinConfiguration."""
         # params and QT fields have the same name, we take advantage of that
         config_dict = self.params.dict()
@@ -209,6 +223,9 @@ class Application(QMainWindow):
                 else:
                     input_field = getattr(self.ui, key_param + "_in")
                     input_field.setText(str(value_param))
+                    # Set basic validators for Both float and in
+                    # it only check if input is a valid float/int
+                    # other constraints like range are left to pydantic validators
                     if issubclass(field_type, float):
                         # Force locale to C for decimal separator
                         validator = QDoubleValidator()
@@ -222,12 +239,12 @@ class Application(QMainWindow):
                     getattr(self.ui, key_param + "_lbl").setToolTip(tooltip_text)
                     getattr(self.ui, key_param + "_ht").setText(hint_text)
 
-    def _show_expert_dialog(self):
+    def _show_expert_dialog(self) -> None:
         """Show the expert help/about dialog."""
         dialog = ExpertDialog(self)
         dialog.show()
 
-    def _show_documentation(self):
+    def _show_documentation(self) -> None:
         """Show the documentation.
 
         Open the default PDF viewer to show the documentation.
@@ -240,7 +257,7 @@ class Application(QMainWindow):
             QUrl.fromLocalFile(str(Path(base_path / "documentation.pdf").resolve()))
         )
 
-    def _ask_input_file(self):
+    def _ask_input_file(self) -> None:
         """Ask for a proper input las file.
 
         Current selected file is checked for validity (existence and type)
@@ -274,7 +291,7 @@ class Application(QMainWindow):
         self.ui.input_file_in.setText(str(Path(las_file).resolve()))
         self.ui.output_dir_in.setText(str(Path(las_file).parent.resolve()))
 
-    def _ask_output_dir(self):
+    def _ask_output_dir(self) -> None:
         """Ask for a proper output directory."""
         initial_path = Path(self.ui.output_dir_in.text())
         has_valid_initial_dir = (
@@ -291,7 +308,7 @@ class Application(QMainWindow):
         if output_dir != "" and not None:
             self.ui.output_dir_in.setText(str(Path(output_dir).resolve()))
 
-    def _get_parameters(self):
+    def _get_parameters(self) -> dict[str, dict[str, str]]:
         """Get parameters from widgets and return them organized in a dictionary.
 
         Returns
@@ -323,7 +340,7 @@ class Application(QMainWindow):
             config_dict[category_name] = category_dict
         return config_dict
 
-    def _compute_clicked(self):
+    def _compute_clicked(self) -> None:
         """Validate I/O entries and run the processing callback."""
         params = self._get_parameters()
 
@@ -365,16 +382,16 @@ class Application(QMainWindow):
             if overwrite == QMessageBox.No:
                 return
 
-        # Handle changes in the GUI when compute is launch/finished
-        def _disable_btn():
+        # Handle changes in the GUI when compute is launched/finished
+        def _disable_btn() -> None:
             self.ui.compute_btn.setDisabled(True)
             self.ui.compute_btn.setText("Computing...")
 
-        def _enable_btn():
+        def _enable_btn() -> None:
             self.ui.compute_btn.setDisabled(False)
             self.ui.compute_btn.setText("Compute")
 
-        def _error_handling():
+        def _error_handling() -> None:
             _enable_btn()
             QMessageBox.critical(self, "3DFin error", "Something went wrong!")
 
@@ -395,12 +412,13 @@ class Application(QMainWindow):
         self.worker.error.connect(_error_handling)
         self.thread.start()
 
-    def _normalize_toggled(self):
+    def _normalize_toggled(self) -> None:
+        """Handle 'is_normalized' checkbox toggle event."""
         self.ui.is_noisy_chk.setEnabled(self.ui.is_normalized_chk.isChecked())
         self.ui.z0_name_in.setEnabled(not self.ui.is_normalized_chk.isChecked())
         self.ui.z0_name_lbl.setEnabled(not self.ui.is_normalized_chk.isChecked())
 
-    def set_event_loop(self, loop):
+    def set_event_loop(self, loop: QEventLoop) -> None:
         """Set an optional event loop.
 
         In some context (e.g. CloudCompare plugin), we need to set a dedicated
@@ -413,7 +431,7 @@ class Application(QMainWindow):
         """
         self.event_loop = loop
 
-    def closeEvent(self, a0):
+    def closeEvent(self, a0: QCloseEvent) -> None:
         """Close the application.
 
         The event loop is exited if it was set.
