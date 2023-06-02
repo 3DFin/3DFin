@@ -1137,14 +1137,14 @@ You can get a brief description of what they do by hovering the mouse over the i
         <item row="12" column="2">
          <widget class="QLabel" name="verticality_scale_stems_un">
           <property name="text">
-           <string>(0,1)</string>
+           <string>meters</string>
           </property>
          </widget>
         </item>
         <item row="11" column="2">
          <widget class="QLabel" name="minimum_points_un">
           <property name="text">
-           <string>meters</string>
+           <string/>
           </property>
          </widget>
         </item>
@@ -1404,7 +1404,7 @@ You can get a brief description of what they do by hovering the mouse over the i
         <item row="13" column="2">
          <widget class="QLabel" name="verticality_thresh_stems_un">
           <property name="text">
-           <string>meters</string>
+           <string>(0,1)</string>
           </property>
          </widget>
         </item>
@@ -1491,7 +1491,7 @@ You can get a brief description of what they do by hovering the mouse over the i
         <item row="6" column="2">
          <widget class="QLabel" name="height_range_un">
           <property name="text">
-           <string>TextLabel</string>
+           <string/>
           </property>
          </widget>
         </item>
@@ -1622,28 +1622,28 @@ You can get a brief description of what they do by hovering the mouse over the i
         <item row="6" column="6">
          <widget class="QLabel" name="number_sectors_un">
           <property name="text">
-           <string>TextLabel</string>
+           <string/>
           </property>
          </widget>
         </item>
         <item row="7" column="6">
          <widget class="QLabel" name="m_number_sectors_un">
           <property name="text">
-           <string>TextLabel</string>
+           <string/>
           </property>
          </widget>
         </item>
         <item row="10" column="6">
          <widget class="QLabel" name="circa_un">
           <property name="text">
-           <string>TextLabel</string>
+           <string/>
           </property>
          </widget>
         </item>
         <item row="16" column="6">
          <widget class="QLabel" name="min_points_ground_un">
           <property name="text">
-           <string>TextLabel</string>
+           <string/>
           </property>
          </widget>
         </item>

@@ -191,6 +191,10 @@ class Application(QMainWindow):
                     self.ui.input_file_in.setText("")
                     self.ui.input_file_lbl.setToolTip(tooltip_text)
                     self.ui.input_file_in.setToolTip(tooltip_text)
+                elif key_param == "output_dir":
+                    getattr(self.ui, key_param + "_in").setText(str(value_param))
+                    getattr(self.ui, key_param + "_in").setToolTip(tooltip_text)
+                    getattr(self.ui, key_param + "_lbl").setToolTip(tooltip_text)
                 elif key_param == "is_normalized":
                     self.ui.is_normalized_chk.setChecked(not value_param)
                     self.ui.is_normalized_chk.setToolTip(tooltip_text)

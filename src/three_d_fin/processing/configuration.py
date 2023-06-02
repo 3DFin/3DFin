@@ -31,6 +31,7 @@ class BasicParameters(BaseModel):
         "Reasonable values are 2-5 meters.",
         gt=0,
         default=3.5,
+        hint="meters",
     )
     # Lower limit (vertical) of the stripe where it should be reasonable to find trunks with minimum presence of shrubs or branchs.
     lower_limit: float = Field(
@@ -40,6 +41,7 @@ class BasicParameters(BaseModel):
         "Reasonable values are 0.3-1.3 meters.",
         gt=0,
         default=0.7,
+        hint="meters",
     )
     # Number of iterations of 'peeling off branches'.
     number_of_iterations: int = Field(
@@ -50,6 +52,7 @@ class BasicParameters(BaseModel):
         ge=0,
         le=5,
         default=2,
+        hint="0-5",
     )
 
     @validator("lower_limit")
@@ -71,6 +74,7 @@ class AdvancedParameters(BaseModel):
         description="Maximum diameter expected for any stem.",
         gt=0,
         default=1.0,
+        hint="meters",
     )
     # Points within this distance from tree axes will be considered as potential stem points.
     stem_search_diameter: float = Field(
@@ -81,6 +85,7 @@ class AdvancedParameters(BaseModel):
         "(exceptionally greater than 2: very large diameters and/or intricate stems).",
         gt=0,
         default=2.0,
+        hint="meters",
     )
     # Lowest height
     minimum_height: float = Field(
@@ -88,6 +93,7 @@ class AdvancedParameters(BaseModel):
         description="Lowest height at which stem diameter will be computed.",
         gt=0,
         default=0.3,
+        hint="meters",
     )
     # highest height
     maximum_height: float = Field(
@@ -95,6 +101,7 @@ class AdvancedParameters(BaseModel):
         description="Highest height at which stem diameter will be computed.",
         gt=0,
         default=25.0,
+        hint="meters",
     )
     # sections are this long (z length)
     section_len: float = Field(
@@ -103,6 +110,7 @@ class AdvancedParameters(BaseModel):
         "computed for every section.",
         gt=0,
         default=0.2,
+        hint="meters",
     )
     # sections are this wide
     section_wid: float = Field(
@@ -111,6 +119,7 @@ class AdvancedParameters(BaseModel):
         "(vertical) are considered during circle fitting and diameter coumputation.",
         gt=0,
         default=0.05,
+        hint="meters",
     )
 
     @validator("maximum_height")
@@ -133,6 +142,7 @@ class ExpertParameters(BaseModel):
         description="(x, y) voxel resolution during stem extraction.",
         gt=0,
         default=0.02,
+        hint="meters",
     )
     # (z) voxel resolution during stem extraction
     res_z_stripe: float = Field(
@@ -140,6 +150,7 @@ class ExpertParameters(BaseModel):
         description="(z) voxel resolution during stem extraction.",
         gt=0,
         default=0.02,
+        hint="meters",
     )
     # minimum number of points per stem within the stripe (DBSCAN clustering).
     number_of_points: int = Field(
@@ -155,6 +166,7 @@ class ExpertParameters(BaseModel):
         description="Vicinity radius for PCA during stem identification.",
         gt=0,
         default=0.1,
+        hint="meters",
     )
     # Verticality threshold durig stem extraction
     verticality_thresh_stripe: float = Field(
@@ -166,14 +178,17 @@ class ExpertParameters(BaseModel):
         gt=0.0,
         lt=1.0,
         default=0.7,
+        hint="(0, 1)",
     )
     # Only stems where points extend vertically throughout this range are considered.
     height_range: float = Field(
         title="Vertical Range",
         description="Proportion (0: none - 1: all) of the vertical range of the stripe "
         "that points need to extend through to be valid stems.",
-        gt=0,
+        ge=0,
+        le=1,
         default=0.7,
+        hint="[0, 1]",
     )
 
     ### Stem extraction and tree individualization ###
@@ -183,6 +198,7 @@ class ExpertParameters(BaseModel):
         description="(x, y) voxel resolution during tree individualization.",
         gt=0,
         default=0.035,
+        hint="meters",
     )
     # (z) voxel resolution during tree individualization
     res_z: float = Field(
@@ -190,6 +206,7 @@ class ExpertParameters(BaseModel):
         description="(z) voxel resolution during tree individualization.",
         gt=0,
         default=0.035,
+        hint="meters",
     )
     # Minimum number of points within a stripe to consider it as a potential tree during tree individualization
     minimum_points: int = Field(
@@ -204,7 +221,9 @@ class ExpertParameters(BaseModel):
         title="Vicinity radius (verticality computation)",
         description="Vicinity radius for PCA during tree individualization.",
         gt=0,
+        lt=1.0,
         default=0.1,
+        hint="meters",
     )
     # Verticality threshold  during tree individualization
     verticality_thresh_stems: float = Field(
@@ -213,17 +232,19 @@ class ExpertParameters(BaseModel):
         "Verticality is defined as (1 - sin(V)), being V the vertical angle of the "
         "normal vector, measured from the horizontal.\n"
         "Note that it does not grow linearly.",
-        gt=0,
-        lt=1,
         default=0.7,
+        gt=0.0,
+        le=1.0,
+        hint="(0, 1)",
     )
     # Points that are closer than d_max to an axis are assigned to that axis during individualize_trees process.
     maximum_d: float = Field(
         title="Maximum distance to tree axis",
         description="Points that are closer than this distance to an axis "
         "are assigned to that axis during tree individualization process.",
-        gt=0,
+        gt=0.0,
         default=15.0,
+        hint="meters",
     )
     # Points within this distance from tree axes will be used to find tree height
     distance_to_axis: float = Field(
@@ -234,6 +255,7 @@ class ExpertParameters(BaseModel):
         "of actual tree height.",
         gt=0,
         default=1.5,
+        hint="meters",
     )
     # Resolution for the voxelization while computing tree heights
     res_heights: float = Field(
@@ -241,6 +263,7 @@ class ExpertParameters(BaseModel):
         description="(x, y, z) voxel resolution during tree height computation.",
         gt=0,
         default=0.3,
+        hint="meters",
     )
     # Maximum degree of vertical deviation from the axis
     maximum_dev: float = Field(
@@ -249,6 +272,7 @@ class ExpertParameters(BaseModel):
         "a tree height to be considered as valid.",
         gt=0,
         default=25.0,
+        hint="degrees",
     )
 
     ### Extracting sections ###
@@ -267,6 +291,7 @@ class ExpertParameters(BaseModel):
         ge=0.0,
         le=1.0,
         default=0.5,
+        hint="[0, 1]",
     )
     # Minimum diameter expected for any section circle fitting.
     minimum_diameter: float = Field(
@@ -274,6 +299,7 @@ class ExpertParameters(BaseModel):
         description="Minimum diameter expected for any section during circle fitting.",
         gt=0,
         default=0.06,
+        hint="meters",
     )
     # Number of points inside the inner circle
     point_threshold: int = Field(
@@ -290,6 +316,7 @@ class ExpertParameters(BaseModel):
         "same cluster during circle fitting.",
         gt=0,
         default=0.02,
+        hint="meters",
     )
     # Number of sectors in which the circumference will be divided
     number_sectors: int = Field(
@@ -311,6 +338,7 @@ class ExpertParameters(BaseModel):
         description="Width, in meters, around the circumference to look" "for points.",
         gt=0,
         default=0.02,
+        hint="meters",
     )
 
     ### Drawing circles and axes ###
@@ -328,6 +356,7 @@ class ExpertParameters(BaseModel):
         "while drawing the axes point cloud",
         gt=0,
         default=0.01,
+        hint="meters",
     )
     # From the stripe centroid, how much (downwards direction) will the drawn axes extend.
     axis_downstep: float = Field(
@@ -337,6 +366,7 @@ class ExpertParameters(BaseModel):
         "from where will the axes be drawn.",
         gt=0,
         default=0.5,
+        hint="meters",
     )
     # From the stripe centroid, how much (upwards direction) will the drawn axes extend.
     axis_upstep: float = Field(
@@ -346,6 +376,7 @@ class ExpertParameters(BaseModel):
         "how long will the drawn axes be.",
         gt=0,
         default=10.0,
+        hint="meters",
     )
 
     ### Height-normalization ###
@@ -356,6 +387,7 @@ class ExpertParameters(BaseModel):
         "Note that the whole point cloud is voxelated.",
         gt=0,
         default=0.15,
+        hint="meters",
     )
     # During the cleanning process, DBSCAN clusters whith size smaller than this value
     # will be considered as noise
@@ -365,7 +397,6 @@ class ExpertParameters(BaseModel):
         "regarded as noise and thus eliminated.",
         gt=0,
         default=2,
-        hint="totololo"
     )
     # Resolution of cloth grid
     res_cloth: float = Field(
@@ -374,6 +405,7 @@ class ExpertParameters(BaseModel):
         "be used to compute normalized heights.",
         gt=0,
         default=0.7,
+        hint="meters",
     )
 
 
@@ -484,9 +516,10 @@ class FinConfiguration(BaseModel):
         else:
             tooltip_txt = f"{description}\n{default_txt}"
         return tooltip_txt
+
     @classmethod
     def field_hint(cls: "FinConfiguration", category_key: str, field_key: str):
-        """Generate a tooltip text for a given field.
+        """Generate a hint text for a given field.
 
         Parameters
         ----------
@@ -496,9 +529,9 @@ class FinConfiguration(BaseModel):
             the key (name) of the field
         """
         field = cls.__fields__.get(category_key).type_().__fields__.get(field_key)
-        hint = field.field_info.extra.pop("hint", None)
+        hint = field.field_info.extra.pop("hint", "")
         return str(hint)
-    
+
     def to_config_file(self, filename: Path):
         """Import parameters from a .ini file.
 
