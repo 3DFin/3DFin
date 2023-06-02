@@ -1,6 +1,3 @@
-import sys
-import typing
-
 from three_d_fin.processing.progress import Progress
 
 
