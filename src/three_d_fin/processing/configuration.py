@@ -528,15 +528,28 @@ class FinConfiguration(BaseModel):
         field_key: str
             the key (name) of the field
         """
-        field = cls.__fields__.get(category_key).type_().__fields__.get(field_key)
+        field = cls.__fields__.get(category_key).type_.__fields__.get(field_key)
         hint = field.field_info.extra.pop("hint", "")
         return str(hint)
+
+    @classmethod
+    def field_type(cls: "FinConfiguration", category_key: str, field_key: str):
+        """return type of a given field.
+
+        Parameters
+        ----------
+        category_key: str
+            the key (name) of the category of the field
+        field_key: str
+            the key (name) of the field
+        """
+        cls.__fields__.get(category_key).type_.__fields__.get(field_key)
+        return cls.__fields__.get(category_key).type_.__fields__.get(field_key).type_
 
     def to_config_file(self, filename: Path):
         """Import parameters from a .ini file.
 
         Could raise exceptions (ValidationError, FileNotFound, configparser.Error)
-
 
         Parameters
         ----------

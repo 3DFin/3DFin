@@ -5,8 +5,8 @@ from typing import Optional
 import laspy
 from pydantic import ValidationError
 from pydantic.fields import ModelField
-from PyQt5 import QtCore, QtGui
-from PyQt5.QtCore import QEventLoop, QObject, QThread, pyqtSignal
+from PyQt5.QtCore import QEventLoop, QLocale, QObject, QThread, QUrl, pyqtSignal
+from PyQt5.QtGui import QDesktopServices, QDoubleValidator, QIcon, QIntValidator
 from PyQt5.QtWidgets import (
     QComboBox,
     QDialog,
@@ -112,7 +112,7 @@ class Application(QMainWindow):
 
         # Force current index to be 0, since QT creator could change that
         self.ui.tabWidget.setCurrentIndex(0)
-        self.setWindowIcon(QtGui.QIcon(":/assets/three_d_fin/assets/icon_window.ico"))
+        self.setWindowIcon(QIcon(":/assets/three_d_fin/assets/icon_window.ico"))
 
         # Click on the "documentation"
         self.ui.documentation_link_btn.clicked.connect(self._show_documentation)
@@ -180,6 +180,7 @@ class Application(QMainWindow):
                 # Default z0_name should match one of the supplied list if present.
                 tooltip_text = FinConfiguration.field_tooltip(config_section, key_param)
                 hint_text = FinConfiguration.field_hint(config_section, key_param)
+                field_type = FinConfiguration.field_type(config_section, key_param)
                 if key_param == "z0_name" and self.cloud_fields is not None:
                     if value_param in self.cloud_fields:
                         id_default = self.cloud_fields.index(value_param)
@@ -206,8 +207,18 @@ class Application(QMainWindow):
                     self.ui.export_txt_rb_2.setChecked(not value_param)
                     self.ui.export_txt_lbl.setToolTip(tooltip_text)
                 else:
-                    getattr(self.ui, key_param + "_in").setText(str(value_param))
-                    getattr(self.ui, key_param + "_in").setToolTip(tooltip_text)
+                    input_field = getattr(self.ui, key_param + "_in")
+                    input_field.setText(str(value_param))
+                    if issubclass(field_type, float):
+                        # Force locale to C for decimal separator
+                        validator = QDoubleValidator()
+                        validator.setLocale(QLocale.c())
+                        input_field.setValidator(validator)
+                    elif issubclass(field_type, int):
+                        validator = QIntValidator()
+                        validator.setLocale(QLocale.c())
+                        input_field.setValidator(validator)
+                    input_field.setToolTip(tooltip_text)
                     getattr(self.ui, key_param + "_lbl").setToolTip(tooltip_text)
                     getattr(self.ui, key_param + "_ht").setText(hint_text)
 
@@ -225,10 +236,8 @@ class Application(QMainWindow):
             base_path = Path(sys._MEIPASS)
         except Exception:
             base_path = Path(__file__).absolute().parents[1] / "documentation"
-        QtGui.QDesktopServices.openUrl(
-            QtCore.QUrl.fromLocalFile(
-                str(Path(base_path / "documentation.pdf").resolve())
-            )
+        QDesktopServices.openUrl(
+            QUrl.fromLocalFile(str(Path(base_path / "documentation.pdf").resolve()))
         )
 
     def _ask_input_file(self):
