@@ -66,17 +66,17 @@ class ExpertParameters(BaseModel):
     """Handle the "expert" parameters section."""
 
     ### Stem identification whithin the stripe ###
-    # (x, y) voxel resolution during stem extraction
+    # (x, y) voxel resolution during stem identification within the stripe
     res_xy_stripe: float = Field(title="(x, y) voxel resolution", gt=0, default=0.02)
-    # (z) voxel resolution during stem extraction
+    # (z) voxel resolution during stem identification within the stripe
     res_z_stripe: float = Field(title="(z) voxel resolution", gt=0, default=0.02)
     # minimum number of points per stem within the stripe (DBSCAN clustering).
     number_of_points: int = Field(title="Number of points", gt=0, default=1000)
-    # Vicinity radius for PCA during stem extraction
+    # Vicinity radius for PCA during stem identification within the stripe
     verticality_scale_stripe: float = Field(
         title="Vicinity radius (verticality computation)", gt=0, default=0.1
     )
-    # Verticality threshold durig stem extraction
+    # Verticality threshold durig stem identification within the stripe
     verticality_thresh_stripe: float = Field(
         title="Verticality threshold", gt=0.0, lt=1.0, default=0.7
     )
@@ -84,21 +84,23 @@ class ExpertParameters(BaseModel):
     height_range: float = Field(title="Vertical Range", gt=0, default=0.7)
 
     ### Stem extraction and tree individualization ###
-    # (x, y) voxel resolution during tree individualization
+    # (x, y) voxel resolution during stem extraction and tree individualization
     res_xy: float = Field(title="(x, y) voxel resolution", gt=0, default=0.035)
-    # (z) voxel resolution during tree individualization
+    # (z) voxel resolution during stem extraction and tree individualization
     res_z: float = Field(title="(z) voxel resolution", gt=0, default=0.035)
-    # Minimum number of points within a stripe to consider it as a potential tree during tree individualization
+    # Minimum number of points within a stripe to consider it as a potential tree during
+    # stem extraction and tree individualization
     minimum_points: int = Field(title="Minimum points", gt=0, default=20)
-    # Vicinity radius for PCA  during tree individualization
+    # Vicinity radius for PCA  during stem extraction and tree individualization
     verticality_scale_stems: float = Field(
         title="Vicinity radius (verticality computation)", gt=0, default=0.1
     )
-    # Verticality threshold  during tree individualization
+    # Verticality threshold  during stem extraction and tree individualization
     verticality_thresh_stems: float = Field(
         title="Verticality threshold", gt=0, lt=1, default=0.7
     )
-    # Points that are closer than d_max to an axis are assigned to that axis during individualize_trees process.
+    # Points that are closer than d_max to an axis are assigned to that axis during
+    # stem extraction and tree individualization.
     maximum_d: float = Field(title="Maximum distance to tree axis", gt=0, default=15.0)
     # Points within this distance from tree axes will be used to find tree height
     distance_to_axis: float = Field(title="Distance from axis", gt=0, default=1.5)
