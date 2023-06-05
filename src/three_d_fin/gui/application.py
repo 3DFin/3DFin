@@ -332,7 +332,7 @@ class Application(QMainWindow):
                 elif key_param == "is_noisy":
                     category_dict[key_param] = self.ui.is_noisy_chk.isChecked()
                 elif key_param == "export_txt":
-                    category_dict[key_param] = not self.ui.export_txt_rb_1.isChecked()
+                    category_dict[key_param] = self.ui.export_txt_rb_1.isChecked()
                 else:
                     category_dict[key_param] = getattr(
                         self.ui, key_param + "_in"
