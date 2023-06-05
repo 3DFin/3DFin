@@ -54,12 +54,15 @@ Documentation = "https://github.com/3DFin/3DFin#README.md"
 Issues = "https://github.com/3DFin/3DFin/issues"
 Source = "https://github.com/3DFin/3DFin"
 
-
 [tool.hatch.build.targets.wheel]
 packages = ["src/three_d_fin"]
 
+[tool.hatch.sdist.build]
+exclude = ["generate_exe", "src/three_d_fin/assets", "src/hatch-qt", ".github"]
+artifacts = ["src/three_d_fin/gui/*.py"]
+
 [tool.hatch.metadata]
-allow-direct-references = true
+allow-direct-references = false
 
 [tool.hatch.envs.default]
 dependencies = ["pytest", "pytest-cov"]
@@ -75,10 +78,8 @@ qt-moc = ["qt-moc-main", "qt-moc-expert"]
 qt-ressource = "pyrcc5 {args} src/hatch-qt/qtfiles/gui_ressources.qrc -o src/three_d_fin/gui/gui_ressources_rc.py"
 qt-all = ["qt-moc", "qt-ressource"]
 
-[tool.hatch.build]
-exclude = ["src/hatch-qt", "src/three_d_fin/assets", "generate_exe", ".github"]
 
-[tool.hatch.build.hooks.custom]
+[tool.hatch.build.sdist.hooks.custom]
 require-runtime-dependencies = true #TODO: maybe an overkill, could be just pyqt5
 path = "src/hatch-qt/build.py"
 

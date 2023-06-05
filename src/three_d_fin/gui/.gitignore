@@ -2,6 +2,3 @@
 main_window.py
 expert_dlg.py
 gui_ressources_rc.py
-
-# project file
-qtfiles/*.pyproject.user
