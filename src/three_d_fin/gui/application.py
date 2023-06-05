@@ -391,7 +391,7 @@ class Application(QMainWindow):
             self.ui.compute_btn.setDisabled(False)
             self.ui.compute_btn.setText("Compute")
 
-        def _error_handling(error_message:str) -> None:
+        def _error_handling(error_message: str) -> None:
             _enable_btn()
             QMessageBox.critical(self, "3DFin error", error_message)
 

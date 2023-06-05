@@ -239,7 +239,7 @@ class ExpertParameters(BaseModel):
         hint="(0, 1)",
     )
     # Points that are closer than d_max to an axis are assigned to that axis during
-    # stem extraction and tree individualization.    
+    # stem extraction and tree individualization.
     maximum_d: float = Field(
         title="Maximum distance to tree axis",
         description="Points that are closer than this distance to an axis "

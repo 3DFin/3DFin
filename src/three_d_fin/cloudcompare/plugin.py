@@ -88,7 +88,6 @@ def main():
 
     cc.freezeUI(True)
     try:
-        # pycc.RunInThread(_create_app_and_run, plugin_functor, scalar_fields)
         _create_app_and_run(plugin_functor, scalar_fields)
     except Exception:
         raise RuntimeError(
