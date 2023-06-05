@@ -391,9 +391,9 @@ class Application(QMainWindow):
             self.ui.compute_btn.setDisabled(False)
             self.ui.compute_btn.setText("Compute")
 
-        def _error_handling() -> None:
+        def _error_handling(error_message:str) -> None:
             _enable_btn()
-            QMessageBox.critical(self, "3DFin error", "Something went wrong!")
+            QMessageBox.critical(self, "3DFin error", error_message)
 
         # Now we do the processing in itself
         self.thread = QThread()
