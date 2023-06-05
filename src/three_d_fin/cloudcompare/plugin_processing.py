@@ -1,8 +1,10 @@
+import sys
 from pathlib import Path
 
 import numpy as np
 import pycc
 
+from three_d_fin.cloudcompare.plugin_progress import CloudCompareProgress
 from three_d_fin.processing.abstract_processing import FinProcessing
 
 
@@ -43,8 +45,10 @@ class CloudComparePluginProcessing(FinProcessing):
         point_cloud : pycc.ccPointCloud
             Point cloud targetted by the 3DFin processing.
         """
+        super().__init__()
         self.base_cloud = point_cloud
         self.cc_instance = cc_instance
+        self.progress = CloudCompareProgress(output=sys.stdout)
 
     def check_already_computed_data(self) -> bool:
         """See base class documentation."""

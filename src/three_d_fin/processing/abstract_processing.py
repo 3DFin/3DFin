@@ -8,14 +8,16 @@ import numpy as np
 
 from three_d_fin.processing.configuration import FinConfiguration
 from three_d_fin.processing.io import export_tabular_data
+from three_d_fin.processing.progress import Progress
 
 
 class FinProcessing(ABC):
     """Define a 3DFin algorithm and its I/O requirements.
 
     I/O are defined as abstract methods that must be overridden by implementers.
-
     """
+
+    progress: Progress = Progress()
 
     config: Optional[FinConfiguration] = None
 
@@ -50,7 +52,7 @@ class FinProcessing(ABC):
     def set_overwrite(self, overwrite: bool) -> None:
         """Set the overwrite attribute.
 
-        it could be used by implementers to decide whether they have to delete
+        It could be used by implementers to decide whether they have to delete
         some data from previous computation.
 
         Parameters
@@ -65,7 +67,7 @@ class FinProcessing(ABC):
         """Construct the ouput path for the algorithm output.
 
         This method is called at the start of the process() method.
-        it is used to construct the output_basepath attibute.
+        It is used to construct the output_basepath attibute.
         """
         pass
 
@@ -88,7 +90,7 @@ class FinProcessing(ABC):
         """Load the base cloud from a provider.
 
         The base cloud is the point cloud from which the algoritm will run.
-        it is used to set the base_cloud attribute. It could also could be set
+        It is used to set the base_cloud attribute. It could also could be set
         from the constructor.
         """
         pass
@@ -404,8 +406,11 @@ class FinProcessing(ABC):
             # Cleaning the DTM
             dtm = dm.clean_cloth(cloth_nodes)
 
+            # Completing the DTM
+            completed_dtm = dm.complete_dtm(dtm)
+
             # export DTM
-            self._export_dtm(dtm)
+            self._export_dtm(completed_dtm)
 
             elapsed = timeit.default_timer() - t
             print("        ", "%.2f" % elapsed, "s: exporting the DTM")
@@ -466,6 +471,7 @@ class FinProcessing(ABC):
             Y_field,
             Z_field,
             tree_id_field=-1,
+            progress_hook=self.progress.update,
         )
 
         print("  ")
@@ -475,7 +481,10 @@ class FinProcessing(ABC):
 
         t_las = timeit.default_timer()
         # Export Stripe
-        self._export_stripe(clust_stripe)
+
+        clean_stripe = clust_stripe[np.isin(clust_stripe[:, -1], tree_vector[:, 0])]
+
+        self._export_stripe(clean_stripe)
 
         # Whole cloud including new
         self._enrich_base_cloud(assigned_cloud)
@@ -543,6 +552,7 @@ class FinProcessing(ABC):
             config.expert.number_sectors,
             config.expert.m_number_sectors,
             config.expert.circle_width,
+            progress_hook=self.progress.update,
         )
 
         # Once every circle on every tree is fitted, outliers are detected.
