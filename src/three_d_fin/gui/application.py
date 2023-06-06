@@ -398,10 +398,10 @@ class Application(QMainWindow):
 
         # Now we do the processing in itself
         self.thread = QThread()
-        # Create a worker object
         _disable_btn()
-        self.worker = ApplicationWorker(self.processing_object)
         self.processing_object._pre_processing_hook()
+        # Create a worker object
+        self.worker = ApplicationWorker(self.processing_object)
 
         # Move the worker to the thread
         self.worker.moveToThread(self.thread)
@@ -409,11 +409,10 @@ class Application(QMainWindow):
         self.worker.finished.connect(self.thread.quit)
         self.worker.finished.connect(self.processing_object._post_processing_hook)
         self.worker.finished.connect(self.worker.deleteLater)
-        self.thread.finished.connect(self.thread.deleteLater)
-
-        # TODO: handle exception in processing here
         self.worker.finished.connect(_enable_btn)
         self.worker.error.connect(_error_handling)
+        self.thread.finished.connect(self.thread.deleteLater)
+
         self.thread.start()
 
     def _normalize_toggled(self) -> None:
@@ -448,6 +447,3 @@ class Application(QMainWindow):
         super().closeEvent(a0)
         if self.event_loop is not None:
             self.event_loop.exit()
-        # TODO: quit thread without messing with the event loop
-        # if self.thread is not None and self.thread.isRunning():
-        #    self.thread.exit()
