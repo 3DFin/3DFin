@@ -85,7 +85,7 @@ class CloudComparePluginProcessing(FinProcessing):
         self.base_cloud.setEnabled(False)
 
     def _post_processing_hook(self):
-        # Could be usedto delay addToDB calls.
+        # Could be used to delay addToDB calls.
         self.cc_instance.addToDB(self.base_group)
 
     def _load_base_cloud(self):

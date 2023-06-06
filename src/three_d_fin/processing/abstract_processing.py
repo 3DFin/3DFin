@@ -298,8 +298,6 @@ class FinProcessing(ABC):
         # Construct output_path
         self._construct_output_path()
 
-        # optional pre processing_hook
-        self._pre_processing_hook()
         # -------------------------------------------------------------------------------------------------
         # NON MODIFIABLE. These parameters should never be modified by the user.
         # -------------------------------------------------------------------------------------------------
@@ -652,5 +650,3 @@ class FinProcessing(ABC):
         print("---------------------------------------------")
         print("Total time:", "   %.2f" % elapsed_t, "s")
         print("nº of trees:", X_c.shape[0])
-
-        self._post_processing_hook()

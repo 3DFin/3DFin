@@ -394,16 +394,20 @@ class Application(QMainWindow):
         def _error_handling(error_message: str) -> None:
             _enable_btn()
             QMessageBox.critical(self, "3DFin error", error_message)
+            self.thread.quit()
 
         # Now we do the processing in itself
         self.thread = QThread()
         # Create a worker object
-        self.worker = ApplicationWorker(self.processing_object)
         _disable_btn()
+        self.worker = ApplicationWorker(self.processing_object)
+        self.processing_object._pre_processing_hook()
+
         # Move the worker to the thread
         self.worker.moveToThread(self.thread)
         self.thread.started.connect(self.worker.run)
         self.worker.finished.connect(self.thread.quit)
+        self.worker.finished.connect(self.processing_object._post_processing_hook)
         self.worker.finished.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)
 
