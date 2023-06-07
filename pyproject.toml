@@ -34,6 +34,7 @@ dependencies = [
   "XlsxWriter~=3.1.0",
   "dendromatics~=0.2.0",
   "pydantic~=1.10.7",
+  "PyQT5~=5.15"
 ]
 dynamic = ["version"]
 
@@ -58,7 +59,6 @@ packages = ["src/three_d_fin"]
 
 [tool.hatch.sdist.build]
 exclude = ["generate_exe", "src/three_d_fin/assets", "src/hatch-qt", ".github"]
-artifacts = ["src/three_d_fin/gui/*.py"]
 
 [tool.hatch.metadata]
 allow-direct-references = false
@@ -71,16 +71,20 @@ dependencies = ["pytest", "pytest-cov"]
 cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=src/three_d_fin/processing --cov=tests {args}"
 no-cov = "cov --no-cov {args}"
 # qt
-qt-moc-main = "pyuic5 {args} src/hatch-qt/qtfiles/main_window.ui -o src/three_d_fin/gui/main_window.py --import-from=three_d_fin.gui"
-qt-moc-expert = "pyuic5 {args} src/hatch-qt/qtfiles/expert_dlg.ui -o src/three_d_fin/gui/expert_dlg.py --import-from=three_d_fin.gui"
-qt-moc = ["qt-moc-main", "qt-moc-expert"]
+qt-moc = [
+  "pyuic5 {args} src/hatch-qt/qtfiles/main_window.ui -o src/three_d_fin/gui/main_window.py --import-from=three_d_fin.gui", 
+  "pyuic5 {args} src/hatch-qt/qtfiles/expert_dlg.ui -o src/three_d_fin/gui/expert_dlg.py --import-from=three_d_fin.gui"
+]
 qt-ressource = "pyrcc5 {args} src/hatch-qt/qtfiles/gui_ressources.qrc -o src/three_d_fin/gui/gui_ressources_rc.py"
 qt-all = ["qt-moc", "qt-ressource"]
 
 
 [tool.hatch.build.targets.sdist.hooks.custom]
-dependencies = ["PyQT5~=5.12"]
+dependencies = ["PyQT5~=5.15"]
 path = "src/hatch-qt/build.py"
+src_folder = "src/hatch-qt/qtfiles"
+dest_folder = "src/three_d_fin/gui"
+import_from = "three_d_fin.gui" # TODO: it could be infered from dest_folder
 
 [[tool.hatch.envs.test.matrix]]
 python = ["38", "39", "310", "311"]

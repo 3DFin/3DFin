@@ -1,4 +1,4 @@
 # qt generated files
 main_window.py
 expert_dlg.py
-gui_ressources_rc.py
+gui_ressources.py

@@ -1,20 +1,19 @@
 import subprocess
 from pathlib import Path
+from typing import Any, Generator
 
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 
-QT_BASE_PATH = Path("src/hatch-qt/qtfiles")
-QT_OUT_PATH = Path("src/three_d_fin/gui")
 
-
-def _pyuic_subprocess(input_path: str, output_path: str):
+def _pyuic_subprocess(input_path: Path, output_path: Path, import_from):
     subprocess.Popen(
         [
             "pyuic5",
-            str(input_path.resolve()),
+            str(input_path),
             "-o",
-            str(output_path.resolve()),
-            "--import-from=three_d_fin.gui",
+            str(output_path),
+            f"--import-from={import_from}",
+            "--resource-suffix=",
         ],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
@@ -23,9 +22,9 @@ def _pyuic_subprocess(input_path: str, output_path: str):
     )
 
 
-def _pyrcc_subprocess(input_path: str, output_path: str):
+def _pyrcc_subprocess(input_path: Path, output_path: Path):
     subprocess.Popen(
-        ["pyrcc5", str(input_path.resolve()), "-o", str(output_path.resolve())],
+        ["pyrcc5", str(input_path), "-o", str(output_path)],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -36,22 +35,51 @@ def _pyrcc_subprocess(input_path: str, output_path: str):
 class QtBuildHook(BuildHookInterface):
     """Simple build hook to generate py files from QT ui ones."""
 
+    artifacts = []
+
     def __init__(self, *args, **kwargs):
         """Init the hook, generate files."""
         super().__init__(*args, **kwargs)
+        try:
+            self.src_folder = self.config["src_folder"]
+        except KeyError:
+            self.app.abort("QT-hook: src_folder undefined")
+
+        try:
+            self.dest_folder = self.config["dest_folder"]
+        except KeyError:
+            self.app.abort("QT-hook: dest_folder undefined")
+
+        self.import_from = self.config.pop("import_from", ".")
+
         self._generate_ui()
         self._generate_rc()
 
     def _generate_ui(self):
-        # TODO: should be in pyproject configuration instead of being harcoded here
-        print(self.directory)
-        _pyuic_subprocess(
-            QT_BASE_PATH / "main_window.ui", QT_OUT_PATH / "main_window.py"
-        )
-        _pyuic_subprocess(QT_BASE_PATH / "expert_dlg.ui", QT_OUT_PATH / "expert_dlg.py")
-
+        for ui_file in self._glob_ui():
+            dest_file = self._dest_from_src(ui_file)
+            _pyuic_subprocess(ui_file, dest_file, self.import_from)
+            self.app.display_info(f"mocking {dest_file}")
+            self.artifacts.append(str(dest_file))
 
     def _generate_rc(self):
-        _pyrcc_subprocess(
-            QT_BASE_PATH / "gui_ressources.qrc", QT_OUT_PATH / "gui_ressources_rc.py"
-        )
+        for rc_file in self._glob_rc():
+            dest_file = self._dest_from_src(rc_file)
+            _pyrcc_subprocess(rc_file, dest_file)
+            self.app.display_info(f"generating {dest_file}")
+            self.artifacts.append(str(dest_file))
+
+    def _glob_ui(self) -> Generator[Path, None, None]:
+        return Path(self.src_folder).glob("*.ui")
+
+    def _glob_rc(self) -> Generator[Path, None, None]:
+        return Path(self.src_folder).glob("*.qrc")
+
+    def _dest_from_src(self, src: Path) -> Path:
+        base_name = src.stem
+        return Path(self.dest_folder) / Path(base_name + ".py")
+
+    def initialize(self, version: str, build_data: dict[str, Any]) -> None:
+        """Override BuildHookInterface method."""
+        build_data["artifacts"].extend(self.artifacts)
+        self.app.display_debug(build_data)
