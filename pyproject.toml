@@ -34,7 +34,6 @@ dependencies = [
   "XlsxWriter~=3.1.0",
   "dendromatics~=0.2.0",
   "pydantic~=1.10.7",
-  "PyQT5~=5.12",
 ]
 dynamic = ["version"]
 
@@ -79,8 +78,8 @@ qt-ressource = "pyrcc5 {args} src/hatch-qt/qtfiles/gui_ressources.qrc -o src/thr
 qt-all = ["qt-moc", "qt-ressource"]
 
 
-[tool.hatch.build.sdist.hooks.custom]
-require-runtime-dependencies = true #TODO: maybe an overkill, could be just pyqt5
+[tool.hatch.build.targets.sdist.hooks.custom]
+dependencies = ["PyQT5~=5.12"]
 path = "src/hatch-qt/build.py"
 
 [[tool.hatch.envs.test.matrix]]

@@ -34,7 +34,7 @@ def _pyrcc_subprocess(input_path: str, output_path: str):
 
 
 class QtBuildHook(BuildHookInterface):
-    """Simple build hook to generate py files from QT ones."""
+    """Simple build hook to generate py files from QT ui ones."""
 
     def __init__(self, *args, **kwargs):
         """Init the hook, generate files."""
@@ -49,6 +49,7 @@ class QtBuildHook(BuildHookInterface):
             QT_BASE_PATH / "main_window.ui", QT_OUT_PATH / "main_window.py"
         )
         _pyuic_subprocess(QT_BASE_PATH / "expert_dlg.ui", QT_OUT_PATH / "expert_dlg.py")
+
 
     def _generate_rc(self):
         _pyrcc_subprocess(
