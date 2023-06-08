@@ -57,11 +57,8 @@ Source = "https://github.com/3DFin/3DFin"
 [tool.hatch.build.targets.wheel]
 packages = ["src/three_d_fin"]
 
-[tool.hatch.sdist.build]
-exclude = ["generate_exe", "src/three_d_fin/assets", "src/hatch-qt", ".github"]
-
-[tool.hatch.metadata]
-allow-direct-references = false
+[tool.hatch.build.targets.sdist]
+exclude = ["pyinstaller", "scripts", "qt-files", ".github"]
 
 [tool.hatch.envs.default]
 dependencies = ["pytest", "pytest-cov"]
@@ -78,8 +75,22 @@ qt-moc = [
 qt-ressource = "pyrcc5 {args} src/hatch-qt/qtfiles/gui_ressources.qrc -o src/three_d_fin/gui/gui_ressources_rc.py"
 qt-all = ["qt-moc", "qt-ressource"]
 
-
 [tool.hatch.build.targets.sdist.hooks.custom]
+dependencies = ["PyQT5~=5.15"]
+path = "scripts/qt_build_hook.py"
+src_folder = "qt-files/src"
+dest_folder = "src/three_d_fin/gui"
+import_from = "three_d_fin.gui" # TODO: it could be infered from dest_folder
+
+[tool.hatch.build.targets.custom]
+require-runtime-dependencies = true
+dependencies = ["pyinstaller"]
+path = "scripts/pyinstaller_builder.py"
+option_file = "pyinstaller/options.specs"
+
+# We need to duplicate this for pyinstaller custom target
+# it is not very DRY. The best would be to depends on sdist target
+[tool.hatch.build.targets.custom.hooks.custom] 
 dependencies = ["PyQT5~=5.15"]
 path = "scripts/qt_build_hook.py"
 src_folder = "qt-files/src"
@@ -97,16 +108,10 @@ omit = ["src/three_d_fin/__about__.py"]
 [tool.coverage.report]
 exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
 
-[tool.hatch.envs.pyinstaller]
-dependencies = ["pyinstaller"]
-
-# hatch run pyinstaller:build
-[tool.hatch.envs.pyinstaller.scripts]
-build = ["qt-all", "pyinstaller generate_exe/options.spec"]
-
 [tool.hatch.envs.lint]
 detached = true
 dependencies = ["ruff>=0.0.261", "black>=23.3.0", "mypy>=1.2.0"]
+
 [tool.hatch.envs.lint.scripts]
 # static analysis with ruff
 check-type = "mypy --install-types --non-interactive {args:src/three_d_fin tests}"
