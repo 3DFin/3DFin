@@ -1,0 +1,26 @@
+<RCC>
+    <qresource prefix="/assets">
+        <file>../assets/3dfin_logo.png</file>
+        <file>../assets/normalized_cloud.png</file>
+        <file>../assets/original_cloud.png</file>
+        <file>../assets/stripe.png</file>
+        <file>../assets/section_details.png</file>
+        <file>../assets/sectors.png</file>
+        <file>../assets/carlos_pic_1.jpg</file>
+        <file>../assets/celestino_pic_1.jpg</file>
+        <file>../assets/cetemas_logo_1.png</file>
+        <file>../assets/covadonga_pic_1.jpg</file>
+        <file>../assets/cris_pic_1.jpg</file>
+        <file>../assets/csic_logo_1.png</file>
+        <file>../assets/diego_pic_1.jpg</file>
+        <file>../assets/icon_window.ico</file>
+        <file>../assets/nerc_logo_1.png</file>
+        <file>../assets/spain_logo_1.png</file>
+        <file>../assets/stefan_pic_1.jpg</file>
+        <file>../assets/tadas_pic_1.jpg</file>
+        <file>../assets/uniovi_logo_1.png</file>
+        <file>../assets/swansea_logo_1.png</file>
+        <file>../assets/icon_window.ico</file>
+        <file>../assets/info_icon.png</file>
+    </qresource>
+</RCC>

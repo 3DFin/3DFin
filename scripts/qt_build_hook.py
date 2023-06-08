@@ -59,14 +59,14 @@ class QtBuildHook(BuildHookInterface):
         for ui_file in self._glob_ui():
             dest_file = self._dest_from_src(ui_file)
             _pyuic_subprocess(ui_file, dest_file, self.import_from)
-            self.app.display_info(f"mocking {dest_file}")
+            self.app.display_info(f"mocking {ui_file}")
             self.artifacts.append(str(dest_file))
 
     def _generate_rc(self):
         for rc_file in self._glob_rc():
             dest_file = self._dest_from_src(rc_file)
             _pyrcc_subprocess(rc_file, dest_file)
-            self.app.display_info(f"generating {dest_file}")
+            self.app.display_info(f"generating {rc_file}")
             self.artifacts.append(str(dest_file))
 
     def _glob_ui(self) -> Generator[Path, None, None]:

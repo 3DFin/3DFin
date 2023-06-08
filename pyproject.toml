@@ -81,8 +81,8 @@ qt-all = ["qt-moc", "qt-ressource"]
 
 [tool.hatch.build.targets.sdist.hooks.custom]
 dependencies = ["PyQT5~=5.15"]
-path = "src/hatch-qt/build.py"
-src_folder = "src/hatch-qt/qtfiles"
+path = "scripts/qt_build_hook.py"
+src_folder = "qt-files/src"
 dest_folder = "src/three_d_fin/gui"
 import_from = "three_d_fin.gui" # TODO: it could be infered from dest_folder
 
