@@ -82,11 +82,11 @@ src_folder = "qt-files/src"
 dest_folder = "src/three_d_fin/gui"
 import_from = "three_d_fin.gui" # TODO: it could be infered from dest_folder
 
+# PyInstaller builder
 [tool.hatch.build.targets.custom]
 require-runtime-dependencies = true
 dependencies = ["pyinstaller"]
 path = "scripts/pyinstaller_builder.py"
-option_file = "pyinstaller/options.specs"
 
 # We need to duplicate this for pyinstaller custom target
 # it is not very DRY. The best would be to depends on sdist target
