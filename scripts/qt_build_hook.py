@@ -6,7 +6,7 @@ from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 
 
 def _pyuic_subprocess(input_path: Path, output_path: Path, import_from):
-    subprocess.Popen(
+    subprocess.call(
         [
             "pyuic5",
             str(input_path),
@@ -23,7 +23,7 @@ def _pyuic_subprocess(input_path: Path, output_path: Path, import_from):
 
 
 def _pyrcc_subprocess(input_path: Path, output_path: Path):
-    subprocess.Popen(
+    subprocess.call(
         ["pyrcc5", str(input_path), "-o", str(output_path)],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
@@ -43,12 +43,12 @@ class QtBuildHook(BuildHookInterface):
         try:
             self.src_folder = self.config["src_folder"]
         except KeyError:
-            self.app.abort("QT-hook: src_folder undefined")
+            self.app.abort("[QT-hook] src_folder undefined")
 
         try:
             self.dest_folder = self.config["dest_folder"]
         except KeyError:
-            self.app.abort("QT-hook: dest_folder undefined")
+            self.app.abort("[QT-hook] dest_folder undefined")
 
         self.import_from = self.config.pop("import_from", ".")
 
@@ -59,14 +59,14 @@ class QtBuildHook(BuildHookInterface):
         for ui_file in self._glob_ui():
             dest_file = self._dest_from_src(ui_file)
             _pyuic_subprocess(ui_file, dest_file, self.import_from)
-            self.app.display_info(f"mocking {ui_file}")
+            self.app.display_info(f"[QT-hook] mocking {ui_file}")
             self.artifacts.append(str(dest_file))
 
     def _generate_rc(self):
         for rc_file in self._glob_rc():
             dest_file = self._dest_from_src(rc_file)
             _pyrcc_subprocess(rc_file, dest_file)
-            self.app.display_info(f"generating {rc_file}")
+            self.app.display_info(f"[QT-hook] generating {rc_file}")
             self.artifacts.append(str(dest_file))
 
     def _glob_ui(self) -> Generator[Path, None, None]:
