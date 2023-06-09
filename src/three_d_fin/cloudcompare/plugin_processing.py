@@ -53,29 +53,6 @@ class CloudComparePluginProcessing(FinProcessing):
         self.cc_instance = cc_instance
         self.progress = CloudCompareProgress(output=sys.stdout)
 
-    def check_already_computed_data(self) -> bool:
-        """See base class documentation."""
-        self._construct_output_path()
-
-        any_of = False
-        # Check existence of tabular output
-        if self.config.misc.export_txt:
-            any_of |= Path(str(self.output_basepath) + "_diameters.txt").exists()
-            any_of |= Path(str(self.output_basepath) + "_X_c.txt").exists()
-            any_of |= Path(str(self.output_basepath) + "_Y_c.txt").exists()
-            any_of |= Path(str(self.output_basepath) + "_check_circle.txt").exists()
-            any_of |= Path(str(self.output_basepath) + "_n_points_in.txt").exists()
-            any_of |= Path(str(self.output_basepath) + "_sector_perct.txt").exists()
-            any_of |= Path(str(self.output_basepath) + "_outliers.txt").exists()
-            any_of |= Path(str(self.output_basepath) + "_dbh_and_heights.txt").exists()
-            any_of |= Path(str(self.output_basepath) + "_sections.txt").exists()
-        else:
-            any_of |= Path(str(self.output_basepath) + ".xlsx").exists()
-        # Check existence of ini output
-        any_of |= Path(str(self.output_basepath) + "_config.ini").exists()
-        self.overwrite = any_of
-        return any_of
-
     def _construct_output_path(self):
         # We still use the stem attribute since in CC cloud could name could be based on filenames
         self.output_basepath = (

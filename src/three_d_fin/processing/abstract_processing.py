@@ -36,9 +36,12 @@ class FinProcessing(ABC):
             Self explanatory, the 3DFin configuration.
         """
         self.config = config
+        self._construct_output_path()
 
     def set_config(self, config: FinConfiguration) -> None:
         """Set the configuration.
+
+        It's basically equivalent on creating a new object
 
         Parameters
         ----------
@@ -46,6 +49,7 @@ class FinProcessing(ABC):
             Self explanatory, the 3DFin configuration.
         """
         self.config = config
+        self._construct_output_path()
 
     def check_already_computed_data(self) -> bool:
         """Check if the processing algorithm output is likely to collides with data.
@@ -57,22 +61,24 @@ class FinProcessing(ABC):
             a previous computation, False otherwise. Default implementation always
             return False.
         """
-        return False
+        any_of = False
+        # Check existence of tabular output
+        if self.config.misc.export_txt:
+            any_of |= Path(str(self.output_basepath) + "_diameters.txt").exists()
+            any_of |= Path(str(self.output_basepath) + "_X_c.txt").exists()
+            any_of |= Path(str(self.output_basepath) + "_Y_c.txt").exists()
+            any_of |= Path(str(self.output_basepath) + "_check_circle.txt").exists()
+            any_of |= Path(str(self.output_basepath) + "_n_points_in.txt").exists()
+            any_of |= Path(str(self.output_basepath) + "_sector_perct.txt").exists()
+            any_of |= Path(str(self.output_basepath) + "_outliers.txt").exists()
+            any_of |= Path(str(self.output_basepath) + "_dbh_and_heights.txt").exists()
+            any_of |= Path(str(self.output_basepath) + "_sections.txt").exists()
+        else:
+            any_of |= Path(str(self.output_basepath) + ".xlsx").exists()
+        # Check existence of ini output
+        any_of |= Path(str(self.output_basepath) + "_config.ini").exists()
+        return any_of
 
-    def set_overwrite(self, overwrite: bool) -> None:
-        """Set the overwrite attribute.
-
-        It could be used by implementers to decide whether they have to delete
-        some data from previous computation.
-
-        Parameters
-        ----------
-        overwrite : bool
-            Self explanatory, the overwrite attribute.
-        """
-        self.overwrite = overwrite
-
-    @abstractmethod
     def _construct_output_path(self) -> None:
         """Construct the ouput path for the algorithm output.
 
@@ -92,7 +98,7 @@ class FinProcessing(ABC):
 
     @abstractmethod
     def _post_processing_hook(self) -> None:
-        """Execute instructions after the main algorithm."""
+        """Execute instructions to run after the main algorithm."""
         pass
 
     @abstractmethod
@@ -304,9 +310,6 @@ class FinProcessing(ABC):
         """
         if self.config is None:
             raise Exception("Please set configuration before running any processing")
-
-        # Construct output_path
-        self._construct_output_path()
 
         # -------------------------------------------------------------------------------------------------
         # NON MODIFIABLE. These parameters should never be modified by the user.
