@@ -43,10 +43,6 @@ def _create_app_and_run(
 ):
     """Encapsulate the 3DFin GUI and processing.
 
-    It also embed a custom fix for the HiDPI support that is broken when using tk
-    under the CloudCompare runtime. This function allow to run the fix and the app
-    on a dedicated thread thanx to pycc.RunInThread.
-
     Parameters
     ----------
     plugin_processing : CloudComparePluginProcessing
@@ -84,11 +80,11 @@ def main():
         scalar_fields.append(point_cloud.getScalarFieldName(i))
 
     # TODO: Handle big coodinates (could be tested but maybe wait for CC API update).
-    plugin_functor = CloudComparePluginProcessing(cc, point_cloud)
+    plugin_processing = CloudComparePluginProcessing(cc, point_cloud)
 
     cc.freezeUI(True)
     try:
-        _create_app_and_run(plugin_functor, scalar_fields)
+        _create_app_and_run(plugin_processing, scalar_fields)
     except Exception:
         raise RuntimeError(
             "Something went wrong!"
