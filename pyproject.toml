@@ -69,10 +69,10 @@ cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=src/th
 no-cov = "cov --no-cov {args}"
 # qt
 qt-moc = [
-  "pyuic5 {args} src/hatch-qt/qtfiles/main_window.ui -o src/three_d_fin/gui/main_window.py --import-from=three_d_fin.gui", 
-  "pyuic5 {args} src/hatch-qt/qtfiles/expert_dlg.ui -o src/three_d_fin/gui/expert_dlg.py --import-from=three_d_fin.gui"
+  "pyuic5 {args} qt-files/src/main_window.ui -o src/three_d_fin/gui/main_window.py --import-from=three_d_fin.gui --resource-suffix=", 
+  "pyuic5 {args} qt-files/src/expert_dlg.ui -o src/three_d_fin/gui/expert_dlg.py --import-from=three_d_fin.gui --resource-suffix="
 ]
-qt-ressource = "pyrcc5 {args} src/hatch-qt/qtfiles/gui_ressources.qrc -o src/three_d_fin/gui/gui_ressources_rc.py"
+qt-ressource = "pyrcc5 {args} qt-files/src/gui_ressources.qrc -o src/three_d_fin/gui/gui_ressources.py"
 qt-all = ["qt-moc", "qt-ressource"]
 
 [tool.hatch.build.targets.sdist.hooks.custom]
