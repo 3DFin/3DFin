@@ -82,7 +82,7 @@ class ExpertDialog(QDialog):
 class Application(QMainWindow):
     """The GUI Application."""
 
-    params: FinConfiguration = FinConfiguration()
+    processing_object: FinProcessing
 
     event_loop: Optional[QEventLoop] = None
 
@@ -162,33 +162,12 @@ class Application(QMainWindow):
             self.ui.input_file_btn.setDisabled(True)
             self.ui.input_file_in.setDisabled(True)
 
-        self._load_config_or_default()
         self._populate_fields()
-
-    def _load_config_or_default(self) -> None:
-        """Try to load a config file or fallback to default.
-
-        TODO: Maybe it should be migrated into the FinProcessing constructor
-        """
-        try:
-            # Reading config file only if it is available under name '3DFinconfig.ini'
-            config_file_path = Path("3DFinconfig.ini")
-            self.params = FinConfiguration.From_config_file(
-                config_file_path.resolve(strict=True), init_misc=True
-            )
-            print("Configuration file found. Setting default parameters from the file")
-        except ValidationError:
-            print("Configuration file error")
-            self.params = FinConfiguration()
-        except FileNotFoundError:
-            # No error message in this case, fallback to default parameters
-            self.params = FinConfiguration()
-        self.params = FinConfiguration()
 
     def _populate_fields(self) -> None:
         """Populate fields with default value, labels, tooltips based on FinConfiguration."""
         # params and QT fields have the same name, we take advantage of that
-        config_dict = self.params.dict()
+        config_dict = self.processing_object.config.dict()
         for config_section in config_dict:
             for key_param, value_param in config_dict[config_section].items():
                 # Default z0_name should match one of the supplied list if present.
@@ -424,8 +403,8 @@ class Application(QMainWindow):
     def set_event_loop(self, loop: QEventLoop) -> None:
         """Set an optional event loop.
 
-        In some context (e.g. CloudCompare plugin), we need to set a dedicated
-        event loop to the application.
+        In some context (e.g. CloudCompare and QGIS plugin),
+        we need to set a dedicated event loop to the mainwindow.
 
         Parameters
         ----------
@@ -437,7 +416,7 @@ class Application(QMainWindow):
     def closeEvent(self, a0: QCloseEvent) -> None:
         """Close the application.
 
-        The event loop is exited if it was set.
+        The event loop is exited if it was previously setted.
 
         Parameters
         ----------

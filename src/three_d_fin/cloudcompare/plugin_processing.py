@@ -6,6 +6,7 @@ import pycc
 
 from three_d_fin.cloudcompare.plugin_progress import CloudCompareProgress
 from three_d_fin.processing.abstract_processing import FinProcessing
+from three_d_fin.processing.configuration import FinConfiguration
 
 
 class CloudComparePluginProcessing(FinProcessing):
@@ -34,7 +35,7 @@ class CloudComparePluginProcessing(FinProcessing):
         point_cloud.getScalarField(idx_sf).computeMinAndMax()
 
     def __init__(
-        self, cc_instance: pycc.ccPythonInstance, point_cloud: pycc.ccPointCloud
+        self, cc_instance: pycc.ccPythonInstance, point_cloud: pycc.ccPointCloud, config: FinConfiguration
     ):
         """Construct the functor object.
 
@@ -44,8 +45,10 @@ class CloudComparePluginProcessing(FinProcessing):
             Current cc application, wrapped by CloudCompare-PythonPlugin.
         point_cloud : pycc.ccPointCloud
             Point cloud targetted by the 3DFin processing.
+        config: FinConfiguration
+            The FinConfiguration object
         """
-        super().__init__()
+        super().__init__(config)
         self.base_cloud = point_cloud
         self.cc_instance = cc_instance
         self.progress = CloudCompareProgress(output=sys.stdout)

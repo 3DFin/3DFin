@@ -1,7 +1,7 @@
 import timeit
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import dendromatics as dm
 import numpy as np
@@ -19,13 +19,23 @@ class FinProcessing(ABC):
 
     progress: Progress = Progress()
 
-    config: Optional[FinConfiguration] = None
+    config: FinConfiguration
 
     base_cloud: Any
 
     output_basepath: Path
 
     overwrite: bool = False
+
+    def __init__(self, config: FinConfiguration) -> None:
+        """Init the FinProcessing object.
+
+        Parameters
+        ----------
+        config : FinConfiguration
+            Self explanatory, the 3DFin configuration.
+        """
+        self.config = config
 
     def set_config(self, config: FinConfiguration) -> None:
         """Set the configuration.

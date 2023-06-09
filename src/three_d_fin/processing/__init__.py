@@ -4,6 +4,8 @@ import os
 import sys
 from pathlib import Path
 
+from pydantic import ValidationError
+
 
 def launch_application() -> int:
     """Parse the command line and launch the GUI or the CLI application.
@@ -77,16 +79,35 @@ def launch_application() -> int:
     print(__about__.__copyright_info_2__)
     print(__about__.__license_msg__)
 
-    fin_processing = StandaloneLASProcessing()
+    fin_processing = StandaloneLASProcessing(FinConfiguration())
     # No subcommand, launch GUI
     if cli_parse.subcommand is None:
+        # for legacy purpose we look at configuration file on the cwd
+        # Reading config file only if it is available under name '3DFinconfig.ini'
+        try:
+            config_file_path = Path("3DFinconfig.ini")
+            config = FinConfiguration.From_config_file(
+                config_file_path.resolve(strict=True), init_misc=True
+            )
+            print("Configuration file found. Setting default parameters from the file")
+            fin_processing.set_config(config)
+        except ValidationError:
+            # Error message in this case, but stick to default parameters
+            print(
+                "Configuration file found but it has validation errors, fallback to default"
+            )
+            pass
+        except FileNotFoundError:
+            # No error message in this case, stick to default parameters
+            pass
+
         os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
         QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+        
         app = QApplication(sys.argv)
         app_widget = Application(fin_processing)
         app_widget.show()
         app.exec_()
-        # TODO it's always sucess for now but we should do exception handling
         return EXIT_SUCCESS
 
     # else, the CLI case
@@ -112,7 +133,7 @@ def launch_application() -> int:
         print(f"Parameters: {error.args[0]}")
         return EXIT_ERROR
 
-    # Second, We check las file validity
+    # Second, we check the validity of the las file
     input_las = Path(cli_parse.input_file)
     if not input_las.exists() or not input_las.is_file():
         print("Input file: file does not exists")
@@ -153,5 +174,4 @@ def launch_application() -> int:
     # Run processing
     fin_processing.set_config(final_params)
     fin_processing.process()
-    # TODO it's always sucess for now but we should do exception handling
     return EXIT_SUCCESS
