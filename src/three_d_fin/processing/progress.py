@@ -17,7 +17,7 @@ class Progress(object):
         """Construct a progress bar object.
 
         A simple progress bar taylored for our needs. It is intended to be used with dendromatics.
-        The progress bar update method is should to be passed to dendromatics methods that optionally
+        The progress bar update() method should to be passed to dendromatics function that optionally
         take a process hook.
 
         Parameters
@@ -25,7 +25,7 @@ class Progress(object):
         title : str
             The title of the progress bar
         n_chars : int
-            The number of characters to use in the progress bar (the lenght of the progress bar).
+            The number of characters to use in the progress bar (the length of the progress bar).
         output : typing.TextIO
             File like object
         """

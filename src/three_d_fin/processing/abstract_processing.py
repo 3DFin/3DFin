@@ -14,6 +14,8 @@ from three_d_fin.processing.progress import Progress
 class FinProcessing(ABC):
     """Define a 3DFin algorithm and its I/O requirements.
 
+    see the process() method for full description of the algorithmic aspects.
+
     I/O are defined as abstract methods that must be overridden by implementers.
     """
 

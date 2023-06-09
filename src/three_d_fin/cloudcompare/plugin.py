@@ -25,7 +25,7 @@ class ThreeDFinCC(pycc.PythonPluginInterface):
         Returns
         -------
         path : str
-            the string representation of the path to the plugin icon
+            the string representation of the path to the plugin icon.
         """
         return str(
             (Path(__file__).parents[0] / "assets" / "3dfin_logo_plugin.png").resolve()
@@ -48,8 +48,8 @@ def _create_app_and_run(
     plugin_processing : CloudComparePluginProcessing
         The instance of FinProcessing dedicated to CloudCompare (as a plugin)
     scalar_fields : list[str]
-        A list of scalar field names. These list will feed the dropdown menu
-        inside the 3DFin GUI.
+        A list of scalar field names. This list will feed the QComboBox inside
+        the 3DFin GUI.
     """
     plugin_widget = Application(
         plugin_processing, file_externally_defined=True, cloud_fields=scalar_fields
@@ -74,7 +74,7 @@ def main():
     if not isinstance(point_cloud, pycc.ccPointCloud):
         raise RuntimeError("Selected entity should be a point cloud")
 
-    # List all scalar fields to feed dropdown menu in the interface
+    # List all scalar fields to feed the QComboBox in the interface.
     scalar_fields: list[str] = []
     for i in range(point_cloud.getNumberOfScalarFields()):
         scalar_fields.append(point_cloud.getScalarFieldName(i))

@@ -30,7 +30,12 @@ from three_d_fin.processing.configuration import FinConfiguration
 
 
 class ApplicationWorker(QObject):
-    """Simple worker to handle FinProcessing in a dedicated QThread."""
+    """Simple worker to handle FinProcessing in a dedicated QThread.
+
+    To avoid to block the main UI thread, we run the processing
+    in a dedicated thread. this Class encapsulate the FinProcessing
+    object to make it suitable for a QThread processing
+    """
 
     finished = pyqtSignal()
     error = pyqtSignal(str)
@@ -124,7 +129,7 @@ class Application(QMainWindow):
         self.file_externally_defined = file_externally_defined
         self.cloud_fields = cloud_fields
 
-        # Force current index to be 0, since QT creator could change that on ui save
+        # Force current index to be 0, since QT creator could change when .ui file is savec
         self.ui.tabWidget.setCurrentIndex(0)
         self.setWindowIcon(QIcon(":/assets/three_d_fin/assets/icon_window.ico"))
 
@@ -167,9 +172,10 @@ class Application(QMainWindow):
     def _populate_fields(self) -> None:
         """Populate fields with default values, labels, tooltips based on FinConfiguration.
 
-            Parameters and QT fields have the same name, we take advantage of that.
+        Fields defined in the configuration.py and QT fields defined in the  have the same name,
+        we take advantage of that.
 
-           We use this convention:
+        We use this convention:
             [parameter_name]_lbl = main label, populated by FieldInfo.name
             [parameter_name]_in = main input, populated by default value i.e. FieldInfo.default
             [parameter_name]_ht = input hint, populated by FieldInfo.extra.hint
@@ -238,7 +244,7 @@ class Application(QMainWindow):
     def _show_documentation(self) -> None:
         """Show the documentation.
 
-        Open the default PDF viewer to show the documentation.
+        Open the default browser to show the documentation.
         """
         try:
             base_path = Path(sys._MEIPASS)
@@ -302,6 +308,10 @@ class Application(QMainWindow):
     def _get_parameters(self) -> dict[str, dict[str, str]]:
         """Get parameters from widgets and return them organized in a dictionary.
 
+        Like _populate_fields(), parameters are collected taking advantage of
+        the name correspondance between Pydantic Fields defined in the configuration
+        module an name of the input fields in the QT ui file.
+
         Returns
         -------
         options : dict[str, dict[str, str]]
@@ -354,7 +364,7 @@ class Application(QMainWindow):
                     .__fields__[error_loc[1]]
                 )
                 title = field.field_info.title
-                # formatting
+                # error text formatting
                 final_msg = final_msg + f"{title} \n"
                 final_msg = final_msg + f"""\t -> {error["msg"]} \n"""
             _show_error(final_msg)
@@ -362,7 +372,7 @@ class Application(QMainWindow):
 
         self.processing_object.set_config(fin_config)
 
-        # Here we will check in an astract way if the output could collide
+        # Here we will check in an abstract way if the output could collide
         # with previous computations... and ask if we want to overwrite them.
         if self.processing_object.check_already_computed_data():
             overwrite = QMessageBox.question(
@@ -390,6 +400,7 @@ class Application(QMainWindow):
         # Now we do the processing in itself
         self.thread = QThread()
         _disable_btn()
+        # Pre processing hook is called from the main thread
         self.processing_object._pre_processing_hook()
         # Create a worker object
         self.worker = ApplicationWorker(self.processing_object)
@@ -398,8 +409,9 @@ class Application(QMainWindow):
         self.worker.moveToThread(self.thread)
         self.thread.started.connect(self.worker.run)
         self.worker.finished.connect(self.thread.quit)
-        self.worker.finished.connect(self.processing_object._post_processing_hook)
         self.worker.finished.connect(self.worker.deleteLater)
+        # Post processing hook is called from the main thread
+        self.worker.finished.connect(self.processing_object._post_processing_hook)
         self.worker.finished.connect(_enable_btn)
         self.worker.error.connect(_error_handling)
         self.thread.finished.connect(self.thread.deleteLater)
@@ -407,7 +419,7 @@ class Application(QMainWindow):
         self.thread.start()
 
     def _normalize_toggled(self) -> None:
-        """Handle 'is_normalized' checkbox toggle event."""
+        """Handle the 'is_normalized' checkbox toggle event."""
         self.ui.is_noisy_chk.setEnabled(self.ui.is_normalized_chk.isChecked())
         self.ui.z0_name_in.setEnabled(not self.ui.is_normalized_chk.isChecked())
         self.ui.z0_name_lbl.setEnabled(not self.ui.is_normalized_chk.isChecked())
@@ -437,4 +449,4 @@ class Application(QMainWindow):
         """
         super().closeEvent(a0)
         if self.event_loop is not None:
-            self.event_loop.exit()
+            self.event_loop.quit()

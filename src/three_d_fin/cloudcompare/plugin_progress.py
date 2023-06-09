@@ -2,11 +2,11 @@ from three_d_fin.processing.progress import Progress
 
 
 class CloudCompareProgress(Progress):
-    """A simple progress bar implementation taylored for CloudCompare Plugin.
+    """A simple progress bar implementation taylored for 3DFin CloudCompare Plugin.
 
-    CloudCompare console does not support CR char so this implementation tends
-    to replace it with LF. It induce a less esthetic multiline progress than the
-    proper render in TTY.
+    CloudCompare console does not support "CR" char trick so this implementation
+    replaces it with LF. It induces a less esthetic multiline progress than the
+    corresponding render in TTY.
 
     CloudCompare console is making auto flush at regular interval thus manual flushing
     is not necessary.
