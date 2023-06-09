@@ -35,7 +35,10 @@ class CloudComparePluginProcessing(FinProcessing):
         point_cloud.getScalarField(idx_sf).computeMinAndMax()
 
     def __init__(
-        self, cc_instance: pycc.ccPythonInstance, point_cloud: pycc.ccPointCloud, config: FinConfiguration
+        self,
+        cc_instance: pycc.ccPythonInstance,
+        point_cloud: pycc.ccPointCloud,
+        config: FinConfiguration,
     ):
         """Construct the functor object.
 

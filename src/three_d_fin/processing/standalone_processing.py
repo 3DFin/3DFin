@@ -4,12 +4,10 @@ import laspy
 import numpy as np
 
 from three_d_fin.processing.abstract_processing import FinProcessing
-from three_d_fin.processing.configuration import FinConfiguration
 
 
 class StandaloneLASProcessing(FinProcessing):
     """Implement the FinProcessing interface for LAS files in a standalone context."""
-
 
     def _construct_output_path(self):
         basename_las = Path(self.config.misc.input_file).stem

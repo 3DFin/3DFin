@@ -165,8 +165,20 @@ class Application(QMainWindow):
         self._populate_fields()
 
     def _populate_fields(self) -> None:
-        """Populate fields with default value, labels, tooltips based on FinConfiguration."""
-        # params and QT fields have the same name, we take advantage of that
+        """Populate fields with default values, labels, tooltips based on FinConfiguration.
+
+            Parameters and QT fields have the same name, we take advantage of that.
+
+           We use this convention:
+            [parameter_name]_lbl = main label, populated by FieldInfo.name
+            [parameter_name]_in = main input, populated by default value i.e. FieldInfo.default
+            [parameter_name]_ht = input hint, populated by FieldInfo.extra.hint
+            tooltip_text is infered from the FieldInfo.description
+        This works for most numeric fields, but this mapping won't work for few exceptions:
+            z0_name can be a QComboBox and a QTextEdit
+            input_file / output_file have their own way to define default values
+            Binary fields can be either QRadioButton or QCheckBox
+        """
         config_dict = self.processing_object.config.dict()
         for config_section in config_dict:
             for key_param, value_param in config_dict[config_section].items():
@@ -186,9 +198,9 @@ class Application(QMainWindow):
                     self.ui.input_file_lbl.setToolTip(tooltip_text)
                     self.ui.input_file_in.setToolTip(tooltip_text)
                 elif key_param == "output_dir":
-                    getattr(self.ui, key_param + "_in").setText(str(value_param))
-                    getattr(self.ui, key_param + "_in").setToolTip(tooltip_text)
-                    getattr(self.ui, key_param + "_lbl").setToolTip(tooltip_text)
+                    self.ui.output_dir_in.setText(str(value_param))
+                    self.ui.output_dir_in.setToolTip(tooltip_text)
+                    self.ui.output_dir_in.lbl.setToolTip(tooltip_text)
                 elif key_param == "is_normalized":
                     self.ui.is_normalized_chk.setChecked(not value_param)
                     self.ui.is_normalized_chk.setToolTip(tooltip_text)
@@ -199,11 +211,11 @@ class Application(QMainWindow):
                     self.ui.export_txt_rb_1.setChecked(value_param)
                     self.ui.export_txt_rb_2.setChecked(not value_param)
                     self.ui.export_txt_lbl.setToolTip(tooltip_text)
-                else:
+                else:  # regular "numeric" QTextEdit live here.
                     input_field = getattr(self.ui, key_param + "_in")
                     input_field.setText(str(value_param))
-                    # Set basic validators for Both float and in
-                    # it only check if input is a valid float/int
+                    # Set basic validators for both float and int
+                    # it only checks if input is a valid float/int
                     # other constraints like range are left to pydantic validators
                     if issubclass(field_type, float):
                         # Force locale to C for decimal separator

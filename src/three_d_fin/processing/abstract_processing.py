@@ -79,6 +79,7 @@ class FinProcessing(ABC):
         any_of |= Path(str(self.output_basepath) + "_config.ini").exists()
         return any_of
 
+    @abstractmethod
     def _construct_output_path(self) -> None:
         """Construct the ouput path for the algorithm output.
 

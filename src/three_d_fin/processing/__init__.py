@@ -103,7 +103,7 @@ def launch_application() -> int:
 
         os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
         QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
-        
+
         app = QApplication(sys.argv)
         app_widget = Application(fin_processing)
         app_widget.show()
