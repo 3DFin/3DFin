@@ -206,7 +206,7 @@ class Application(QMainWindow):
                 elif key_param == "output_dir":
                     self.ui.output_dir_in.setText(str(value_param))
                     self.ui.output_dir_in.setToolTip(tooltip_text)
-                    self.ui.output_dir_in.lbl.setToolTip(tooltip_text)
+                    self.ui.output_dir_lbl.setToolTip(tooltip_text)
                 elif key_param == "is_normalized":
                     self.ui.is_normalized_chk.setChecked(not value_param)
                     self.ui.is_normalized_chk.setToolTip(tooltip_text)

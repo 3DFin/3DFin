@@ -1,4 +1,4 @@
-__version__ = "0.1.0.dev7"
+__version__ = "0.2.0"
 
 # Copyright infos
 __copyright_info_1__ = (

@@ -10,7 +10,10 @@ class StandaloneLASProcessing(FinProcessing):
     """Implement the FinProcessing interface for LAS files in a standalone context."""
 
     def _construct_output_path(self):
-        basename_las = Path(self.config.misc.input_file).stem
+        if self.config.misc.input_file is not None :
+            basename_las = Path(self.config.misc.input_file).stem
+        else :
+            basename_las = "3DFin"
         self.output_basepath = Path(self.config.misc.output_dir) / Path(basename_las)
 
     def check_already_computed_data(self) -> bool:
