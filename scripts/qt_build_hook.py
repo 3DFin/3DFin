@@ -1,6 +1,6 @@
 import subprocess
 from pathlib import Path
-from typing import Any, Generator
+from typing import Any, Dict, Generator
 
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 
@@ -79,7 +79,7 @@ class QtBuildHook(BuildHookInterface):
         base_name = src.stem
         return Path(self.dest_folder) / Path(base_name + ".py")
 
-    def initialize(self, version: str, build_data: dict[str, Any]) -> None:
+    def initialize(self, version: str, build_data: Dict[str, Any]) -> None:
         """Override BuildHookInterface method."""
         build_data["artifacts"].extend(self.artifacts)
         self.app.display_debug(build_data)
