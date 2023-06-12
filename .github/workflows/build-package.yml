@@ -14,6 +14,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     name: Build 3DFin wheel and source package
     strategy:
+      fail-fast: false # The full workflow does not fail if one build fail
       matrix:
         os: [ubuntu-latest, windows-latest]
         python-version: ["3.8", "3.8", "3.9", "3.10", "3.11"]
