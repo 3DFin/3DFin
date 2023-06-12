@@ -51,10 +51,10 @@ class CloudComparePluginProcessing(FinProcessing):
         config: FinConfiguration
             The FinConfiguration object
         """
-        super().__init__(config)
         self.base_cloud = point_cloud
         self.cc_instance = cc_instance
         self.progress = CloudCompareProgress(output=sys.stdout)
+        super().__init__(config)
 
     def _construct_output_path(self):
         # We still use the stem attribute since in CC cloud could name could be based on filenames

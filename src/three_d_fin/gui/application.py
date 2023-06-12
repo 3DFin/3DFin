@@ -131,7 +131,7 @@ class Application(QMainWindow):
 
         # Force current index to be 0, since QT creator could change when .ui file is savec
         self.ui.tabWidget.setCurrentIndex(0)
-        self.setWindowIcon(QIcon(":/assets/three_d_fin/assets/icon_window.ico"))
+        self.setWindowIcon(QIcon(":/assets/assets/icon_window.ico"))
 
         # Click on the "documentation" link
         self.ui.documentation_link_btn.clicked.connect(self._show_documentation)
@@ -374,7 +374,7 @@ class Application(QMainWindow):
 
         # Here we will check in an abstract way if the output could collide
         # with results ofprevious computations... and ask if we want to overwrite them.
-        if self.processing_object.check_already_compted_data():
+        if self.processing_object.check_already_computed_data():
             overwrite = QMessageBox.question(
                 self,
                 "3DFin",

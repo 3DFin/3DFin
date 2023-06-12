@@ -5,6 +5,7 @@ from PyQt5.QtCore import QEventLoop
 
 from three_d_fin.cloudcompare.plugin_processing import CloudComparePluginProcessing
 from three_d_fin.gui.application import Application
+from three_d_fin.processing.configuration import FinConfiguration
 
 
 class ThreeDFinCC(pycc.PythonPluginInterface):
@@ -80,7 +81,9 @@ def main():
         scalar_fields.append(point_cloud.getScalarFieldName(i))
 
     # TODO: Handle big coodinates (could be tested but maybe wait for CC API update).
-    plugin_processing = CloudComparePluginProcessing(cc, point_cloud)
+    plugin_processing = CloudComparePluginProcessing(
+        cc, point_cloud, FinConfiguration()
+    )
 
     cc.freezeUI(True)
     try:
