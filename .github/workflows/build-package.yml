@@ -1,9 +1,7 @@
 name: build and release on PyPi
 
-on:
-  push:
-    tags:
-      - v*
+on: [push]
+
 
 permissions:
   contents: write
@@ -13,8 +11,12 @@ concurrency:
 
 jobs:
   build:
+    runs-on: ${{ matrix.os }}
     name: Build 3DFin wheel and source package
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.8", "3.8", "3.9", "3.10", "3.11"]
 
     steps:
       - name: Checkout
@@ -22,13 +24,21 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Hatch
-        run: python -m pip install --upgrade hatch
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: upgrade pip
+        run:  python -m pip install --upgrade pip
+
+      - name: Install Build
+        run: python -m pip install --upgrade build
 
       - name: Build artifacts
-        run: hatch build
+        run: python -m build
 
-      - name: Publish a Python distribution to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
+      #- name: Publish a Python distribution to PyPI
+      #  uses: pypa/gh-action-pypi-publish@release/v1
+      #  with:
+      #    password: ${{ secrets.PYPI_API_TOKEN }}
