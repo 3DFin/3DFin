@@ -12,10 +12,9 @@ from three_d_fin.processing.progress import Progress
 
 
 class FinProcessing(ABC):
-    """Define a 3DFin algorithm and its I/O requirements.
+    """Define the 3DFin algorithm and its I/O requirements.
 
-    see the process() method for full description of the algorithmic aspects.
-
+    See the process(...) method for full description of the algorithmic aspects.
     I/O are defined as abstract methods that must be overridden by implementers.
     """
 
@@ -37,13 +36,12 @@ class FinProcessing(ABC):
         config : FinConfiguration
             Self explanatory, the 3DFin configuration.
         """
-        self.config = config
-        self._construct_output_path()
+        self.set_config(config)
 
     def set_config(self, config: FinConfiguration) -> None:
         """Set the configuration.
 
-        It's basically equivalent on creating a new object
+        It's basically equivalent to the creation of a new object
 
         Parameters
         ----------
@@ -54,7 +52,8 @@ class FinProcessing(ABC):
         self._construct_output_path()
 
     def check_already_computed_data(self) -> bool:
-        """Check if the processing algorithm output is likely to collides with data.
+        """Check if the processing algorithm output is likely to collides 
+        with data from a previous 3DFin run.
 
         Returns
         -------
@@ -85,7 +84,6 @@ class FinProcessing(ABC):
     def _construct_output_path(self) -> None:
         """Construct the ouput path for the algorithm output.
 
-        This method is called at the start of the process() method.
         It is used to construct the output_basepath attibute.
         """
         pass
@@ -245,15 +243,16 @@ class FinProcessing(ABC):
         ------------------        General Description          ----------------------
         -----------------------------------------------------------------------------
 
-        This Python script implements an algorithm to detect the trees present
+        This method implements an algorithm to detect the trees present
         in a ground-based 3D point cloud from a forest plot,
         and compute individual tree parameters: tree height, tree location,
         diameters along the stem (including DBH), and stem axis.
 
-        The input point cloud will be in .LAS/.LAZ format and can contain extra fields (.LAS standard or not)
-        This algorithm is mainly based on rules, although it uses clusterization in some stages.
-        Also, the input point cloud can come from terrestrail photogrammetry, TLS or mobile (e.g. hand-held) LS,
-        a combination of those, and/or a combination of those with UAV-(LS or SfM), or ALS.
+        This algorithm is mainly based on rules, although it uses clusterization
+        in some stages.
+        Also, the input point cloud can come from terrestrial photogrammetry,
+        TLS or mobile (e.g. hand-held) LS, a combination of those, and/or
+        a combination of those with UAV-(LS or SfM), or ALS.
 
         The algorithm may be divided in three main steps:
 
@@ -262,43 +261,38 @@ class FinProcessing(ABC):
             3.	Robust computation of stem diameter at different section heights.
 
         -----------------------------------------------------------------------------
-        ------------------   Heights in the input .LAS file    ----------------------
+        ------------------        Heights in the input        -----------------------
         -----------------------------------------------------------------------------
+        This algorithm needs normalized heights (z0) to work, but also admits 
+        elevation coordinates (z) and preserves them in the outputs, as additional 
+        information.
 
-        This script uses Z and Z0 to describe coordinates referring to 'heights'.
-            - Z refers to the originally captured elevation in the point cloud
-            - Z0 refers to a normalized height (elevation from the ground).
-        This script needs normalized heights to work, but also admits elevation
-        coordinates and preserves them in the outputs, as additional information
-        Then, the input point cloud might include just just Z0, or both Z and Z0.
-
-        Before running script, it should be checked where are the normalized heights stored in the input file: 'z' or another field.
-        The name of that field is one of the basic input parameters:
-            - field_name_z0: Name of the field containing the height normalized data in the .LAS file.
-        If the normalized heights are stored in the z coordinate of the .LAS file, the value of field_name_z0 will be 'z' (lowercase).
+        In other words, it operates on numpy arrays of size (n, 4) where first
+        three columns are (x), (y), (z) coordinates and fourth column is (z0).
+    
+        _get_xyz_z0_from_base(...) method is responsible for levraging field_name_z0
+        parameters in order to provide the ad-hoc numpy array from the original point cloud.
+        If the user want to use an unormalized point cloud _get_xyz_from_base(...)
+        is responsible for feeding CSF algorithm with the original point cloud in order
+        to compute a normalized point cloud.
 
         -----------------------------------------------------------------------------
         ------------------                Outputs              ----------------------
         -----------------------------------------------------------------------------
 
         After all computations are complete, the following files are output:
-        Filenames are: [original file name] + [specific suffix] + [.txt, .xlsx, .las or .ini]
+        Filenames are: [original file name] + [specific suffix] + [.txt, .xlsx, .ini]
 
-        LAS files (mainly for checking visually the outputs).
-        They can be open straightaway in CloudCompare, where 'colour visualization' of fields with additional information is straightforward
+        Tabular data:
+            Files contain TAB-separated information with as many rows as trees detected
+            in the plot and as many columns as stem sections considered.
+            All units are m or points. _outliers and _check_circle have no units. the
+            format of the tabular data is given by the export_txt parameter
 
-        •	[original file name]_tree_ID_dist_axes: LAS file containing the original point cloud and a scalar field that contains tree IDs.
-        •	[original file name]_axes: LAS file containing stem axes coordinates.
-        •	[original file name]_circ: LAS file containing circles (sections) coordinates.
-        •	[original file name]_stripe: LAS file containing the stems obtained from the stripe during step 1.
-        •	[original file name]_tree_locator: LAS file containing the tree locators coordinates.
-        •	[original file name]_tree_heights: LAS file containing the highest point from each tree.
+        In xlsx format (export_txt == False):
+        •   [original file name].xlsx
 
-        Text files with tabular data:
-            Files contain TAB-separated information with as many rows as trees detected in the plot and as many columns as stem sections considered
-            All units are m or points.
-            _outliers and _check_circle have no units
-
+        Or in with .txt extension, in ASCII format (export_txt == True):
         •	[original file name]_dbh_and_heights: Text file containing tree height, tree location and DBH of every tree as tabular data.
         •	[original file name]_X_c: Text file containing the (x) coordinate of the centre of every section of every tree as tabular data.
         •	[original file name]_Y_c: Text file containing the (y) coordinate of the centre of every section of every tree as tabular data.
@@ -309,7 +303,17 @@ class FinProcessing(ABC):
         •	[original file name]_n_points_in: Text file containing the number of points within the inner circle of every section of every tree as tabular data.
         •	[original file name]_sections: Text file containing the sections as a vector.
 
-        •	[original file name]_sections: ASCII file containing the configuration used for the run.
+        The configuration file (ini format):
+        •	[original file name]_config.ini: ASCII file containing the configuration used for the run.
+
+        The abstract methods of this class give the oportunity to the implementers to output some files or
+        in memory data structures (depending on the execution contexts) at specific "steps" of the algorithm:
+        •	_enrich_base_cloud(...) -> the original point cloud and a scalar field that contains tree IDs.
+        •	_export_axes(...) -> the stem axes coordinates.
+        •	_export_circles(...) -> the circles (sections) coordinates.
+        •	_export_stripe(...) -> the stems obtained from the stripe during step 1.
+        •	_export_tree_locations(...) -> the tree locators coordinates.
+        •	_export_tree_height(...) -> the highest point from each tree.
         """
         if self.config is None:
             raise Exception("Please set configuration before running any processing")
