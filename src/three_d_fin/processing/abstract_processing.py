@@ -41,7 +41,7 @@ class FinProcessing(ABC):
     def set_config(self, config: FinConfiguration) -> None:
         """Set the configuration.
 
-        It's basically equivalent to the creation of a new object
+        It's basically equivalent to the creation of a new object.
 
         Parameters
         ----------
@@ -52,8 +52,7 @@ class FinProcessing(ABC):
         self._construct_output_path()
 
     def check_already_computed_data(self) -> bool:
-        """Check if the processing algorithm output is likely to collides 
-        with data from a previous 3DFin run.
+        """Check if the processing output could collides with other files.
 
         Returns
         -------
@@ -263,13 +262,13 @@ class FinProcessing(ABC):
         -----------------------------------------------------------------------------
         ------------------        Heights in the input        -----------------------
         -----------------------------------------------------------------------------
-        This algorithm needs normalized heights (z0) to work, but also admits 
-        elevation coordinates (z) and preserves them in the outputs, as additional 
+        This algorithm needs normalized heights (z0) to work, but also admits
+        elevation coordinates (z) and preserves them in the outputs, as additional
         information.
 
         In other words, it operates on numpy arrays of size (n, 4) where first
         three columns are (x), (y), (z) coordinates and fourth column is (z0).
-    
+
         _get_xyz_z0_from_base(...) method is responsible for levraging field_name_z0
         parameters in order to provide the ad-hoc numpy array from the original point cloud.
         If the user want to use an unormalized point cloud _get_xyz_from_base(...)
