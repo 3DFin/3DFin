@@ -14,7 +14,7 @@ def launch_application() -> int:
         - Launch the GUI if the command is called without aguments.
 
         - Launch the CLI by appending the 'cli' subcommand to the command. For other
-          arguments, the reader should return to the body of the function.
+          arguments, the reader should refers to the body of the function.
 
     Returns
     -------
@@ -80,10 +80,9 @@ def launch_application() -> int:
     print(__about__.__license_msg__)
 
     fin_processing = StandaloneLASProcessing(FinConfiguration())
-    # No subcommand, launch GUI
+    # No subcommand, launch the GUI
     if cli_parse.subcommand is None:
-        # for legacy purpose we look at configuration file on the cwd
-        # Reading config file only if it is available under name '3DFinconfig.ini'
+        # for legacy purpose we look for a configuration file on the cwd
         try:
             config_file_path = Path("3DFinconfig.ini")
             config = FinConfiguration.From_config_file(
@@ -110,8 +109,8 @@ def launch_application() -> int:
         app.exec_()
         return EXIT_SUCCESS
 
-    # else, the CLI case
-    # First, read the param file and sanitize the input
+    # Else, the CLI case
+    # First, we read the param file and sanitize the input
     config_path = Path(cli_parse.params_file)
     if not config_path.exists() or not config_path.is_file():
         print("Parameters: File does not exist")

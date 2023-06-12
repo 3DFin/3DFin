@@ -33,7 +33,7 @@ class ApplicationWorker(QObject):
     """Simple worker to handle FinProcessing in a dedicated QThread.
 
     To avoid to block the main UI thread, we run the processing
-    in a dedicated thread. this Class encapsulate the FinProcessing
+    in a dedicated thread. This class encapsulate the FinProcessing
     object to make it suitable for a QThread processing
     """
 
@@ -172,7 +172,7 @@ class Application(QMainWindow):
     def _populate_fields(self) -> None:
         """Populate fields with default values, labels, tooltips based on FinConfiguration.
 
-        Fields defined in the configuration.py and QT fields defined in the  have the same name,
+        Fields defined in the configuration.py and QT fields defined in the ui files have the same name,
         we take advantage of that.
 
         We use this convention:
@@ -345,11 +345,11 @@ class Application(QMainWindow):
         """Validate I/O entries and run the processing callback."""
         params = self._get_parameters()
 
-        # define a local function in order to popup errors
+        # Define a local function in order to popup errors.
         def _show_error(error_msg: str) -> str:
             return QMessageBox.critical(self, "3DFin Error", error_msg)
 
-        # Pydantic checks, we check the validity of the data
+        # Pydantic checks, we check the validity of the data.
         try:
             fin_config = FinConfiguration.parse_obj(params)
         except ValidationError as validation_errors:
@@ -357,14 +357,14 @@ class Application(QMainWindow):
             for error in validation_errors.errors():
                 error_loc: list[str] = error["loc"]
                 # Get the human readable value for the field by introspection
-                # (stored in "title "attribute)
+                # (stored in "title "attribute).
                 field: ModelField = (
                     FinConfiguration.__fields__[error_loc[0]]
                     .type_()
                     .__fields__[error_loc[1]]
                 )
                 title = field.field_info.title
-                # error text formatting
+                # Error text formatting.
                 final_msg = final_msg + f"{title} \n"
                 final_msg = final_msg + f"""\t -> {error["msg"]} \n"""
             _show_error(final_msg)
@@ -373,8 +373,8 @@ class Application(QMainWindow):
         self.processing_object.set_config(fin_config)
 
         # Here we will check in an abstract way if the output could collide
-        # with previous computations... and ask if we want to overwrite them.
-        if self.processing_object.check_already_computed_data():
+        # with results ofprevious computations... and ask if we want to overwrite them.
+        if self.processing_object.check_already_compted_data():
             overwrite = QMessageBox.question(
                 self,
                 "3DFin",
