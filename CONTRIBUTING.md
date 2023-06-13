@@ -2,8 +2,7 @@
 
 ## Tooling and workflow
 
-Apart from a `git` and a `Python` distribution (where `Python` version > 3.8) the unique build tool required is `hatch`, but note that for a simple build, because `hatch`/`hatchling` are PEP 517 compatible, you basically do not need to install anything. As for any other python package it could be recommended to set up a virtual environment before installation to keep your system `PYTHON PATH` clean. In development mode, since hatch has builtin [environment management](https://hatch.pypa.io/latest/environment) the need of a virtual env could be avoided. For example, instead of setting up a whole virtual enviroment and using `pip install -e .` to work on your editable package, you could simply enter in the default hatch environment with 
-`hatch shell` and run 3DFin from its source three by running `python -m three_d_fin` from the `src` folder
+Apart from a `git` and a `Python` distribution (where `Python` version > 3.8) the unique build tool required is `hatch`, but note that for a simple build, because `hatch`/`hatchling` are PEP 517 compatible, you basically do not need to install anything. As for any other python package it could be recommended to set up a virtual environment before installation to keep your system `PYTHON PATH` clean. In development mode, since hatch has builtin [environment management](https://hatch.pypa.io/latest/environment) the need of a virtual env could be avoided. For example, instead of setting up a whole virtual enviroment and using `pip install -e .` to work on your editable package, you could simply enter in the default hatch environment with `hatch shell` and run 3DFin from its source three by running `python -m three_d_fin` from the `src` folder
 
 ## Code structure
 
@@ -21,6 +20,7 @@ python -m three_d_fin
 ```
 
 Source code related to the CloudCompare Plugin can be found inside `src/cloudcompare`.
+
 
 ## Code style
 
