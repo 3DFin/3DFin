@@ -339,7 +339,7 @@ Further details may be found in next tabs and in the documentation.</string>
            <item row="3" column="0">
             <widget class="QRadioButton" name="export_txt_rb_1">
              <property name="text">
-              <string>CSV</string>
+              <string>TXT</string>
              </property>
             </widget>
            </item>

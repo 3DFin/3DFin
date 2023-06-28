@@ -59,7 +59,7 @@ def launch_application() -> int:
     cli_subparser.add_argument(
         "--export_txt",
         action="store_true",
-        help="Export tabular data in ASCII CSV files instead of XLSX",
+        help="Export tabular data in ASCII (space separated) files instead of XLSX",
     )
     cli_subparser.add_argument(
         "--normalize", action="store_true", help="Normalize the data with CSF algorithm"
