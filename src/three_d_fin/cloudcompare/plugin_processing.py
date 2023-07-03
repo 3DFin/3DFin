@@ -1,9 +1,12 @@
+import sys
 from pathlib import Path
 
 import numpy as np
 import pycc
 
+from three_d_fin.cloudcompare.plugin_progress import CloudCompareProgress
 from three_d_fin.processing.abstract_processing import FinProcessing
+from three_d_fin.processing.configuration import FinConfiguration
 
 
 class CloudComparePluginProcessing(FinProcessing):
@@ -32,7 +35,10 @@ class CloudComparePluginProcessing(FinProcessing):
         point_cloud.getScalarField(idx_sf).computeMinAndMax()
 
     def __init__(
-        self, cc_instance: pycc.ccPythonInstance, point_cloud: pycc.ccPointCloud
+        self,
+        cc_instance: pycc.ccPythonInstance,
+        point_cloud: pycc.ccPointCloud,
+        config: FinConfiguration,
     ):
         """Construct the functor object.
 
@@ -42,32 +48,13 @@ class CloudComparePluginProcessing(FinProcessing):
             Current cc application, wrapped by CloudCompare-PythonPlugin.
         point_cloud : pycc.ccPointCloud
             Point cloud targetted by the 3DFin processing.
+        config: FinConfiguration
+            The FinConfiguration object
         """
         self.base_cloud = point_cloud
         self.cc_instance = cc_instance
-
-    def check_already_computed_data(self) -> bool:
-        """See base class documentation."""
-        self._construct_output_path()
-
-        any_of = False
-        # Check existence of tabular output
-        if self.config.misc.export_txt:
-            any_of |= Path(str(self.output_basepath) + "_diameters.txt").exists()
-            any_of |= Path(str(self.output_basepath) + "_X_c.txt").exists()
-            any_of |= Path(str(self.output_basepath) + "_Y_c.txt").exists()
-            any_of |= Path(str(self.output_basepath) + "_check_circle.txt").exists()
-            any_of |= Path(str(self.output_basepath) + "_n_points_in.txt").exists()
-            any_of |= Path(str(self.output_basepath) + "_sector_perct.txt").exists()
-            any_of |= Path(str(self.output_basepath) + "_outliers.txt").exists()
-            any_of |= Path(str(self.output_basepath) + "_dbh_and_heights.txt").exists()
-            any_of |= Path(str(self.output_basepath) + "_sections.txt").exists()
-        else:
-            any_of |= Path(str(self.output_basepath) + ".xlsx").exists()
-        # Check existence of ini output
-        any_of |= Path(str(self.output_basepath) + "_config.ini").exists()
-        self.overwrite = any_of
-        return any_of
+        self.progress = CloudCompareProgress(output=sys.stdout)
+        super().__init__(config)
 
     def _construct_output_path(self):
         # We still use the stem attribute since in CC cloud could name could be based on filenames
@@ -81,7 +68,7 @@ class CloudComparePluginProcessing(FinProcessing):
         self.base_cloud.setEnabled(False)
 
     def _post_processing_hook(self):
-        # Could be usedto delay addToDB calls.
+        # Could be used to delay addToDB calls.
         self.cc_instance.addToDB(self.base_group)
 
     def _load_base_cloud(self):

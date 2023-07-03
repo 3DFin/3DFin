@@ -1,7 +1,10 @@
 import argparse
 import configparser
 import os
+import sys
 from pathlib import Path
+
+from pydantic import ValidationError
 
 
 def launch_application() -> int:
@@ -11,7 +14,7 @@ def launch_application() -> int:
         - Launch the GUI if the command is called without aguments.
 
         - Launch the CLI by appending the 'cli' subcommand to the command. For other
-          arguments, the reader should return to the body of the function.
+          arguments, the reader should refers to the body of the function.
 
     Returns
     -------
@@ -20,9 +23,11 @@ def launch_application() -> int:
     """
     import laspy
     import pydantic
+    from PyQt5 import QtCore
+    from PyQt5.QtWidgets import QApplication
 
     from three_d_fin import __about__
-    from three_d_fin.gui.layout import Application
+    from three_d_fin.gui.application import Application
     from three_d_fin.processing.configuration import FinConfiguration, MiscParameters
     from three_d_fin.processing.standalone_processing import StandaloneLASProcessing
 
@@ -54,7 +59,7 @@ def launch_application() -> int:
     cli_subparser.add_argument(
         "--export_txt",
         action="store_true",
-        help="Export tabular data in ASCII CSV files instead of XLSX",
+        help="Export tabular data in ASCII (space separated) files instead of XLSX",
     )
     cli_subparser.add_argument(
         "--normalize", action="store_true", help="Normalize the data with CSF algorithm"
@@ -74,17 +79,38 @@ def launch_application() -> int:
     print(__about__.__copyright_info_2__)
     print(__about__.__license_msg__)
 
-    fin_processing = StandaloneLASProcessing()
-    # No subcommand, launch GUI
+    fin_processing = StandaloneLASProcessing(FinConfiguration())
+    # No subcommand, launch the GUI
     if cli_parse.subcommand is None:
-        # create the processing object
-        fin_app = Application(fin_processing)
-        _ = fin_app.run()
-        # TODO it's always sucess for now but we should do exception handling
+        # for legacy purpose we look for a configuration file on the cwd
+        try:
+            config_file_path = Path("3DFinconfig.ini")
+            config = FinConfiguration.From_config_file(
+                config_file_path.resolve(strict=True), init_misc=True
+            )
+            print("Configuration file found. Setting default parameters from the file")
+            fin_processing.set_config(config)
+        except ValidationError:
+            # Error message in this case, but stick to default parameters
+            print(
+                "Configuration file found but it has validation errors, fallback to default"
+            )
+            pass
+        except FileNotFoundError:
+            # No error message in this case, stick to default parameters
+            pass
+
+        os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+        QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+
+        app = QApplication(sys.argv)
+        app_widget = Application(fin_processing)
+        app_widget.show()
+        app.exec_()
         return EXIT_SUCCESS
 
     # Else, the CLI case
-    # First, read the param file and sanitize the input
+    # First, we read the param file and sanitize the input
     config_path = Path(cli_parse.params_file)
     if not config_path.exists() or not config_path.is_file():
         print("Parameters: File does not exist")
@@ -106,7 +132,7 @@ def launch_application() -> int:
         print(f"Parameters: {error.args[0]}")
         return EXIT_ERROR
 
-    # Second, We check las file validity
+    # Second, we check the validity of the las file
     input_las = Path(cli_parse.input_file)
     if not input_las.exists() or not input_las.is_file():
         print("Input file: file does not exists")
@@ -147,5 +173,4 @@ def launch_application() -> int:
     # Run processing
     fin_processing.set_config(final_params)
     fin_processing.process()
-    # TODO it's always sucess for now but we should do exception handling
     return EXIT_SUCCESS

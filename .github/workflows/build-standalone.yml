@@ -32,7 +32,7 @@ jobs:
         run: python -m pip install hatch
 
       - name: Build standalone
-        run: hatch run pyinstaller:build
+        run: hatch build -t custom
 
       - name: Add to release page
         uses: softprops/action-gh-release@v1

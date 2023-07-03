@@ -1,10 +1,11 @@
-import platform
 from pathlib import Path
 
 import pycc
+from PyQt5.QtCore import QEventLoop
 
 from three_d_fin.cloudcompare.plugin_processing import CloudComparePluginProcessing
-from three_d_fin.gui.layout import Application
+from three_d_fin.gui.application import Application
+from three_d_fin.processing.configuration import FinConfiguration
 
 
 class ThreeDFinCC(pycc.PythonPluginInterface):
@@ -15,7 +16,7 @@ class ThreeDFinCC(pycc.PythonPluginInterface):
         pycc.PythonPluginInterface.__init__(self)
         # Be sure to load our custom colorscale
         color_scale_path = str(
-            (Path(__file__).parents[1] / "assets" / "3dfin_color_scale.xml").resolve()
+            (Path(__file__).parents[0] / "assets" / "3dfin_color_scale.xml").resolve()
         )
         pycc.ccColorScale.LoadFromXML(color_scale_path)
 
@@ -25,10 +26,10 @@ class ThreeDFinCC(pycc.PythonPluginInterface):
         Returns
         -------
         path : str
-            the string representation of the path to the plugin icon
+            the string representation of the path to the plugin icon.
         """
         return str(
-            (Path(__file__).parents[1] / "assets" / "3dfin_logo_plugin.png").resolve()
+            (Path(__file__).parents[0] / "assets" / "3dfin_logo_plugin.png").resolve()
         )
 
     def getActions(self) -> list[pycc.Action]:
@@ -43,44 +44,21 @@ def _create_app_and_run(
 ):
     """Encapsulate the 3DFin GUI and processing.
 
-    It also embed a custom fix for the HiDPI support that is broken when using tk
-    under the CloudCompare runtime. This function allow to run the fix and the app
-    on a dedicated thread thanx to pycc.RunInThread.
-
     Parameters
     ----------
     plugin_processing : CloudComparePluginProcessing
         The instance of FinProcessing dedicated to CloudCompare (as a plugin)
     scalar_fields : list[str]
-        A list of scalar field names. These list will feed the dropdown menu
-        inside the 3DFin GUI.
+        A list of scalar field names. This list will feed the QComboBox inside
+        the 3DFin GUI.
     """
-    # FIX for HiDPI support on windows 10+
-    # The "bug" was sneaky for two reasons:
-    # - First, you should turn the DpiAwareness value to a counter intuitive value
-    # in other context you would assume to turn Dpi awarness at least >= 1 (PROCESS_SYSTEM_DPI_AWARE)
-    # but here, with TK the right value is 0 (PROCESS_DPI_UNAWARE) maybe because DPI is handled by CC process
-    # - Second, you can't use the usual SetProcessDpiAwareness function here because it could not be redefined
-    # when defined once somewhere (TODO: maybe we could try to redefine it at startup of CC-PythonPlugin see if it works)
-    # so we have to force it for the current thread with this one:
-    # TODO: we do not know how it's handled in other OSes.
-    import ctypes
-
-    awareness_code = ctypes.c_int()
-    if platform.system() == "Windows" and (
-        platform.release() == "10" or platform.release() == "11"
-    ):
-        import ctypes.wintypes  # reimport here, because sometimes it's not initialized
-
-        ctypes.windll.shcore.GetProcessDpiAwareness(0, ctypes.byref(awareness_code))
-        if awareness_code.value > 0:
-            ctypes.windll.user32.SetThreadDpiAwarenessContext(
-                ctypes.wintypes.HANDLE(-1)
-            )
-    fin_app = Application(
+    plugin_widget = Application(
         plugin_processing, file_externally_defined=True, cloud_fields=scalar_fields
     )
-    fin_app.run()
+    loop = QEventLoop()
+    plugin_widget.show()
+    plugin_widget.set_event_loop(loop)
+    loop.exec_()
 
 
 def main():
@@ -97,18 +75,19 @@ def main():
     if not isinstance(point_cloud, pycc.ccPointCloud):
         raise RuntimeError("Selected entity should be a point cloud")
 
-    # List all scalar fields to feed dropdown menu in the interface
+    # List all scalar fields to feed the QComboBox in the interface.
     scalar_fields: list[str] = []
     for i in range(point_cloud.getNumberOfScalarFields()):
         scalar_fields.append(point_cloud.getScalarFieldName(i))
 
     # TODO: Handle big coodinates (could be tested but maybe wait for CC API update).
-    plugin_functor = CloudComparePluginProcessing(cc, point_cloud)
+    plugin_processing = CloudComparePluginProcessing(
+        cc, point_cloud, FinConfiguration()
+    )
 
     cc.freezeUI(True)
     try:
-        pycc.RunInThread(_create_app_and_run, plugin_functor, scalar_fields)
-        # _create_app_and_run(plugin_functor, scalar_fields)
+        _create_app_and_run(plugin_processing, scalar_fields)
     except Exception:
         raise RuntimeError(
             "Something went wrong!"

@@ -10,14 +10,16 @@ class StandaloneLASProcessing(FinProcessing):
     """Implement the FinProcessing interface for LAS files in a standalone context."""
 
     def _construct_output_path(self):
-        basename_las = Path(self.config.misc.input_file).stem
+        if self.config.misc.input_file is not None:
+            basename_las = Path(self.config.misc.input_file).stem
+        else:
+            basename_las = "3DFin"
         self.output_basepath = Path(self.config.misc.output_dir) / Path(basename_las)
 
     def check_already_computed_data(self) -> bool:
         """Check for already computed data in target directory."""
-        self._construct_output_path()
-        any_of = False
-        # Check existence of las output
+        any_of = super().check_already_computed_data()
+        # Check existence of las output.
         any_of |= Path(str(self.output_basepath) + "_dtm_points.las").exists()
         any_of |= Path(str(self.output_basepath) + "_stripe.las").exists()
         any_of |= Path(str(self.output_basepath) + "_tree_ID_dist_axes.las").exists()
@@ -25,22 +27,6 @@ class StandaloneLASProcessing(FinProcessing):
         any_of |= Path(str(self.output_basepath) + "_circ.las").exists()
         any_of |= Path(str(self.output_basepath) + "_axes.las").exists()
         any_of |= Path(str(self.output_basepath) + "_tree_locator.las").exists()
-
-        # Check existence of tabular output
-        if self.config.misc.export_txt:
-            any_of |= Path(str(self.output_basepath) + "_diameters.txt").exists()
-            any_of |= Path(str(self.output_basepath) + "_X_c.txt").exists()
-            any_of |= Path(str(self.output_basepath) + "_Y_c.txt").exists()
-            any_of |= Path(str(self.output_basepath) + "_check_circle.txt").exists()
-            any_of |= Path(str(self.output_basepath) + "_n_points_in.txt").exists()
-            any_of |= Path(str(self.output_basepath) + "_sector_perct.txt").exists()
-            any_of |= Path(str(self.output_basepath) + "_outliers.txt").exists()
-            any_of |= Path(str(self.output_basepath) + "_dbh_and_heights.txt").exists()
-            any_of |= Path(str(self.output_basepath) + "_sections.txt").exists()
-        else:
-            any_of |= Path(str(self.output_basepath) + ".xlsx").exists()
-        # Check existence of ini output
-        any_of |= Path(str(self.output_basepath) + "_config.ini").exists()
 
         return any_of
 
@@ -90,7 +76,7 @@ class StandaloneLASProcessing(FinProcessing):
         extra_fields = list()
 
         # We have to check extra field existence before. It could be a cloud from a previous run
-        # or user may already have these fields for a reason or another
+        # or user may already have defined these fields for a reason or another.
 
         if not hasattr(self.base_cloud, "dist_axes"):
             extra_fields.append(
@@ -99,7 +85,7 @@ class StandaloneLASProcessing(FinProcessing):
         if not hasattr(self.base_cloud, "tree_ID"):
             extra_fields.append(laspy.ExtraBytesParams(name="tree_ID", type=np.int32))
 
-        # Batch add of extra fields. Minimize the memory allocation
+        # Batch addition of extra fields. It minimizes the memory allocation.
         self.base_cloud.add_extra_dims(extra_fields)
 
         self.base_cloud.dist_axes = assigned_cloud[:, 5]
@@ -109,8 +95,8 @@ class StandaloneLASProcessing(FinProcessing):
             # In the case the user still want to use our CSF normalization but already have
             # a field called Z0, adding the field with the same name will raise an exception.
             # So we have to check its existence before.
-            # In this case no need to ask if we want to override, since it's saved
-            # in another file instance
+            # In this case no need to ask if we want to override, since the whole enriched
+            # cloud is saved in another file instance.
             if not hasattr(self.base_cloud, "Z0"):
                 self.base_cloud.add_extra_dim(
                     laspy.ExtraBytesParams(name="Z0", type=np.float64)
@@ -119,7 +105,7 @@ class StandaloneLASProcessing(FinProcessing):
 
         if self.base_cloud.header.version < laspy.header.Version(major=1, minor=4):
             # The base file is maybe not in point_format == 6 but since it's a copy it won't hurt
-            # the base file in it selft
+            # the base file in itself.
             self.base_cloud = laspy.convert(
                 self.base_cloud, point_format_id=2, file_version="1.4"
             )
@@ -138,7 +124,7 @@ class StandaloneLASProcessing(FinProcessing):
             ]
         )
         las_tree_heights.z0 = tree_heights[:, 3]
-        # vertical deviation binary indicator
+        # Vertical deviation binary indicator.
         las_tree_heights.deviated = tree_heights[:, 4]
 
         las_tree_heights.write(str(self.output_basepath) + "_tree_heights.las")

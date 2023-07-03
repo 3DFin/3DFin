@@ -5,7 +5,7 @@ Welcome to 3DFin: 3D Forest inventory's official repository!
 
 3DFin is a free software for automatic computation of tree parameters in terrestrial point clouds. It offers the users a quick, ease-of-use interface to load their forest plots and generate tree metrics with just a few clicks.
 
-Be sure to check the [Documentation](https://github.com/3DFin/3DFin/blob/main/src/three_d_fin/assets/documentation.pdf), which features detailed explanations on how the program works and an User manual.
+Be sure to check the [Documentation](https://github.com/3DFin/3DFin/blob/main/src/three_d_fin/documentation/documentation.pdf), which features detailed explanations on how the program works and an User manual.
 
 
 # Download 
@@ -35,7 +35,7 @@ macOS user may need to install and use an openMP capable compiler, such as GCC f
 
 # Usage
 
-By default running 3Dfin will open a GUI window. The [documentation](https://github.com/3DFin/3DFin/blob/main/src/three_d_fin/assets/documentation.pdf) contains a detailed explanation of the GUI and its functionalities.
+By default running 3Dfin will open a GUI window. The [documentation](https://github.com/3DFin/3DFin/blob/main/src/three_d_fin/documentation/documentation.pdf) contains a detailed explanation of the GUI and its functionalities.
 
 For batch processing you can use the CLI capabilities of 3DFin and running the following command:
 ```console
@@ -49,7 +49,6 @@ will give you an overview of the available parameters.
 # Further releases
 
 Good news! Soon, 3DFin will also be available as a plugin in [QGIS](https://www.qgis.org/en/site/), the most used free software for GIS data.
-
 
 # Citing 3DFin
 
