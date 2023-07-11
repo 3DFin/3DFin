@@ -64,6 +64,13 @@ class CloudComparePluginProcessing(FinProcessing):
         self.group_name = f"{Path(self.base_cloud.getName()).stem}_3DFin"
 
     def _pre_processing_hook(self):
+        # Be sure to load our custom colorscale
+        color_scale_path = str(
+            (Path(__file__).parents[0] / "assets" / "3dfin_color_scale.xml").resolve()
+        )
+        scale_manager = pycc.ccColorScalesManager.GetUniqueInstance()
+        color_scale = pycc.ccColorScale.LoadFromXML(color_scale_path)
+        scale_manager.addScale(color_scale)
         self.base_group = pycc.ccHObject(self.group_name)
         self.base_cloud.setEnabled(False)
 
