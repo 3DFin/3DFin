@@ -235,6 +235,43 @@ class FinProcessing(ABC):
         """
         pass
 
+    def _export_tabular_data(
+        self,
+        config,
+        output_basepath,
+        X_c,
+        Y_c,
+        R,
+        check_circle,
+        sector_perct,
+        n_points_in,
+        sections,
+        outliers,
+        dbh_values,
+        tree_locations,
+        tree_heights,
+        cloud_size,
+        cloud_shape,
+    ):
+        """Export the tabular data, it is a simple wrapper around the dedicated function so it could be overriden by implementers."""
+        export_tabular_data(
+            config,
+            output_basepath,
+            X_c,
+            Y_c,
+            R,
+            check_circle,
+            sector_perct,
+            n_points_in,
+            sections,
+            outliers,
+            dbh_values,
+            tree_locations,
+            tree_heights,
+            cloud_size,
+            cloud_shape,
+        )
+
     def process(self):
         """3DFin main algorithm.
 
@@ -638,23 +675,6 @@ class FinProcessing(ABC):
         # -------------------------------------------------------------------------------------------------------------
         # Exporting results
         # -------------------------------------------------------------------------------------------------------------
-        export_tabular_data(
-            config,
-            self.output_basepath,
-            X_c,
-            Y_c,
-            R,
-            check_circle,
-            sector_perct,
-            n_points_in,
-            sections,
-            outliers,
-            dbh_values,
-            tree_locations,
-            tree_heights,
-            cloud_size,
-            cloud_shape,
-        )
 
         elapsed_las2 = timeit.default_timer() - t_las2
         print("Total time:", "   %.2f" % elapsed_las2, "s")
