@@ -264,8 +264,49 @@ class CloudComparePluginProcessing(FinProcessing):
         self.base_group.addChild(cloud_tree_locations)
         self.cc_instance.addToDB(cloud_tree_locations, autoExpandDBTree=False)
 
-        def _export_tabular_data(
-            self,
+    def _export_tabular_data(
+        self,
+        config,
+        output_basepath,
+        X_c,
+        Y_c,
+        R,
+        check_circle,
+        sector_perct,
+        n_points_in,
+        sections,
+        outliers,
+        dbh_values,
+        tree_locations,
+        tree_heights,
+        cloud_size,
+        cloud_shape,
+    ):
+        """We may need to revert the global shift in tabular data."""
+        if self.base_cloud.isShifted():
+            print("Cloud is shifted")
+            global_shift = self.base_cloud.getGlobalShift()
+            global_scale = self.base_cloud.getGlobalScale()
+
+            # convert coordinates to global ones
+            X_c = X_c / global_scale[0] - global_shift[0]
+            Y_c = Y_c / global_scale[1] - global_shift[1]
+            R = R / global_scale[0]
+            tree_locations[:, 0] = (
+                tree_locations[:, 0] / global_scale[0] - global_shift[0]
+            )
+            tree_locations[:, 1] = (
+                tree_locations[:, 1] / global_scale[1] - global_shift[1]
+            )
+            tree_locations[:, 2] = (
+                tree_locations[:, 2] / global_scale[2] - global_shift[2]
+            )
+            tree_heights[:, 0] = tree_heights[:, 0] / global_scale[0] - global_shift[0]
+            tree_heights[:, 1] = tree_heights[:, 1] / global_scale[1] - global_shift[1]
+            tree_heights[:, 2] = tree_heights[:, 2] / global_scale[2] - global_shift[2]
+
+        print("Cloud is not shifted")
+        super()._export_tabular_data(
             config,
             output_basepath,
             X_c,
@@ -281,49 +322,4 @@ class CloudComparePluginProcessing(FinProcessing):
             tree_heights,
             cloud_size,
             cloud_shape,
-        ):
-            """We may need to revert the global shift in tabular data."""
-            if self.base_cloud.isGlobalShiftEnabled():
-                global_shift = self.base_cloud.getGlobalShift()
-                global_scale = self.base_cloud.getGlobalScale()
-
-                # convert coordinates to global ones
-                X_c = X_c / global_scale[0] - global_shift[0]
-                Y_c = Y_c / global_scale[1] - global_shift[1]
-                R = R / global_scale[0]
-                tree_locations[:, 0] = (
-                    tree_locations[:, 0] / global_scale[0] - global_shift[0]
-                )
-                tree_locations[:, 1] = (
-                    tree_locations[:, 1] / global_scale[1] - global_shift[1]
-                )
-                tree_locations[:, 2] = (
-                    tree_locations[:, 2] / global_scale[2] - global_shift[2]
-                )
-                tree_heights[:, 0] = (
-                    tree_heights[:, 0] / global_scale[0] - global_shift[0]
-                )
-                tree_heights[:, 1] = (
-                    tree_heights[:, 1] / global_scale[1] - global_shift[1]
-                )
-                tree_heights[:, 2] = (
-                    tree_heights[:, 2] / global_scale[2] - global_shift[2]
-                )
-
-            super()._export_tabular_data(
-                config,
-                output_basepath,
-                X_c,
-                Y_c,
-                R,
-                check_circle,
-                sector_perct,
-                n_points_in,
-                sections,
-                outliers,
-                dbh_values,
-                tree_locations,
-                tree_heights,
-                cloud_size,
-                cloud_shape,
-            )
+        )

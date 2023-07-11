@@ -676,6 +676,23 @@ class FinProcessing(ABC):
         # Exporting results
         # -------------------------------------------------------------------------------------------------------------
 
+        self._export_tabular_data(
+            config,
+            self.output_basepath,
+            X_c,
+            Y_c,
+            R,
+            check_circle,
+            sector_perct,
+            n_points_in,
+            sections,
+            outliers,
+            dbh_values,
+            tree_locations,
+            tree_heights,
+            cloud_size,
+            cloud_shape,
+        )
         elapsed_las2 = timeit.default_timer() - t_las2
         print("Total time:", "   %.2f" % elapsed_las2, "s")
 
