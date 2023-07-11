@@ -83,20 +83,48 @@ class CloudComparePluginProcessing(FinProcessing):
         pass
 
     def _get_xyz_z0_from_base(self) -> np.ndarray:
+        global_shift = self.base_cloud.getGlobalShift()
+        global_scale = self.base_cloud.getGlobalScale()
+
         return np.c_[
-            self.base_cloud.points(),
+            self.base_cloud.points()[:, 0].astype(np.double) / global_scale
+            - global_shift[0],
+            self.base_cloud.points()[:, 1].astype(np.double) / global_scale
+            - global_shift[1],
+            self.base_cloud.points()[:, 2].astype(np.double) / global_scale
+            - global_shift[2],
             self.base_cloud.getScalarField(
                 self.base_cloud.getScalarFieldIndexByName(self.config.basic.z0_name)
             ).asArray(),
         ]
 
     def _get_xyz_from_base(self) -> np.ndarray:
-        # TODO(RJ) double conversion is only needed for DTM processing,
-        # But maybe it's worth generalizing it.
-        return self.base_cloud.points().astype(np.double)
+        # Double conversion is needed for DTM processing,
+        global_shift = self.base_cloud.getGlobalShift()
+        global_scale = self.base_cloud.getGlobalScale()
+        return np.c_[
+            self.base_cloud.points()[:, 0].astype(np.double) / global_scale
+            - global_shift[0],
+            self.base_cloud.points()[:, 1].astype(np.double) / global_scale
+            - global_shift[1],
+            self.base_cloud.points()[:, 2].astype(np.double) / global_scale
+            - global_shift[2],
+        ]
+
+    def __to_local(self, point_cloud: np.ndarray) -> np.ndarray:
+        global_shift = self.base_cloud.getGlobalShift()
+        global_scale = self.base_cloud.getGlobalScale()
+        return np.c_[
+            (point_cloud[:, 0] + global_shift[0]) * global_scale,
+            (point_cloud[:, 1] + global_shift[1]) * global_scale,
+            (point_cloud[:, 2] + global_shift[2]) * global_scale,
+        ]
 
     def _export_dtm(self, dtm: np.ndarray):
-        cloud_dtm = pycc.ccPointCloud(dtm[:, 0], dtm[:, 1], dtm[:, 2])
+        shifted_dtm = self.__to_local(dtm)
+        cloud_dtm = pycc.ccPointCloud(
+            shifted_dtm[:, 0], shifted_dtm[:, 1], shifted_dtm[:, 2]
+        )
         cloud_dtm.copyGlobalShiftAndScale(self.base_cloud)
         cloud_dtm.setName("dtm")
         cloud_dtm.setEnabled(False)
@@ -104,8 +132,9 @@ class CloudComparePluginProcessing(FinProcessing):
         self.cc_instance.addToDB(cloud_dtm)
 
     def _export_stripe(self, clust_stripe: np.ndarray):
+        shifted_stripe = self.__to_local(clust_stripe)
         cloud_stripe = pycc.ccPointCloud(
-            clust_stripe[:, 0], clust_stripe[:, 1], clust_stripe[:, 2]
+            shifted_stripe[:, 0], shifted_stripe[:, 1], shifted_stripe[:, 2]
         )
         cloud_stripe.copyGlobalShiftAndScale(self.base_cloud)
         cloud_stripe.setName("Stems in stripe")
@@ -154,8 +183,11 @@ class CloudComparePluginProcessing(FinProcessing):
         self.cc_instance.addToDB(copy_base_cloud)
 
     def _export_tree_height(self, tree_heights: np.ndarray):
+        shifted_tree_heights = self.__to_local(tree_heights)
         cloud_tree_heights = pycc.ccPointCloud(
-            tree_heights[:, 0], tree_heights[:, 1], tree_heights[:, 2]
+            shifted_tree_heights[:, 0],
+            shifted_tree_heights[:, 1],
+            shifted_tree_heights[:, 2],
         )
         cloud_tree_heights.copyGlobalShiftAndScale(self.base_cloud)
         cloud_tree_heights.setName("Highest points")
@@ -187,8 +219,11 @@ class CloudComparePluginProcessing(FinProcessing):
         self.cc_instance.addToDB(cloud_tree_heights, autoExpandDBTree=False)
 
     def _export_circles(self, circles_coords: np.ndarray):
+        shifted_circles_coords = self.__to_local(circles_coords)
         cloud_circles = pycc.ccPointCloud(
-            circles_coords[:, 0], circles_coords[:, 1], circles_coords[:, 2]
+            shifted_circles_coords[:, 0],
+            shifted_circles_coords[:, 1],
+            shifted_circles_coords[:, 2],
         )
         cloud_circles.copyGlobalShiftAndScale(self.base_cloud)
         cloud_circles.setName("Fitted sections")
@@ -217,8 +252,11 @@ class CloudComparePluginProcessing(FinProcessing):
         self.cc_instance.addToDB(cloud_circles)
 
     def _export_axes(self, axes_points: np.ndarray, tilt: np.ndarray):
+        shifted_axes_points = self.__to_local(axes_points)
         cloud_axes = pycc.ccPointCloud(
-            axes_points[:, 0], axes_points[:, 1], axes_points[:, 2]
+            shifted_axes_points[:, 0],
+            shifted_axes_points[:, 1],
+            shifted_axes_points[:, 2],
         )
         cloud_axes.copyGlobalShiftAndScale(self.base_cloud)
         cloud_axes.setName("Axes")
@@ -232,10 +270,11 @@ class CloudComparePluginProcessing(FinProcessing):
     def _export_tree_locations(
         self, tree_locations: np.ndarray, dbh_values: np.ndarray
     ):
+        shifted_tree_locations = self.__to_local(tree_locations)
         cloud_tree_locations = pycc.ccPointCloud(
-            tree_locations[:, 0],
-            tree_locations[:, 1],
-            tree_locations[:, 2],
+            shifted_tree_locations[:, 0],
+            shifted_tree_locations[:, 1],
+            shifted_tree_locations[:, 2],
         )
         cloud_tree_locations.copyGlobalShiftAndScale(self.base_cloud)
         cloud_tree_locations.setName("Tree locator")
