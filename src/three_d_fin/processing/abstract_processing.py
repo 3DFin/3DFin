@@ -253,7 +253,13 @@ class FinProcessing(ABC):
         cloud_size,
         cloud_shape,
     ):
-        """Export the tabular data, it is a simple wrapper around the dedicated function so it could be overriden by implementers."""
+        """Export the tabular data. 
+        
+        It is a simple wrapper around the dedicated function in three_d_fin.processing.io.
+        It could be overriden by implementers in order to add specific logic.
+        
+        See export_tabular_data function in three_d_fin.processing.io for more details.
+        """
         export_tabular_data(
             config,
             output_basepath,

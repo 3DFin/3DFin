@@ -282,13 +282,18 @@ class CloudComparePluginProcessing(FinProcessing):
         cloud_size,
         cloud_shape,
     ):
-        """We may need to revert the global shift in tabular data."""
+        """Revert the Global shift in tabular data when needed.
+        
+        If the base cloud was shifted, the coordinates are converted back in global ones
+        before exporting the tabular data by simply calling the parent method.
+        see parent method for more details on parmeters.
+        """
         if self.base_cloud.isShifted():
             print("Cloud is shifted, correcting tabular data coordinates.")
             global_shift = self.base_cloud.getGlobalShift()
             global_scale = self.base_cloud.getGlobalScale()
 
-            # convert coordinates to global ones
+            # Convert coordinates to global ones.
             X_c = X_c / global_scale - global_shift[0]
             Y_c = Y_c / global_scale - global_shift[1]
             R = R / global_scale
