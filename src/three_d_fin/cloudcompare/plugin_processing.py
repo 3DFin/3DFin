@@ -284,28 +284,28 @@ class CloudComparePluginProcessing(FinProcessing):
     ):
         """We may need to revert the global shift in tabular data."""
         if self.base_cloud.isShifted():
-            print("Cloud is shifted")
+            print("Cloud is shifted, correcting tabular data coordinates.")
             global_shift = self.base_cloud.getGlobalShift()
             global_scale = self.base_cloud.getGlobalScale()
 
             # convert coordinates to global ones
-            X_c = X_c / global_scale[0] - global_shift[0]
-            Y_c = Y_c / global_scale[1] - global_shift[1]
-            R = R / global_scale[0]
+            X_c = X_c / global_scale - global_shift[0]
+            Y_c = Y_c / global_scale - global_shift[1]
+            R = R / global_scale
             tree_locations[:, 0] = (
-                tree_locations[:, 0] / global_scale[0] - global_shift[0]
+                tree_locations[:, 0] / global_scale - global_shift[0]
             )
             tree_locations[:, 1] = (
-                tree_locations[:, 1] / global_scale[1] - global_shift[1]
+                tree_locations[:, 1] / global_scale - global_shift[1]
             )
             tree_locations[:, 2] = (
-                tree_locations[:, 2] / global_scale[2] - global_shift[2]
+                tree_locations[:, 2] / global_scale - global_shift[2]
             )
-            tree_heights[:, 0] = tree_heights[:, 0] / global_scale[0] - global_shift[0]
-            tree_heights[:, 1] = tree_heights[:, 1] / global_scale[1] - global_shift[1]
-            tree_heights[:, 2] = tree_heights[:, 2] / global_scale[2] - global_shift[2]
-
-        print("Cloud is not shifted")
+            tree_heights[:, 0] = tree_heights[:, 0] / global_scale - global_shift[0]
+            tree_heights[:, 1] = tree_heights[:, 1] / global_scale - global_shift[1]
+            tree_heights[:, 2] = tree_heights[:, 2] / global_scale - global_shift[2]
+        
+        print("Exporting tabular data")
         super()._export_tabular_data(
             config,
             output_basepath,
