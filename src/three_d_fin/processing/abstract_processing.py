@@ -1,7 +1,7 @@
 import timeit
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any
+from typing import Any, Tuple
 
 import dendromatics as dm
 import numpy as np
@@ -333,17 +333,25 @@ class FinProcessing(ABC):
         # Load the base_cloud if needed
         self._load_base_cloud()
 
-        def __cloud_size_analysis(coords: np.ndarray):
+        def __cloud_size_analysis(coords: np.ndarray) -> Tuple[int, int]:
             """Analyze the size of the cloud.
 
-            Given a point cloud, this fonction vocelizes it and output a rough estimation of its extends
-            and number of points.
-            
+            Given a point cloud, this private function voxelizes it and output
+            a rough estimation of its extent and number of points.
+
             Parameters
             ----------
-            coords : np.ndarray a numpy array of shape (n, m) where n is the number of points in the cloud.
-            and m is an arbitrary number of columns where m >= 3.
+            coords : np.ndarray
+                A numpy array of shape (n, m) where n is
+                the number of points in the cloud and m is an arbitrary number of columns
+                where m >= 3.
 
+            Returns
+            -------
+            cloud_size : int
+                Estimation of the number of points in the cloud.
+            cloud_shape : int
+                Estimated area / XY extent of the cloud.
             """
             # Number of points and area occuped by the plot.
             print("---------------------------------------------")
@@ -357,11 +365,12 @@ class FinProcessing(ABC):
             cloud_shape = voxelated_ground.shape[0]
             print("   This cloud has", "{:.2f}".format(cloud_size), "millions points")
             print("   Its area is ", cloud_shape, "m^2")
+            return cloud_size, cloud_shape
 
         if config.misc.is_normalized:
             coords = self._get_xyz_z0_from_base()
             # Number of points and area occuped by the plot.
-            __cloud_size_analysis(coords)
+            cloud_size, cloud_shape = __cloud_size_analysis(coords)
             print("---------------------------------------------")
             print("Cloud is already normalized...")
             print("---------------------------------------------")
@@ -369,7 +378,7 @@ class FinProcessing(ABC):
         else:
             coords = self._get_xyz_from_base()
             # Number of points and area occuped by the plot.
-            __cloud_size_analysis(coords)
+            cloud_size, cloud_shape = __cloud_size_analysis(coords)
             print("---------------------------------------------")
             print("Cloud is not normalized...")
             print("---------------------------------------------")
