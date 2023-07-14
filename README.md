@@ -43,7 +43,7 @@ For batch processing you can use the CLI capabilities of 3DFin and running the f
 ```
 will give you an overview of the available parameters. 
 
-3DFin is also available as a plugin for [CloudCompare](https://www.danielgm.net/cc/) thanks to [CloudCompare-PythonPlugin](https://github.com/tmontaigu/CloudCompare-PythonPlugin). Installation is still somewhat cumbersome as it requires latest development versions of both CloudCompare and CloudCompare-PythonPlugin, but 3DFin will hopefully be available in CloudCompare 2.13 when it is released.
+3DFin is also available as a plugin for [CloudCompare](https://www.danielgm.net/cc/) thanks to [CloudCompare-PythonPlugin](https://github.com/tmontaigu/CloudCompare-PythonPlugin). Both 3DFin and CloudCompare-PythonPlugin are included in current beta version of CloudCompare.
 
 
 # Further releases
