@@ -330,36 +330,21 @@ class FinProcessing(ABC):
 
         t_t = timeit.default_timer()
 
-        # load the base_cloud if needed
+        # Load the base_cloud if needed
         self._load_base_cloud()
 
-        if config.misc.is_normalized:
-            coords = self._get_xyz_z0_from_base()
-            # Number of points and area occuped by the plot.
-            print("---------------------------------------------")
-            print("Analyzing cloud size...")
-            print("---------------------------------------------")
+        def __cloud_size_analysis(coords: np.ndarray):
+            """Analyze the size of the cloud.
 
-            _, _, voxelated_ground = dm.voxelate(
-                coords[coords[:, 3] < 0.5, 0:3],
-                1,
-                2000,
-                n_digits,
-                with_n_points=False,
-                silent=False,
-            )
-            cloud_size = coords.shape[0] / 1000000
-            cloud_shape = voxelated_ground.shape[0]
-            print("   This cloud has", "{:.2f}".format(cloud_size), "millions points")
-            print("   Its area is ", cloud_shape, "m^2")
+            Given a point cloud, this fonction vocelizes it and output a rough estimation of its extends
+            and number of points.
+            
+            Parameters
+            ----------
+            coords : np.ndarray a numpy array of shape (n, m) where n is the number of points in the cloud.
+            and m is an arbitrary number of columns where m >= 3.
 
-            print("---------------------------------------------")
-            print("Cloud is already normalized...")
-            print("---------------------------------------------")
-
-        else:
-            coords = self._get_xyz_from_base()
-
+            """
             # Number of points and area occuped by the plot.
             print("---------------------------------------------")
             print("Analyzing cloud size...")
@@ -372,8 +357,19 @@ class FinProcessing(ABC):
             cloud_shape = voxelated_ground.shape[0]
             print("   This cloud has", "{:.2f}".format(cloud_size), "millions points")
             print("   Its area is ", cloud_shape, "m^2")
-            del voxelated_ground
 
+        if config.misc.is_normalized:
+            coords = self._get_xyz_z0_from_base()
+            # Number of points and area occuped by the plot.
+            __cloud_size_analysis(coords)
+            print("---------------------------------------------")
+            print("Cloud is already normalized...")
+            print("---------------------------------------------")
+
+        else:
+            coords = self._get_xyz_from_base()
+            # Number of points and area occuped by the plot.
+            __cloud_size_analysis(coords)
             print("---------------------------------------------")
             print("Cloud is not normalized...")
             print("---------------------------------------------")
