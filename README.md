@@ -14,17 +14,13 @@ Be sure to check the [Documentation](https://github.com/3DFin/3DFin/blob/main/sr
 
 Older versions of 3DFin may also be downloaded from [Releases](https://github.com/3DFin/3DFin/releases/). From there, simply navigate to the desired version and click on __3DFin.exe__.
 
-
-3DFin and its dependencies may be installed and launched on any OS from the command line after cloning the repository. 
+For all OSes, 3DFin is also available as a python package in PiPy
 
 ```console
-git clone https://github.com/3DFin/3DFin.git
-cd 3DFin
-pip install .
-python -m three_d_fin
+pip install 3DFin
 ```
 
-pip will also install a script entry point in your Python installation's bin|script directory, so alternatively you can launch 3DFin from the command line with:  
+pip will install a script entry point in your Python installation's bin|script directory, so you should be able to launch 3DFin from the command line with:  
 
 ```console
 3DFin[.exe]
@@ -32,19 +28,17 @@ pip will also install a script entry point in your Python installation's bin|scr
 
 macOS user may need to install and use an openMP capable compiler, such as GCC from [Homebrew](https://brew.sh/) in order to install the dependencies. 
 
+3DFin is also available as a plugin for [CloudCompare](https://www.danielgm.net/cc/) thanks to [CloudCompare-PythonPlugin](https://github.com/tmontaigu/CloudCompare-PythonPlugin). It is included in latest cloudcompare beta (2.13 beta).
 
 # Usage
 
-By default running 3Dfin will open a GUI window. The [documentation](https://github.com/3DFin/3DFin/blob/main/src/three_d_fin/documentation/documentation.pdf) contains a detailed explanation of the GUI and its functionalities.
+By default running 3DFin will open a GUI window. The [documentation](https://github.com/3DFin/3DFin/blob/main/src/three_d_fin/documentation/documentation.pdf) contains a detailed explanation of the GUI and its functionalities.
 
 For batch processing you can use the CLI capabilities of 3DFin and running the following command:
 ```console
 3DFin[.exe] cli --help
 ```
 will give you an overview of the available parameters. 
-
-3DFin is also available as a plugin for [CloudCompare](https://www.danielgm.net/cc/) thanks to [CloudCompare-PythonPlugin](https://github.com/tmontaigu/CloudCompare-PythonPlugin). Installation is still somewhat cumbersome as it requires latest development versions of both CloudCompare and CloudCompare-PythonPlugin, but 3DFin will hopefully be available in CloudCompare 2.13 when it is released.
-
 
 # Further releases
 
