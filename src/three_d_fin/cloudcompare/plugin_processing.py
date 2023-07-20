@@ -263,3 +263,62 @@ class CloudComparePluginProcessing(FinProcessing):
 
         self.base_group.addChild(cloud_tree_locations)
         self.cc_instance.addToDB(cloud_tree_locations, autoExpandDBTree=False)
+
+    def _export_tabular_data(
+        self,
+        config,
+        output_basepath,
+        X_c,
+        Y_c,
+        R,
+        check_circle,
+        sector_perct,
+        n_points_in,
+        sections,
+        outliers,
+        dbh_values,
+        tree_locations,
+        tree_heights,
+        cloud_size,
+        cloud_shape,
+    ):
+        """Revert the Global shift in tabular data when needed.
+
+        If the base cloud was shifted, the coordinates are converted back in global ones
+        before exporting the tabular data by simply calling the parent method.
+        see parent method for more details on parmeters.
+        """
+        if self.base_cloud.isShifted():
+            print("Cloud is shifted, correcting tabular data coordinates.")
+            global_shift = self.base_cloud.getGlobalShift()
+            global_scale = self.base_cloud.getGlobalScale()
+
+            # Convert coordinates to global ones.
+            X_c = X_c / global_scale - global_shift[0]
+            Y_c = Y_c / global_scale - global_shift[1]
+            R = R / global_scale
+            tree_locations[:, 0] = tree_locations[:, 0] / global_scale - global_shift[0]
+            tree_locations[:, 1] = tree_locations[:, 1] / global_scale - global_shift[1]
+            tree_locations[:, 2] = tree_locations[:, 2] / global_scale - global_shift[2]
+            tree_heights[:, 0] = tree_heights[:, 0] / global_scale - global_shift[0]
+            tree_heights[:, 1] = tree_heights[:, 1] / global_scale - global_shift[1]
+            tree_heights[:, 2] = tree_heights[:, 2] / global_scale - global_shift[2]
+
+        print("Exporting tabular data")
+        super()._export_tabular_data(
+            config,
+            output_basepath,
+            X_c,
+            Y_c,
+            R,
+            check_circle,
+            sector_perct,
+            n_points_in,
+            sections,
+            outliers,
+            dbh_values,
+            tree_locations,
+            tree_heights,
+            cloud_size,
+            cloud_shape,
+        )
