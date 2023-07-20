@@ -283,7 +283,7 @@ class CloudComparePluginProcessing(FinProcessing):
         cloud_shape,
     ):
         """Revert the Global shift in tabular data when needed.
-        
+
         If the base cloud was shifted, the coordinates are converted back in global ones
         before exporting the tabular data by simply calling the parent method.
         see parent method for more details on parmeters.
@@ -297,19 +297,13 @@ class CloudComparePluginProcessing(FinProcessing):
             X_c = X_c / global_scale - global_shift[0]
             Y_c = Y_c / global_scale - global_shift[1]
             R = R / global_scale
-            tree_locations[:, 0] = (
-                tree_locations[:, 0] / global_scale - global_shift[0]
-            )
-            tree_locations[:, 1] = (
-                tree_locations[:, 1] / global_scale - global_shift[1]
-            )
-            tree_locations[:, 2] = (
-                tree_locations[:, 2] / global_scale - global_shift[2]
-            )
+            tree_locations[:, 0] = tree_locations[:, 0] / global_scale - global_shift[0]
+            tree_locations[:, 1] = tree_locations[:, 1] / global_scale - global_shift[1]
+            tree_locations[:, 2] = tree_locations[:, 2] / global_scale - global_shift[2]
             tree_heights[:, 0] = tree_heights[:, 0] / global_scale - global_shift[0]
             tree_heights[:, 1] = tree_heights[:, 1] / global_scale - global_shift[1]
             tree_heights[:, 2] = tree_heights[:, 2] / global_scale - global_shift[2]
-        
+
         print("Exporting tabular data")
         super()._export_tabular_data(
             config,
