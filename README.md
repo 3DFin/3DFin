@@ -23,13 +23,18 @@ Also, thanks to [Fabian Fassnacht](https://www.geo.fu-berlin.de/en/geog/fachrich
 
 [CloudCompare](https://www.danielgm.net/cc/release/)
 
-Simply install the latest version of CloudCompare and tick 3DFin's checkbox during the installation.
+Simply install the latest version of CloudCompare and tick Python and 3DFin's checkbox during the installation:
 
+**To install 3DFin plugin, tick the 'Python plugin support' checkbox during CloudCompare installation** 
+![image](https://github.com/3DFin/3DFin/assets/68945855/f34b4cd9-58ce-41fc-a8bd-262dd11ff8e7)
 
 **3DFin plugin in CloudCompare**
 ![Fig_01](https://github.com/3DFin/3DFin/assets/68945855/2c874f53-39fd-4eff-b29c-15f3ca80013d)
 
 Running the plugin will open 3DFin's graphical user interface (GUI). Instructions on how to use 3DFin are available in the [Tutorial](https://github.com/fabianfassnacht/Cloud_Compare_3DFin/blob/main/1_3Dfin_cloudcompare.md) and in the [Documentation](https://github.com/3DFin/3DFin/blob/main/src/three_d_fin/documentation/documentation.pdf).
+
+**3DFin GUI. It is common to any version of 3DFin.**
+![basic_tab](https://github.com/3DFin/3DFin/assets/68945855/d6d21e45-5934-4762-88ec-782c03f4700d)
 
 
 ## Standalone program
