@@ -7,6 +7,7 @@ Welcome to 3DFin: 3D Forest inventory's official repository!
 
 Be sure to check the [Documentation](https://github.com/3DFin/3DFin/blob/main/src/three_d_fin/documentation/documentation.pdf), which features detailed explanations on how the program works and an User manual.
 
+Also, thanks to [Fabian Fassnacht](https://www.geo.fu-berlin.de/en/geog/fachrichtungen/geoinformatik/mitarbeiter/ffassnacht/index.html), users can learn how to use 3DFin with this [Tutorial](https://github.com/fabianfassnacht/Cloud_Compare_3DFin/blob/main/1_3Dfin_cloudcompare.md).
 
 # Download 
 
