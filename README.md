@@ -76,6 +76,7 @@ python -m three_d_fin
 
 macOS user may need to install and use an openMP capable compiler, such as GCC from [Homebrew](https://brew.sh/) in order to install the dependencies. 
 
+3DFin is also available as a plugin for [CloudCompare](https://www.danielgm.net/cc/) thanks to [CloudCompare-PythonPlugin](https://github.com/tmontaigu/CloudCompare-PythonPlugin). It is included in latest cloudcompare beta (2.13 beta).
 
 # Usage
 

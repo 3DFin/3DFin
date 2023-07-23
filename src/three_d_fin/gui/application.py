@@ -395,7 +395,6 @@ class Application(QMainWindow):
         def _error_handling(error_message: str) -> None:
             _enable_btn()
             QMessageBox.critical(self, "3DFin error", error_message)
-            self.thread.quit()
 
         # Now we do the processing in itself
         self.thread = QThread()

@@ -235,6 +235,49 @@ class FinProcessing(ABC):
         """
         pass
 
+    def _export_tabular_data(
+        self,
+        config,
+        output_basepath,
+        X_c,
+        Y_c,
+        R,
+        check_circle,
+        sector_perct,
+        n_points_in,
+        sections,
+        outliers,
+        dbh_values,
+        tree_locations,
+        tree_heights,
+        cloud_size,
+        cloud_shape,
+    ):
+        """Export the tabular data.
+
+        It is a simple wrapper around the dedicated function in three_d_fin.processing.io.
+        It could be overriden by implementers in order to add specific logic.
+
+        See export_tabular_data function in three_d_fin.processing.io for more details.
+        """
+        export_tabular_data(
+            config,
+            output_basepath,
+            X_c,
+            Y_c,
+            R,
+            check_circle,
+            sector_perct,
+            n_points_in,
+            sections,
+            outliers,
+            dbh_values,
+            tree_locations,
+            tree_heights,
+            cloud_size,
+            cloud_shape,
+        )
+
     def process(self):
         """3DFin main algorithm.
 
@@ -638,7 +681,8 @@ class FinProcessing(ABC):
         # -------------------------------------------------------------------------------------------------------------
         # Exporting results
         # -------------------------------------------------------------------------------------------------------------
-        export_tabular_data(
+
+        self._export_tabular_data(
             config,
             self.output_basepath,
             X_c,
@@ -655,7 +699,6 @@ class FinProcessing(ABC):
             cloud_size,
             cloud_shape,
         )
-
         elapsed_las2 = timeit.default_timer() - t_las2
         print("Total time:", "   %.2f" % elapsed_las2, "s")
 
