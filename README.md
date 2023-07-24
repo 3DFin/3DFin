@@ -23,7 +23,7 @@ Also, the [Tutorial](https://github.com/fabianfassnacht/Cloud_Compare_3DFin/blob
 
 ## 1. CloudCompare plugin 
 
-3DFin is available in Windows as a **plugin in CloudCompare (2.13)** thanks to CloudCompare PythonPlugin (see [References](#References)). You can download the latest alpha-version of CloudCompare (Windows installer version) including the 3DFin plugin here:
+3DFin is available in Windows as a **plugin in CloudCompare (2.13)** thanks to CloudCompare PythonPlugin (see [References](#references)). You can download the latest alpha-version of CloudCompare (Windows installer version) including the 3DFin plugin here:
 
 [CloudCompare](https://www.danielgm.net/cc/release/)
 
