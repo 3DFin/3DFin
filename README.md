@@ -5,22 +5,72 @@ Welcome to 3DFin: 3D Forest inventory's official repository!
 
 3DFin is a free software for automatic computation of tree parameters in terrestrial point clouds. It offers the users a quick, ease-of-use interface to load their forest plots and generate tree metrics with just a few clicks.
 
-Be sure to check the [Documentation](https://github.com/3DFin/3DFin/blob/main/src/three_d_fin/documentation/documentation.pdf), which features detailed explanations on how the program works and an User manual.
+
+# Getting Started 
+
+Be sure to check the [Documentation](https://github.com/3DFin/3DFin/blob/main/src/three_d_fin/documentation/documentation.pdf), which features detailed explanations on how the program works and an User Manual.
+
+Also, the [Tutorial](https://github.com/fabianfassnacht/Cloud_Compare_3DFin/blob/main/1_3Dfin_cloudcompare.md) by [Fabian Fassnacht](https://www.geo.fu-berlin.de/en/geog/fachrichtungen/geoinformatik/mitarbeiter/ffassnacht/index.html) covers the basics of 3DFin and is a great tool to get started.
 
 
 # Download 
 
-3DFin is available in Windows as a standalone program, which can be downloaded from here: [Download](https://github.com/3DFin/3DFin/releases/download/3DFin.exe).
+3DFin is freely available in 4 ways:
+1. As a CloudCompare plugin (**Windows and Linux**)
+2. As a QGIS plugin
+3. As a standalone program (**Only in Windows**)
+4. As a Python package (**In Windows, Linux and macOS**)
 
-Older versions of 3DFin may also be downloaded from [Releases](https://github.com/3DFin/3DFin/releases/download/v0.2.0rc5/3DFin.exe). From there, simply navigate to the desired version and click on __3DFin.exe__.
+## 1. CloudCompare plugin 
 
-For all OSes, 3DFin is also available as a Python package in PyPI.
+3DFin is available in Windows as a **plugin in CloudCompare (2.13)** thanks to CloudCompare PythonPlugin (see [References](#References)). You can download the latest alpha-version of CloudCompare (Windows installer version) including the 3DFin plugin here:
+
+[CloudCompare](https://www.danielgm.net/cc/release/)
+
+Simply install the latest version of CloudCompare and tick Python and 3DFin's checkbox during the installation:
+
+**To install 3DFin plugin, tick the 'Python plugin support' checkbox during CloudCompare installation.** 
+![image](https://github.com/3DFin/3DFin/assets/68945855/f34b4cd9-58ce-41fc-a8bd-262dd11ff8e7)
+
+For Linux, the plugin is embedded in the flatpak [here](https://github.com/CloudCompare/org.cloudcompare.CloudCompare/releases) and will be available from flathub once CloudCompare 2.13 **stable** available.
+
+**3DFin plugin in CloudCompare.**
+![Fig_01](https://github.com/3DFin/3DFin/assets/68945855/2c874f53-39fd-4eff-b29c-15f3ca80013d)
+
+Running the plugin will open 3DFin's graphical user interface (GUI). Instructions on how to use 3DFin are available in the [Tutorial](https://github.com/fabianfassnacht/Cloud_Compare_3DFin/blob/main/1_3Dfin_cloudcompare.md) and in the [Documentation](https://github.com/3DFin/3DFin/blob/main/src/three_d_fin/documentation/documentation.pdf).
+
+**3DFin GUI. It is common to any version of 3DFin.**
+![basic_tab](https://github.com/3DFin/3DFin/assets/68945855/d6d21e45-5934-4762-88ec-782c03f4700d)
+
+
+## 2. QGIS plugin 
+
+3DFin is also available as a plugin in [QGIS](https://www.qgis.org/en/site/). Please follow the instructions available [here](https://github.com/3DFin/3DFin-QGIS) in order to test it. 
+Note that for now this does not provide much added value in comparison with CloudCompare and Standalone version of 3DFin.
+
+## 3. Standalone program
+
+3DFin is also available in Windows as a standalone program, which can be downloaded from here: 
+
+[Standalone](https://github.com/3DFin/3DFin/releases/download/v0.2.0rc5/3DFin.exe).
+
+3DFin standalone does not require a CloudCompare installation and provides the fastest computation times. 
+
+Older versions of 3DFin standalone may also be downloaded from [Releases](https://github.com/3DFin/3DFin/releases/). From there, simply navigate to the desired version and click on __3DFin.exe__.
+
+
+## 4. Python package (3DFin)
+
+3DFin and its dependencies may be installed and launched **in any OS (Windows, Linux and macOS)** as a Python package: 
 
 ```console
 pip install 3DFin
+python -m three_d_fin
 ```
 
-pip will install a script entry point in your Python installation's bin|script directory, so you should be able to launch 3DFin from the command line with:  
+*If you are a macOS or Linux user and you may want to try 3DFin, this is the way you should proceed.*
+
+`pip` will also install a script entry point in your Python installation's bin|script directory, so alternatively you can launch 3DFin from the command line with:  
 
 ```console
 3DFin[.exe]
@@ -32,7 +82,9 @@ macOS user may need to install and use an openMP capable compiler, such as GCC f
 
 # Usage
 
-By default running 3DFin will open a GUI window. The [documentation](https://github.com/3DFin/3DFin/blob/main/src/three_d_fin/documentation/documentation.pdf) contains a detailed explanation of the GUI and its functionalities.
+CloudCompare plugin is the reccomended way of using 3DFin, as it provides enhanced features for visualisation of the results and exporting of the outputs (it allows to export the results as a CloudCompare native BIN file). 
+
+By default, running 3DFin (either the CloudCompare plugin or any version of 3DFin) will open a GUI window. The [Documentation](https://github.com/3DFin/3DFin/blob/main/src/three_d_fin/documentation/documentation.pdf) contains a detailed explanation of the GUI and its functionalities, and the [Tutorial](https://github.com/fabianfassnacht/Cloud_Compare_3DFin/blob/main/1_3Dfin_cloudcompare.md) demonstrates the CloudCompare plugin usage, although it is applicable to any version of 3DFin.
 
 For batch processing you can use the CLI capabilities of 3DFin and running the following command:
 ```console
@@ -40,9 +92,6 @@ For batch processing you can use the CLI capabilities of 3DFin and running the f
 ```
 will give you an overview of the available parameters. 
 
-# Further releases
-
-Good news! Soon, 3DFin will also be available as a plugin in [QGIS](https://www.qgis.org/en/site/), the most used free software for GIS data.
 
 # Citing 3DFin
 
@@ -56,6 +105,9 @@ Or directly citing the repository itself:
 
 We are currently working on a scientific article about 3DFin, which may be published in 2023.
 
+# References 
+
+CloudCompare PythonPlugin, by Thomas Montaigu: [CloudCompare-PythonPlugin](https://github.com/tmontaigu/CloudCompare-PythonPlugin)
 
 # Acknowledgement
 
