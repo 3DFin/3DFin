@@ -344,6 +344,30 @@ After all computations are done, it outputs several .LAS files containing result
              </property>
             </widget>
            </item>
+           <item row="8" column="0">
+            <widget class="QLabel" name="res_cloth_lbl">
+             <property name="text">
+              <string>Cloth resolution</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="1">
+            <widget class="QLineEdit" name="res_cloth_in">
+             <property name="maximumSize">
+               <size>
+                <width>72</width>
+                <height>16777215</height>
+               </size>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="2">
+            <widget class="QLabel" name="res_cloth_ht">
+             <property name="text">
+              <string>meters</string>
+             </property>
+            </widget>
+           </item>
            <item row="2" column="0">
             <widget class="QLabel" name="export_txt_lbl">
              <property name="enabled">
@@ -922,16 +946,6 @@ You can get a brief description of what they do by hovering the mouse over the i
           </property>
          </widget>
         </item>
-        <item row="17" column="5">
-         <widget class="QLineEdit" name="res_cloth_in">
-          <property name="maximumSize">
-           <size>
-            <width>72</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-        </item>
         <item row="15" column="1">
          <widget class="QLineEdit" name="distance_to_axis_in">
           <property name="maximumSize">
@@ -1031,13 +1045,6 @@ You can get a brief description of what they do by hovering the mouse over the i
          <widget class="QLabel" name="number_points_section_lbl">
           <property name="text">
            <string>Points within section</string>
-          </property>
-         </widget>
-        </item>
-        <item row="17" column="4">
-         <widget class="QLabel" name="res_cloth_lbl">
-          <property name="text">
-           <string>Cloth resolution</string>
           </property>
          </widget>
         </item>
@@ -1445,13 +1452,6 @@ You can get a brief description of what they do by hovering the mouse over the i
         </item>
         <item row="16" column="2">
          <widget class="QLabel" name="res_heights_ht">
-          <property name="text">
-           <string>meters</string>
-          </property>
-         </widget>
-        </item>
-        <item row="17" column="6">
-         <widget class="QLabel" name="res_cloth_ht">
           <property name="text">
            <string>meters</string>
           </property>

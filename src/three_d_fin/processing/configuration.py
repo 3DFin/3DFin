@@ -54,6 +54,15 @@ class BasicParameters(BaseModel):
         default=2,
         hint="0-5",
     )
+    # Resolution of cloth grid
+    res_cloth: float = Field(
+        title="Cloth resolution",
+        description="Initial cloth grid resolution to generate the DTM that"
+        "will be used to compute normalized heights.",
+        gt=0,
+        default=0.7,
+        hint="meters",
+    )
 
     @validator("lower_limit")
     def less_than_higher(cls, v, values):
@@ -191,25 +200,25 @@ class ExpertParameters(BaseModel):
         hint="[0, 1]",
     )
 
-    ### Stem extraction and tree individualization ###
-    # (x, y) voxel resolution during stem extraction and tree individualization
+    ### Stem identification within the stripe ###
+    # (x, y) voxel resolution during stem extraction
     res_xy: float = Field(
         title="(x, y) voxel resolution",
-        description="(x, y) voxel resolution during tree individualization.",
+        description="(x, y) voxel resolution during stem extraction.",
         gt=0,
         default=0.035,
         hint="meters",
     )
-    # (z) voxel resolution during stem extraction and tree individualization
+    # (z) voxel resolution during stem extraction
     res_z: float = Field(
         title="(z) voxel resolution",
-        description="(z) voxel resolution during tree individualization.",
+        description="(z) voxel resolution during tree extraction.",
         gt=0,
         default=0.035,
         hint="meters",
     )
     # Minimum number of points within a stripe to consider it as a potential tree during
-    # stem extraction and tree individualization
+    # stem extraction
     minimum_points: int = Field(
         title="Minimum points",
         description="Minimum number of points (voxels) within a stripe to consider it "
@@ -217,7 +226,7 @@ class ExpertParameters(BaseModel):
         gt=0,
         default=20,
     )
-    # Vicinity radius for PCA  during stem extraction and tree individualization
+    # Vicinity radius for PCA  during stem extraction
     verticality_scale_stems: float = Field(
         title="Vicinity radius (verticality computation)",
         description="Vicinity radius for PCA during tree individualization.",
@@ -226,7 +235,7 @@ class ExpertParameters(BaseModel):
         default=0.1,
         hint="meters",
     )
-    # Verticality threshold  during stem extraction and tree individualization
+    # Verticality threshold  during stem extraction
     verticality_thresh_stems: float = Field(
         title="Verticality threshold",
         description="Verticality threshold durig stem extraction.\n"
@@ -239,7 +248,7 @@ class ExpertParameters(BaseModel):
         hint="(0, 1)",
     )
     # Points that are closer than d_max to an axis are assigned to that axis during
-    # stem extraction and tree individualization.
+    # stem extraction
     maximum_d: float = Field(
         title="Maximum distance to tree axis",
         description="Points that are closer than this distance to an axis "
@@ -300,7 +309,7 @@ class ExpertParameters(BaseModel):
         title="Minimum expected diameter",
         description="Minimum diameter expected for any section during circle fitting.",
         gt=0,
-        default=0.06,
+        default=0.09,
         hint="meters",
     )
     # Number of points inside the inner circle
@@ -323,7 +332,7 @@ class ExpertParameters(BaseModel):
     # Number of sectors in which the circumference will be divided
     number_sectors: int = Field(
         title="Number of sectors",
-        description="Number of sectors in which the circumference will be divided",
+        description="Number of sectors in which the circumference will be divided into.",
         gt=0,
         default=16,
     )
@@ -347,7 +356,7 @@ class ExpertParameters(BaseModel):
     # Number of points used to draw the sections in the _circ file/cloud
     circa: int = Field(
         title="N of points to draw each circle",
-        description="Number of points that will be used to draw the circles",
+        description="Number of points that will be used to draw the circles.",
         gt=0,
         default=200,
     )
@@ -355,7 +364,7 @@ class ExpertParameters(BaseModel):
     p_interval: float = Field(
         title="Interval at which points are drawn while drawing",
         description="Distance at which points will be placed from one to another"
-        "while drawing the axes point cloud",
+        "while drawing the axes point cloud.",
         gt=0,
         default=0.01,
         hint="meters",
@@ -400,15 +409,6 @@ class ExpertParameters(BaseModel):
         gt=0,
         default=2,
     )
-    # Resolution of cloth grid
-    res_cloth: float = Field(
-        title="Cloth resolution",
-        description="Initial cloth grid resolution to generate the DTM that"
-        "be used to compute normalized heights.",
-        gt=0,
-        default=0.7,
-        hint="meters",
-    )
 
 
 class MiscParameters(BaseModel):
@@ -417,7 +417,7 @@ class MiscParameters(BaseModel):
     is_normalized: bool = Field(
         title="Normalize point cloud",
         description="If the point cloud is not height-normalized, a Digital Terrain "
-        "Model will be generated to compute normalized heights for all points.",
+        "Model (DTM) will be generated to compute normalized heights for all points.",
         default=False,
     )  # TODO change = do_normalize, default True
     is_noisy: bool = Field(

@@ -329,7 +329,7 @@ class FinProcessing(ABC):
             Files contain TAB-separated information with as many rows as trees detected
             in the plot and as many columns as stem sections considered.
             All units are m or points. _outliers and _check_circle have no units. the
-            format of the tabular data is given by the export_txt parameter
+            format of the tabular data is given by the export_txt parameter.
 
         In xlsx format (export_txt == False):
         •   [original file name].xlsx
@@ -453,7 +453,7 @@ class FinProcessing(ABC):
                 t = timeit.default_timer()
                 # Extracting ground points and DTM
                 cloth_nodes = dm.generate_dtm(
-                    coords, cloth_resolution=config.expert.res_cloth
+                    coords, cloth_resolution=config.basic.res_cloth
                 )
 
                 elapsed = timeit.default_timer() - t
