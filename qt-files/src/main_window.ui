@@ -165,14 +165,9 @@
               </sizepolicy>
              </property>
              <property name="text">
-              <string>This program implements an algorithm to detect the trees  present in a ground-based 3D point cloud from a forest plot, and compute individual tree parameters: tree height,tree location, diameters along the stem (including DBH), and stem axis. 
+              <string>This program implements an algorithm to detect the trees  present in a terrestrial point cloud from a forest plot, and compute individual tree parameters: tree height,tree location, diameters along the stem (including DBH), and stem axis. 
 
-It takes a .LAS/.LAZ file as input, which may contain extra fields (.LAS standard or not). Also, the input point cloud can come from terrestrial photogrammetry, TLS or mobile (e.g. hand-held) LS, a combination of those, and/or a combination
-of those with UAV-(LS or SfM), or ALS. 
-
-After all computations are done, it outputs several .LAS files containing resulting point clouds and a XLSX file storing tabular data. Optionally, tabular data may be output as text files instead of the Excel spreadsheet if preferred.
-
- Further details may be found in next tabs and in the documentation.</string>
+Be sure to check the Documentation, which features detailed explanations on how the program works, and the Tutorial by Fabian Fassnacht, which is a great tool to get started using 3DFin.</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignJustify|Qt::AlignVCenter</set>
