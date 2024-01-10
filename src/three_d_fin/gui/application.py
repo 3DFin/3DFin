@@ -66,6 +66,9 @@ class ApplicationWorker(QObject):
         try:
             self.processing_object.process()
         except Exception as e:
+            # TODO: RJ: this is left for a future 'debug mode'
+            # import traceback
+            # print(traceback.format_exc())
             self.error.emit(str(e))
         self.finished.emit()
 
