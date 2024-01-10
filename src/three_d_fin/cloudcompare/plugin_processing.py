@@ -4,6 +4,7 @@ from pathlib import Path
 import numpy as np
 import pycc
 
+from three_d_fin.cloudcompare import Z_COORDINATES_NAME
 from three_d_fin.cloudcompare.plugin_progress import CloudCompareProgress
 from three_d_fin.processing.abstract_processing import FinProcessing
 from three_d_fin.processing.configuration import FinConfiguration
@@ -83,6 +84,12 @@ class CloudComparePluginProcessing(FinProcessing):
         pass
 
     def _get_xyz_z0_from_base(self) -> np.ndarray:
+        # if the user select the Z coordinates we simply return the PC
+        if self.config.basic.z0_name == Z_COORDINATES_NAME:
+            return self.base_cloud.points()
+
+        # if the user select the Z coordinates we simply return the PC
+        # else we return the X,Y coordinates + the z0 scalar field
         return np.c_[
             self.base_cloud.points(),
             self.base_cloud.getScalarField(

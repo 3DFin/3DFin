@@ -3,6 +3,7 @@ from pathlib import Path
 import pycc
 from PyQt5.QtCore import QEventLoop
 
+from three_d_fin.cloudcompare import Z_COORDINATES_NAME
 from three_d_fin.cloudcompare.plugin_processing import CloudComparePluginProcessing
 from three_d_fin.gui.application import Application
 from three_d_fin.processing.configuration import FinConfiguration
@@ -74,6 +75,10 @@ def main():
     scalar_fields: list[str] = []
     for i in range(point_cloud.getNumberOfScalarFields()):
         scalar_fields.append(point_cloud.getScalarFieldName(i))
+        # Add a last "virtual" scalar field that correspond to PC Z field
+        # This can interfer somehow with a putative "Z coordinates" scalar field
+        # and it should be documented
+        scalar_fields.append(Z_COORDINATES_NAME)
 
     # TODO: Handle big coodinates (could be tested but maybe wait for CC API update).
     plugin_processing = CloudComparePluginProcessing(
