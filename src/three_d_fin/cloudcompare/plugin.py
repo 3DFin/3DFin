@@ -78,7 +78,7 @@ def main():
         # Add a last "virtual" scalar field that correspond to PC Z field
         # This can interfer somehow with a putative "Z coordinates" scalar field
         # and it should be documented
-        scalar_fields.append(Z_COORDINATES_NAME)
+    scalar_fields.append(Z_COORDINATES_NAME)
 
     # TODO: Handle big coodinates (could be tested but maybe wait for CC API update).
     plugin_processing = CloudComparePluginProcessing(
