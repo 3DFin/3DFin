@@ -86,16 +86,11 @@ class CloudComparePluginProcessing(FinProcessing):
     def _get_xyz_z0_from_base(self) -> np.ndarray:
         # if the user select the Z coordinates we simply return the PC
         if self.config.basic.z0_name == Z_COORDINATES_NAME:
-            return self.base_cloud.points()
+            return np.c_[self.base_cloud.points(), self.base_cloud.points()[:,2]]
 
         # if the user select the Z coordinates we simply return the PC
         # else we return the X,Y coordinates + the z0 scalar field
-        return np.c_[
-            self.base_cloud.points(),
-            self.base_cloud.getScalarField(
-                self.base_cloud.getScalarFieldIndexByName(self.config.basic.z0_name)
-            ).asArray(),
-        ]
+        return np.c_[pc.points(), pc.getScalarField(pc.getScalarFieldIndexByName("Z0")).asArray()]
 
     def _get_xyz_from_base(self) -> np.ndarray:
         # TODO(RJ) double conversion is only needed for DTM processing,
