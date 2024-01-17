@@ -483,6 +483,9 @@ class FinProcessing(ABC):
             z0_values = dm.normalize_heights(coords, dtm)
             coords = np.append(coords, np.expand_dims(z0_values, axis=1), 1)
 
+            # Check that the normalization is correct.
+            area_warning = dm.check_normalization(coords[:, [0,1,3]], cloud_shape)
+
             elapsed = timeit.default_timer() - t
             print("        ", "%.2f" % elapsed, "s: Normalizing the point cloud")
 
@@ -712,3 +715,6 @@ class FinProcessing(ABC):
         print("---------------------------------------------")
         print("Total time:", "   %.2f" % elapsed_t, "s")
         print("nº of trees:", X_c.shape[0])
+
+        # if warning_area:
+            # open warning_window with explanation on how to improve terrain modelling.
