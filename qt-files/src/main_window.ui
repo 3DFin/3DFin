@@ -174,7 +174,7 @@
               </sizepolicy>
              </property>
              <property name="text">
-              <string>This program implements an algorithm to detect the trees present in a terrestrial point cloud from a forest plot, and compute individual tree parameters: tree height,tree location, diameters along the stem (including DBH), and stem axis. 
+              <string>3DFin implements our algorithm to detect the trees present in a terrestrial point cloud from a forest plot, and compute individual tree parameters: tree height,tree location, diameters along the stem (including DBH), and tree stem axis. 
 
 Please, note that the program is designed to process ground-based data (TLS, PMMS, SfM) and only in rare exceptions it could work with UAV data.              
 
