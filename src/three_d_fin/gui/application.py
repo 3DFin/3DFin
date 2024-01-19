@@ -5,7 +5,7 @@ from typing import Optional
 import laspy
 from pydantic import ValidationError
 from pydantic.fields import ModelField
-from PyQt5.QtCore import QEventLoop, QLocale, QObject, QThread, QUrl, pyqtSignal
+from PyQt5.QtCore import QEventLoop, QLocale, QObject, Qt, QThread, QUrl, pyqtSignal
 from PyQt5.QtGui import (
     QCloseEvent,
     QDesktopServices,
@@ -271,6 +271,31 @@ class Application(QMainWindow):
             QUrl.fromLocalFile(str(Path(base_path / "documentation.pdf").resolve()))
         )
 
+    def _show_normalization_warning(self) -> None:
+        """Show Dialog with normalization warning.
+
+        Poll the area_warning indicator and if true, show an alert Dialog.
+        """
+        if self.processing_object.area_warning:
+            # We make a custom QMessageBox in order to display a "Rich Text"
+            # that allows us to embed the link to the tutorial
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Icon.Warning)
+            msg_box.setWindowIcon(QMessageBox.Icon.warning)
+            msg_box.setWindowTitle("Potential normalization error")
+            msg_box.setTextFormat(Qt.TextFormat.RichText)
+            msg_box.setText(
+                "3DFin has detected a potential error in the terrain modelling.<br>"
+                + 'This usually happens when the "cloth resolution" parameter '
+                + "didn't fit well the terrain.<br><br>"
+                + "Errors in the terrain modelling lead to poor height normalization "
+                + "and errors in the results, which is undesirable.<br>"
+                + "You can learn to how check those potential errors and improve "
+                + "your results quickly using this dedicated "
+                + '<a href="https://github.com/3DFin/3DFin_CC_Tutorial/blob/main/1_3Dfin_cloudcompare.md#exercise-i---adjusting-dtm-interpolation-settings">tutorial section</a>'
+            )
+            msg_box.exec_()
+
     def _ask_input_file(self) -> None:
         """Ask for a proper input las file.
 
@@ -428,6 +453,7 @@ class Application(QMainWindow):
         self.worker.finished.connect(self.worker.deleteLater)
         # Post processing hook is called from the main thread
         self.worker.finished.connect(self.processing_object._post_processing_hook)
+        self.worker.finished.connect(self._show_normalization_warning)
         self.worker.finished.connect(_enable_btn)
         self.worker.error.connect(_error_handling)
         self.thread.finished.connect(self.thread.deleteLater)

@@ -28,6 +28,8 @@ class FinProcessing(ABC):
 
     overwrite: bool = False
 
+    area_warning: bool = False
+
     def __init__(self, config: FinConfiguration) -> None:
         """Init the FinProcessing object.
 
@@ -484,7 +486,9 @@ class FinProcessing(ABC):
             coords = np.append(coords, np.expand_dims(z0_values, axis=1), 1)
 
             # Check that the normalization is correct.
-            area_warning = dm.check_normalization(coords[:, [0,1,3]], cloud_shape)
+            self.area_warning = dm.check_normalization(
+                coords[:, [0, 1, 3]], cloud_shape
+            )
 
             elapsed = timeit.default_timer() - t
             print("        ", "%.2f" % elapsed, "s: Normalizing the point cloud")
@@ -716,5 +720,9 @@ class FinProcessing(ABC):
         print("Total time:", "   %.2f" % elapsed_t, "s")
         print("nº of trees:", X_c.shape[0])
 
-        # if warning_area:
-            # open warning_window with explanation on how to improve terrain modelling.
+        if self.area_warning:
+            print(
+                "Warning: 3DFin has detected a potential error in the terrain modelling.\n"
+                + 'This usually happens when the "cloth resolution" parameter didn\'t fit well the terrain.\n'
+                + "Learn more about this here https://github.com/3DFin/3DFin_CC_Tutorial"
+            )
