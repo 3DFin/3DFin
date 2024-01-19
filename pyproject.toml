@@ -20,18 +20,17 @@ classifiers = [
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: Implementation :: CPython",
   "Topic :: Scientific/Engineering",
   "Topic :: Scientific/Engineering :: GIS",
   "Intended Audience :: Science/Research",
 ]
 dependencies = [
-  "laspy~=2.4.1",
   "lazrs~=0.5.0",
-  "numpy>=1.24.0",
   "pandas~=2.0.0",
   "XlsxWriter~=3.1.0",
-  "dendromatics~=0.2.0",
+  "dendromatics~=0.3.0",
   "pydantic~=1.10.7",
   "PyQT5~=5.15"
 ]
@@ -97,7 +96,7 @@ dest_folder = "src/three_d_fin/gui"
 import_from = "three_d_fin.gui" # TODO: it could be infered from dest_folder
 
 [[tool.hatch.envs.test.matrix]]
-python = ["38", "39", "310", "311"]
+python = ["38", "39", "310", "311", "312"]
 
 [tool.coverage.run]
 branch = true
