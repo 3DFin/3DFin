@@ -66,6 +66,9 @@ class ApplicationWorker(QObject):
         try:
             self.processing_object.process()
         except Exception as e:
+            # TODO: RJ: this is left for a future 'debug mode'
+            # import traceback
+            # print(traceback.format_exc())
             self.error.emit(str(e))
         self.finished.emit()
 
@@ -133,8 +136,11 @@ class Application(QMainWindow):
         self.ui.tabWidget.setCurrentIndex(0)
         self.setWindowIcon(QIcon(":/assets/assets/icon_window.ico"))
 
-        # Click on the "documentation" link
+        # Click on the "documentation" button
         self.ui.documentation_link_btn.clicked.connect(self._show_documentation)
+
+        # Click on the "Tutorial" button
+        self.ui.tutorial_link_btn.clicked.connect(self._show_tutorial)
 
         # Click on the "?" button on the expert table
         self.ui.expert_info_btn.clicked.connect(self._show_expert_dialog)
@@ -241,10 +247,21 @@ class Application(QMainWindow):
         dialog = ExpertDialog(self)
         dialog.show()
 
+    def _show_tutorial(self):
+        """Show the tutorial.
+
+        Open the tutorial in the default browser
+        """
+        QDesktopServices.openUrl(
+            QUrl(
+                "https://github.com/fabianfassnacht/Cloud_Compare_3DFin/blob/main/1_3Dfin_cloudcompare.md"
+            )
+        )
+
     def _show_documentation(self) -> None:
         """Show the documentation.
 
-        Open the default browser to show the documentation.
+        Open the default browser to show the documentation / or prompt user to choose a PDF viewer.
         """
         try:
             base_path = Path(sys._MEIPASS)
