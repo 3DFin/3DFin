@@ -23,7 +23,7 @@ Also, the [Tutorial](https://github.com/fabianfassnacht/Cloud_Compare_3DFin/blob
 
 ## 1. CloudCompare plugin 
 
-3DFin is available in Windows as a **plugin in CloudCompare (2.13)** thanks to CloudCompare PythonPlugin (see [References](#references)). You can download the latest alpha-version of CloudCompare (Windows installer version) including the 3DFin plugin here:
+3DFin is available in Windows as a **plugin in CloudCompare (2.13)** thanks to CloudCompare PythonRuntime (see [References](#references)). You can download the latest beta-version of CloudCompare (Windows installer version) including the 3DFin plugin here:
 
 [CloudCompare](https://www.danielgm.net/cc/release/)
 
@@ -78,8 +78,6 @@ python -m three_d_fin
 
 macOS user may need to install and use an openMP capable compiler, such as GCC from [Homebrew](https://brew.sh/) in order to install the dependencies. 
 
-3DFin is also available as a plugin for [CloudCompare](https://www.danielgm.net/cc/) thanks to [CloudCompare-PythonPlugin](https://github.com/tmontaigu/CloudCompare-PythonPlugin). It is included in latest cloudcompare beta (2.13 beta).
-
 # Usage
 
 CloudCompare plugin is the reccomended way of using 3DFin, as it provides enhanced features for visualisation of the results and exporting of the outputs (it allows to export the results as a CloudCompare native BIN file). 
@@ -107,7 +105,7 @@ We are currently working on a scientific article about 3DFin, which may be publi
 
 # References 
 
-CloudCompare PythonPlugin, by Thomas Montaigu: [CloudCompare-PythonPlugin](https://github.com/tmontaigu/CloudCompare-PythonPlugin)
+CloudCompare-PythonRuntime, by Thomas Montaigu: [CloudCompare-PythonRuntime](https://github.com/tmontaigu/CloudCompare-PythonRuntime)
 
 # Acknowledgement
 

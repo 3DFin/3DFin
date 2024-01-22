@@ -174,7 +174,9 @@
               </sizepolicy>
              </property>
              <property name="text">
-              <string>This program implements an algorithm to detect the trees present in a terrestrial point cloud from a forest plot, and compute individual tree parameters: tree height,tree location, diameters along the stem (including DBH), and stem axis. 
+              <string>3DFin implements our algorithm to detect the trees present in a terrestrial point cloud from a forest plot, and compute individual tree parameters: tree height,tree location, diameters along the stem (including DBH), and tree stem axis. 
+
+Please, note that the program is designed to process ground-based data (TLS, PMMS, SfM) and only in rare exceptions it could work with UAV data.              
 
 Be sure to check the documentation, which features detailed explanations on how the program works, and the tutorial by Fabian Fassnacht, which is a great tool to get started using 3DFin.</string>
              </property>
@@ -1780,12 +1782,12 @@ li.checked::marker { content: &quot;\2612&quot;; }
 &lt;td&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;img src=&quot;:/assets/assets/carlos_pic_1.jpg&quot; /&gt;&lt;/p&gt;&lt;/td&gt;
 &lt;td&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Carlos Cabo (carloscabo.uniovi@gmail.com). Permanent academic position at the Department of Mining Exploitation, University of Oviedo and Honorary Appointment at Science and Engineering Faculty, Swansea University. Research fields: Spatial analysis cartography, geomatics.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Carlos Cabo (carloscabo@uniovi.es). Academic position (PCD) in Geomatics Engineering at the University of Oviedo (Department of Mining Exploitation and Prospection -Cartography, Geodetics and Photogrammetry-), and Honorary Appointment at Science and Engineering Faculty, Swansea University. Research fields: Spatial analysis cartography, geomatics.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;img src=&quot;:/assets/assets/diego_pic_1.jpg&quot; /&gt;&lt;/p&gt;&lt;/td&gt;
 &lt;td&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Diego Laino (diegolainor@gmail.com). PhD student in Natural Resources Engineering at Department of Mining Exploitation, University Oviedo. Assist. Researcher at Centre for Wildfire Research, Geography of Department, Swansea University. Research fields: deep learning, remote sensing, forestry.                            &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Diego Laino (diegolainor@gmail.com). Research technician at Research Institute of Biodiversity (CSIC-University of Oviedo Principality of Asturias, Spain). PhD student in Natural Resources Engineering at Department of Mining Exploitation -Cartography, Geodetics and Photogrammetry-, University Oviedo. Research fields: deep learning, remote sensing, forestry.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;img src=&quot;:/assets/assets/covadonga_pic_1.jpg&quot; /&gt;&lt;/p&gt;&lt;/td&gt;
@@ -1795,7 +1797,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
 &lt;td&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;img src=&quot;:/assets/assets/cris_pic_1.jpg&quot; /&gt;&lt;/p&gt;&lt;/td&gt;
 &lt;td&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Cristina Santin (c.santin@csic.es). Research fellow at the Research Institute of Biodiversity (CSIC-University of Oviedo Principality of Asturias, Spain) and Honorary Assoc. Professor at the Biosciences Department of Swansea University. Research fields: environmental impacts of wildfires.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Cristina Santin (c.santin@csic.es). Research fellow at Research Institute of Biodiversity (CSIC-University of Oviedo Principality of Asturias, Spain) and Honorary Assoc. Professor at the Biosciences Department of Swansea University. Research fields: environmental impacts of wildfires.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;img src=&quot;:/assets/assets/stefan_pic_1.jpg&quot; /&gt;&lt;/p&gt;&lt;/td&gt;
@@ -1805,7 +1807,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
 &lt;td&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;img src=&quot;:/assets/assets/celestino_pic_1.jpg&quot; /&gt;&lt;/p&gt;&lt;/td&gt;
 &lt;td&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Celestino Ordonez (ordonezcelestino@uniovi.es). Full professor at Department of Mining Exploitation, University of Oviedo. Main researcher at GEOGRAPH research group. Research fields: Spatial analysis, laser scanning, photogrammetry.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Celestino Ordonez (ordonezcelestino@uniovi.es). Full professor at Department of Mining Exploitation -Cartography, Geodetics and Photogrammetry-, University of Oviedo. Main researcher at GEOGRAPH research group. Research fields: Spatial analysis, laser scanning, photogrammetry.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;img src=&quot;:/assets/assets/tadas_pic_1.jpg&quot; /&gt;&lt;/p&gt;&lt;/td&gt;

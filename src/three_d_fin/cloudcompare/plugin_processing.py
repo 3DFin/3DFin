@@ -45,7 +45,7 @@ class CloudComparePluginProcessing(FinProcessing):
         Parameters
         ----------
         cc_instance : pycc.ccPythonInstance
-            Current cc application, wrapped by CloudCompare-PythonPlugin.
+            Current cc application, wrapped by CloudCompare-PythonRuntime.
         point_cloud : pycc.ccPointCloud
             Point cloud targetted by the 3DFin processing.
         config: FinConfiguration

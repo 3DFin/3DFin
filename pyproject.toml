@@ -30,14 +30,11 @@ dependencies = [
   "lazrs~=0.5.0",
   "pandas~=2.0.0",
   "XlsxWriter~=3.1.0",
-  "dendromatics @ git+https://github.com/3DFin/dendromatics/@update_dependencies",
+  "dendromatics~=0.3.0",
   "pydantic~=1.10.7",
   "PyQT5~=5.15"
 ]
 dynamic = ["version"]
-
-[tool.hatch.metadata]
-allow-direct-references = true
 
 # Entry point for CloudCompare plugin
 [project.entry-points."cloudcompare.plugins"]
