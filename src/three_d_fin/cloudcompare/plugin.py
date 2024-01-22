@@ -9,7 +9,7 @@ from three_d_fin.processing.configuration import FinConfiguration
 
 
 class ThreeDFinCC(pycc.PythonPluginInterface):
-    """Define a CloudCompare-PythonPlugin Plugin (sic.)."""
+    """Define a Plugin for CloudCompare-PythonRuntime."""
 
     def __init__(self):
         """Construct the object."""
