@@ -281,7 +281,6 @@ class Application(QMainWindow):
             # that allows us to embed the link to the tutorial
             msg_box = QMessageBox()
             msg_box.setIcon(QMessageBox.Icon.Warning)
-            msg_box.setWindowIcon(QMessageBox.Icon.warning)
             msg_box.setWindowTitle("Potential normalization error")
             msg_box.setTextFormat(Qt.TextFormat.RichText)
             msg_box.setText(
@@ -289,7 +288,7 @@ class Application(QMainWindow):
                 + 'This usually happens when the "cloth resolution" parameter '
                 + "didn't fit well the terrain.<br><br>"
                 + "Errors in the terrain modelling lead to poor height normalization "
-                + "and errors in the results, which is undesirable.<br>"
+                + "and errors in the results, which is undesirable. "
                 + "You can learn to how check those potential errors and improve "
                 + "your results quickly using this dedicated "
                 + '<a href="https://github.com/3DFin/3DFin_CC_Tutorial/blob/main/1_3Dfin_cloudcompare.md#exercise-i---adjusting-dtm-interpolation-settings">tutorial section</a>'
