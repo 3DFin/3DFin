@@ -1,6 +1,8 @@
 import sys
+import traceback
 from pathlib import Path
 from typing import Optional
+from urllib.parse import quote
 
 import laspy
 from pydantic import ValidationError
@@ -38,7 +40,7 @@ class ApplicationWorker(QObject):
     """
 
     finished = pyqtSignal()
-    error = pyqtSignal(str)
+    error = pyqtSignal(str, str)
 
     def __init__(self, processing_object: FinProcessing, parent=None):
         """Construct the Worker.
@@ -66,10 +68,7 @@ class ApplicationWorker(QObject):
         try:
             self.processing_object.process()
         except Exception as e:
-            # TODO: RJ: this is left for a future 'debug mode'
-            # import traceback
-            # print(traceback.format_exc())
-            self.error.emit(str(e))
+            self.error.emit(str(e), traceback.format_exc())
         self.finished.emit()
 
 
@@ -279,7 +278,7 @@ class Application(QMainWindow):
         if self.processing_object.area_warning:
             # We make a custom QMessageBox in order to display a "Rich Text"
             # that allows us to embed the link to the tutorial
-            msg_box = QMessageBox()
+            msg_box = QMessageBox(self)
             msg_box.setIcon(QMessageBox.Icon.Warning)
             msg_box.setWindowTitle("Potential normalization error")
             msg_box.setTextFormat(Qt.TextFormat.RichText)
@@ -433,9 +432,21 @@ class Application(QMainWindow):
             self.ui.compute_btn.setDisabled(False)
             self.ui.compute_btn.setText("Compute")
 
-        def _error_handling(error_message: str) -> None:
+        def _error_handling(error_message: str, stack_trace: str) -> None:
             _enable_btn()
-            QMessageBox.critical(self, "3DFin error", error_message)
+            msg_box = QMessageBox(self)
+            msg_box.setIcon(QMessageBox.Icon.Critical)
+            msg_box.setWindowTitle("3DFin Runtime Error")
+            msg_box.setTextFormat(Qt.TextFormat.RichText)
+            msg_box.setText(error_message)
+            msg_box.setInformativeText(
+                "For more details, please read the stack trace below or "
+                + 'report on <a href="https://github.com/3DFin/3DFin/issues/new?body='
+                + quote("Hi!\n 3DFin failed with this error: \n" + stack_trace)
+                + '">Github</a>'
+            )
+            msg_box.setDetailedText(stack_trace)
+            msg_box.exec_()
 
         # Now we do the processing in itself
         self.thread = QThread()
