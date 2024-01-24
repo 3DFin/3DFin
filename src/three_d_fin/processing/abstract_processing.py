@@ -486,13 +486,13 @@ class FinProcessing(ABC):
             coords = np.append(coords, np.expand_dims(z0_values, axis=1), 1)
 
             # Check that the normalization is correct.
-            self.area_warning = dm.check_normalization(
+            self.area_warning, area_discrepancy = dm.check_normalization_discrepancy(
                 coords[:, [0, 1, 3]], cloud_shape
             )
 
             elapsed = timeit.default_timer() - t
             print("        ", "%.2f" % elapsed, "s: Normalizing the point cloud")
-
+            print("         => Normalization area discrepancy:", "%.2f/%" % area_discrepancy)
             elapsed = timeit.default_timer() - t_t
             print("        ", "%.2f" % elapsed, "s: Total preprocessing time")
 
