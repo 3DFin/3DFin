@@ -492,7 +492,11 @@ class FinProcessing(ABC):
 
             elapsed = timeit.default_timer() - t
             print("        ", "%.2f" % elapsed, "s: Normalizing the point cloud")
-            print("         => Normalization area discrepancy:", "%.2f/%" % area_discrepancy)
+            print(
+                "         => Normalization area discrepancy:",
+                "%.2f" % area_discrepancy,
+                "%",
+            )
             elapsed = timeit.default_timer() - t_t
             print("        ", "%.2f" % elapsed, "s: Total preprocessing time")
 
