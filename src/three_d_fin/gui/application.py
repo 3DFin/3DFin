@@ -251,11 +251,7 @@ class Application(QMainWindow):
 
         Open the tutorial in the default browser
         """
-        QDesktopServices.openUrl(
-            QUrl(
-                "https://github.com/fabianfassnacht/Cloud_Compare_3DFin/blob/main/1_3Dfin_cloudcompare.md"
-            )
-        )
+        QDesktopServices.openUrl(QUrl("https://github.com/3DFin/3DFin_CC_Tutorial/"))
 
     def _show_documentation(self) -> None:
         """Show the documentation.
@@ -290,7 +286,7 @@ class Application(QMainWindow):
                 + "and errors in the results, which is undesirable. "
                 + "You can learn to how check those potential errors and improve "
                 + "your results quickly using this dedicated "
-                + '<a href="https://github.com/3DFin/3DFin_CC_Tutorial/blob/main/1_3Dfin_cloudcompare.md#exercise-i---adjusting-dtm-interpolation-settings">tutorial section</a>'
+                + '<a href="https://github.com/3DFin/3DFin_CC_Tutorial/tree/main#case-i---adjusting-dtm-interpolation-settings">tutorial section</a>'
             )
             msg_box.exec_()
 
