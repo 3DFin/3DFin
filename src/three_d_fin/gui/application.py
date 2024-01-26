@@ -436,8 +436,9 @@ class Application(QMainWindow):
             msg_box.setTextFormat(Qt.TextFormat.RichText)
             msg_box.setText(error_message)
             msg_box.setInformativeText(
-                "For more details, please read the stack trace below or "
-                + 'report on <a href="https://github.com/3DFin/3DFin/issues/new?body='
+                "For more details please read the stack trace below. "
+                + "If you think this is a bug, please open an "
+                + 'issue on <a href="https://github.com/3DFin/3DFin/issues/new?body='
                 + quote("Hi!\n 3DFin failed with this error: \n" + stack_trace)
                 + '">Github</a>'
             )
