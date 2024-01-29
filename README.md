@@ -23,7 +23,7 @@ Also, the [Tutorial](https://github.com/fabianfassnacht/Cloud_Compare_3DFin/blob
 
 ## 1. CloudCompare plugin 
 
-3DFin is available in Windows as a **plugin in CloudCompare (2.13)** thanks to CloudCompare PythonRuntime (see [References](#references)). You can download the latest beta-version of CloudCompare (Windows installer version) including the 3DFin plugin here:
+3DFin is available in Windows as a **plugin in CloudCompare (2.13)** thanks to CloudCompare PythonRuntime (see [References](#references)). You can download the latest version CloudCompare (Windows installer version) including the 3DFin plugin here:
 
 [CloudCompare](https://www.danielgm.net/cc/release/)
 
@@ -32,7 +32,7 @@ Simply install the latest version of CloudCompare and tick Python and 3DFin's ch
 **To install 3DFin plugin, tick the 'Python plugin support' checkbox during CloudCompare installation.** 
 ![image](https://github.com/3DFin/3DFin/assets/68945855/f34b4cd9-58ce-41fc-a8bd-262dd11ff8e7)
 
-For Linux, the plugin is embedded in the flatpak [here](https://github.com/CloudCompare/org.cloudcompare.CloudCompare/releases) and will be available from flathub once CloudCompare 2.13 **stable** available.
+For Linux, the plugin is embedded into the CloudCompare [flatpak](https://flathub.org/fr/apps/org.cloudcompare.CloudCompare). 
 
 **3DFin plugin in CloudCompare.**
 ![Fig_01](https://github.com/3DFin/3DFin/assets/68945855/2c874f53-39fd-4eff-b29c-15f3ca80013d)
