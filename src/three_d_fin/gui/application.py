@@ -251,7 +251,7 @@ class Application(QMainWindow):
 
         Open the tutorial in the default browser
         """
-        QDesktopServices.openUrl(QUrl("https://github.com/3DFin/3DFin_CC_Tutorial/"))
+        QDesktopServices.openUrl(QUrl("https://github.com/3DFin/3DFin_Tutorial/"))
 
     def _show_documentation(self) -> None:
         """Show the documentation.
