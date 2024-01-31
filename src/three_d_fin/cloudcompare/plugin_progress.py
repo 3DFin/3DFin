@@ -19,6 +19,7 @@ class CloudCompareProgress(Progress):
         ----------
         total : int
             The total number of steps to be completed.
+
         """
         self.curr_progress = 0
         self.output.write(
@@ -32,6 +33,7 @@ class CloudCompareProgress(Progress):
         ----------
         total : int
             The total number of steps to be completed.
+
         """
         self.output.write(
             f"\n{self.title} [{(self.progress_char * self.n_chars)}] {total}/{total}"
@@ -52,6 +54,7 @@ class CloudCompareProgress(Progress):
             The number of steps already completed.
         total : int
             The total number of steps to be completed.
+
         """
         if count > total or count < 0:
             raise ValueError("count cannot be greater than total nor less than 0")

@@ -54,6 +54,7 @@ class ApplicationWorker(QObject):
         parent : Optional[QWidget]
             An optional parent. Should be None if runned as standalone but could
             be a parent QWidget from the base application if runned as a plugin
+
         """
         super().__init__(parent)
         self.processing_object = processing_object
@@ -122,6 +123,7 @@ class Application(QMainWindow):
         parent : Optional[QWidget]
             An optional parent. Should be None if runned as standalone but could
             be a parent QWidget from the base application if runned as a plugin
+
         """
         super().__init__(parent)
         self.ui = Ui_MainWindow()
@@ -354,6 +356,7 @@ class Application(QMainWindow):
             Dictionary of parameters. It is organized following the
             3DFinconfig.ini file: Each parameters are sorted in a sub-dict
             ("basic", "expert", "advanced", "misc").
+
         """
         config_dict: dict[str, dict[str, str]] = dict()
         for category_name, category_field in FinConfiguration.__fields__.items():
@@ -483,6 +486,7 @@ class Application(QMainWindow):
         ----------
         loop : QEventLoop
             The event loop to set
+
         """
         self.event_loop = loop
 
@@ -495,6 +499,7 @@ class Application(QMainWindow):
         ----------
         a0 : QCloseEvent
             The close event
+
         """
         super().closeEvent(a0)
         if self.event_loop is not None:

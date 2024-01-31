@@ -61,6 +61,7 @@ def export_tabular_data(
         Number of point in the cloud (in M points)
     cloud_shape : int
         Area of the cloud in :math: m^2
+
     """
     # -------------------------------------------------------------------------------------------------------------
     # Exporting results
@@ -160,7 +161,7 @@ def export_tabular_data(
         Diameter at breast height (DBH) of each tree (T).
         (x, y) coordinates (X and Y) of each tree (T).
         """
-        info_cloud_size = f"This cloud has {cloud_size} millions points and its area is {cloud_shape} m2"
+        info_cloud_size = f"This cloud has {cloud_size} million points and its area is {cloud_shape} m2"
 
         # Converting descriptions to pandas DataFrames for ease to include them in the excel file.
         df_info_diameters = pd.Series(info_diameters)

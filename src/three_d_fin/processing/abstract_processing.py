@@ -37,6 +37,7 @@ class FinProcessing(ABC):
         ----------
         config : FinConfiguration
             Self explanatory, the 3DFin configuration.
+
         """
         self.set_config(config)
 
@@ -49,6 +50,7 @@ class FinProcessing(ABC):
         ----------
         config : FinConfiguration
             Self explanatory, the 3DFin configuration.
+
         """
         self.config = config
         self._construct_output_path()
@@ -62,6 +64,7 @@ class FinProcessing(ABC):
             True if the algorithm output could be in competition with data from
             a previous computation, False otherwise. Default implementation always
             return False.
+
         """
         any_of = False
         # Check existence of tabular output
@@ -123,6 +126,7 @@ class FinProcessing(ABC):
             A numpy array of shape (n, 4) where n is the number of points in the
             cloud. (x), (y), (z) and Z0 coordinates are stored in the first, second,
             third and fourth columns respectively.
+
         """
         pass
 
@@ -136,6 +140,7 @@ class FinProcessing(ABC):
             A numpy array of shape (n, 3) where n is the number of points in the
             cloud. (x), (y), (z) coordinates are stored in the first, second,
             third columns respectively.
+
         """
         pass
 
@@ -149,6 +154,7 @@ class FinProcessing(ABC):
             A numpy array of shape (n, 3) where n is the number of points in the cloud.
             (x), (y) and (z) coordinates are stored in the first, second,
             third columns respectively.
+
         """
         pass
 
@@ -162,6 +168,7 @@ class FinProcessing(ABC):
             A numpy array of shape (n, 4) where n is the number of points in the cloud.
             It consists of 4 columns: (x), (y) and (z) coordinates, and a 4th column containing
             the cluster_ID of the cluster that each point belongs to.
+
         """
         pass
 
@@ -176,6 +183,7 @@ class FinProcessing(ABC):
             It consists of 6 columns: (x), (y), (z) and z0 coordinates,
             5th column containing tree ID that each point belongs to and a 6th column containing
             point distance to closest axis.
+
         """
         pass
 
@@ -192,6 +200,7 @@ class FinProcessing(ABC):
             and a 5th column containing a binary indicator:
             0 - tree was too deviated from vertical, and height may not be accurate,
             or 1 - tree was not too deviated from vertical, thus height may be trusted
+
         """
         pass
 
@@ -204,6 +213,7 @@ class FinProcessing(ABC):
         circles_coords : np.ndarray
             Matrix containing the coordinates of the circles and their associated
             meta data.
+
         """
         pass
 
@@ -217,6 +227,7 @@ class FinProcessing(ABC):
             Matrix that describes the point cloud of the axes.
         tilt : numpy.ndarray
             Matrix that describes the tilt of each axes
+
         """
         pass
 
@@ -234,6 +245,7 @@ class FinProcessing(ABC):
             of the tree.
         dbh_values : np.ndarray
             Matrix containing the DBH values of individualized trees.
+
         """
         pass
 
@@ -395,7 +407,7 @@ class FinProcessing(ABC):
             )
             cloud_size = coords.shape[0] / 1000000
             cloud_shape = voxelated_ground.shape[0]
-            print("   This cloud has", "{:.2f}".format(cloud_size), "millions points")
+            print("   This cloud has", "{:.2f}".format(cloud_size), "million points")
             print("   Its area is ", cloud_shape, "m^2")
 
             print("---------------------------------------------")
@@ -415,7 +427,7 @@ class FinProcessing(ABC):
             )
             cloud_size = coords.shape[0] / 1000000
             cloud_shape = voxelated_ground.shape[0]
-            print("   This cloud has", "{:.2f}".format(cloud_size), "millions points")
+            print("   This cloud has", "{:.2f}".format(cloud_size), "million points")
             print("   Its area is ", cloud_shape, "m^2")
             del voxelated_ground
 

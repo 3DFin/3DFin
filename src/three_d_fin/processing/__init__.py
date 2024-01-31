@@ -20,6 +20,7 @@ def launch_application() -> int:
     -------
     exit_code : int
         POSIX minimal exit code (0 = SUCCESS, 1 = ERROR)
+
     """
     import laspy
     import pydantic
