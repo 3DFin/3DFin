@@ -483,6 +483,7 @@ class FinConfiguration(BaseModel):
         Returns
         -------
             A validated FinConfiguration
+
         """
         parser = configparser.ConfigParser()
         # Could raise an Exception that the caller is resposible to catch
@@ -509,6 +510,7 @@ class FinConfiguration(BaseModel):
             the key (name) of the category of the field
         field_key: str
             the key (name) of the field
+
         """
         field = cls.__fields__.get(category_key).type_.__fields__.get(field_key)
         description = field.field_info.description
@@ -529,6 +531,7 @@ class FinConfiguration(BaseModel):
             the key (name) of the category of the field
         field_key: str
             the key (name) of the field
+
         """
         field = cls.__fields__.get(category_key).type_.__fields__.get(field_key)
         hint = field.field_info.extra.pop("hint", "")
@@ -544,6 +547,7 @@ class FinConfiguration(BaseModel):
             the key (name) of the category of the field
         field_key: str
             the key (name) of the field
+
         """
         cls.__fields__.get(category_key).type_.__fields__.get(field_key)
         return cls.__fields__.get(category_key).type_.__fields__.get(field_key).type_
@@ -557,6 +561,7 @@ class FinConfiguration(BaseModel):
         ----------
         filename: Path
             the Path to the .ini file to save
+
         """
         parser = configparser.ConfigParser()
         # Could raise an Exception that the caller is resposible to catch

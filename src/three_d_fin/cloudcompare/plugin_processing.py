@@ -28,6 +28,7 @@ class CloudComparePluginProcessing(FinProcessing):
             Numpy vector discribing the scalar field.
         name: str
             Name of the scalar_field to write.
+
         """
         idx_sf = point_cloud.addScalarField(name)
         sf_array = point_cloud.getScalarField(idx_sf).asArray()
@@ -50,6 +51,7 @@ class CloudComparePluginProcessing(FinProcessing):
             Point cloud targetted by the 3DFin processing.
         config: FinConfiguration
             The FinConfiguration object
+
         """
         self.base_cloud = point_cloud
         self.cc_instance = cc_instance
@@ -252,9 +254,9 @@ class CloudComparePluginProcessing(FinProcessing):
             dlabel.addPickedPoint(cloud_tree_locations, i)
             value = round(dbh.asArray()[i], 3)
             if value == 0.0:
-                dlabel.setName("Non Reliable")
+                dlabel.setName(f"Tree {i+1} | Non Reliable")
             else:
-                dlabel.setName(f"{value:.3f}")
+                dlabel.setName(f"Tree {i+1} | {value:.3f}")
             dlabel.displayPointLegend(True)
             dlabel.toggleVisibility()
             dlabel.setDisplayedIn2D(False)

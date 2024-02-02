@@ -28,6 +28,7 @@ class Progress(object):
             The number of characters to use in the progress bar (the length of the progress bar).
         output : typing.TextIO
             File like object
+
         """
         self.title = title
         self.n_chars = n_chars
@@ -40,6 +41,7 @@ class Progress(object):
         ----------
         total : int
             The total number of steps to be completed.
+
         """
         self.output.write(
             f"\n{self.title} [{(self.void_char * self.n_chars)}] 0/{total}"
@@ -53,6 +55,7 @@ class Progress(object):
         ----------
         total : int
             The total number of steps to be completed.
+
         """
         self.output.write(
             f"\r{self.title} [{(self.progress_char * self.n_chars)}] {total}/{total}"
@@ -74,6 +77,7 @@ class Progress(object):
             The number of steps already completed.
         total : int
             The total number of steps to be completed.
+
         """
         if count > total or count < 0:
             raise ValueError("count cannot be greater than total nor less than 0")
