@@ -55,6 +55,7 @@ jobs:
             -G Ninja `
             -B build `
             -DCMAKE_BUILD_TYPE=Release `
+            -DOPTION_BUILD_CCVIEWER=OFF `
             -DCMAKE_INSTALL_PREFIX=install `
             -DPLUGIN_PYTHON=ON `
             -DPLUGIN_PYTHON_USE_EMBEDDED_MODULES=ON `
@@ -66,11 +67,16 @@ jobs:
       - name: Install
         run: cmake --install build
 
-      - name: Run Tests
-        run: cmake --build build --target pytest
+      # remove tests for now sincd we do not want to build with m3c2
+      # - name: Run Tests
+      #  run: cmake --build build --target pytest
       
       - name: install
         run: |
           mkdir cloudcompare_install
           cmake --install build --prefix "cloudcompare_install"
-        
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: 3dfin_cloudcompare_plugin
+          path: cloudcompare_install/install/cloudcompare
