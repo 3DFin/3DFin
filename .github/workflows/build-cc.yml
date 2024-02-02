@@ -24,6 +24,11 @@ jobs:
           repository: 'tmontaigu/CloudCompare-PythonRuntime'
           path: 'plugins/private/CloudCompare-PythonRuntime'
 
+      - name: Clone 3DFin
+        uses: actions/checkout@v4
+        with:
+          path: '3DFin_plugin'
+
       - name: Install Miniconda
         uses: conda-incubator/setup-miniconda@v3
         with:
@@ -35,7 +40,8 @@ jobs:
       - name: Install Dependencies
         run: |
           conda install -c conda-forge qt=5.12.* ninja doxygen
-          pip install pytest pybind11 numpy 3DFin
+          pip install pybind11 numpy
+          pip install 3DFin_plugin/
 
       - name: Configure MSVC console
         uses: ilammy/msvc-dev-cmd@v1
@@ -64,9 +70,6 @@ jobs:
       - name: Build
         run: cmake --build build --parallel
 
-      - name: Install
-        run: cmake --install build
-
       # remove tests for now sincd we do not want to build with m3c2
       # - name: Run Tests
       #  run: cmake --build build --target pytest
@@ -79,4 +82,4 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: 3dfin_cloudcompare_plugin
-          path: cloudcompare_install/install/cloudcompare
+          path: cloudcompare_install/CloudCompare
