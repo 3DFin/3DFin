@@ -740,5 +740,5 @@ class FinProcessing(ABC):
             print(
                 "Warning: 3DFin has detected a potential error in the terrain modelling.\n"
                 + 'This usually happens when the "cloth resolution" parameter didn\'t fit well the terrain.\n'
-                + "Learn more about this here https://github.com/3DFin/3DFin_CC_Tutorial"
+                + "Learn more about this here https://github.com/3DFin/3DFin_Tutorial"
             )
