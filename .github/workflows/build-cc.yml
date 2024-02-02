@@ -1,0 +1,76 @@
+# This build file is inspired by https://github.com/tmontaigu/CloudCompare-PythonRuntime/blob/master/.github/workflows/Build.yml
+name: build cloudcompare plugin
+
+on: [ push, pull_request ]
+
+
+jobs:
+  Windows-Build:
+    name: Windows
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: Clone CloudCompare
+        uses: actions/checkout@v4
+        with:
+          repository: 'CloudCompare/CloudCompare'
+          submodules: recursive
+
+      - name: Clone CC-PythonRuntime
+        uses: actions/checkout@v4
+        with:
+          repository: 'tmontaigu/CloudCompare-PythonRuntime'
+          path: 'plugins/private/CloudCompare-PythonRuntime'
+
+      - name: Install Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: CloudCompareDev
+          auto-activate-base: false
+          python-version: "3.10"
+          miniconda-version: 'latest'
+
+      - name: Install Dependencies
+        run: |
+          conda install -c conda-forge qt=5.12.* ninja doxygen
+          pip install pytest pybind11 numpy 3DFin
+
+      - name: Configure MSVC console
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Set environment for MSVC
+        run: |
+          # Set these env vars so cmake picks the correct compiler
+          # https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-commands-for-github-actions#environment-files
+          echo "CXX=cl.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "CC=cl.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Configure CMake
+        shell: pwsh
+        run: |
+          mkdir build
+          cmake  `
+            -G Ninja `
+            -B build `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_INSTALL_PREFIX=install `
+            -DPLUGIN_PYTHON=ON `
+            -DPLUGIN_PYTHON_USE_EMBEDDED_MODULES=ON `
+            .
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Install
+        run: cmake --install build
+
+      - name: Run Tests
+        run: cmake --build build --target pytest
+      
+      - name: install
+        run: |
+          mkdir cloudcompare_install
+          cmake --install build --prefix "cloudcompare_install"
+        
