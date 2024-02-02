@@ -10,7 +10,7 @@ Welcome to 3DFin: 3D Forest inventory's official repository!
 
 Be sure to check the [Documentation](https://github.com/3DFin/3DFin/blob/main/src/three_d_fin/documentation/documentation.pdf), which features detailed explanations on how the program works and an User Manual.
 
-Also, the [Tutorial](https://github.com/fabianfassnacht/Cloud_Compare_3DFin/blob/main/1_3Dfin_cloudcompare.md) by [Fabian Fassnacht](https://www.geo.fu-berlin.de/en/geog/fachrichtungen/geoinformatik/mitarbeiter/ffassnacht/index.html) covers the basics of 3DFin and is a great tool to get started.
+Also, the [Tutorial](https://github.com/3DFin/3DFin_Tutorial) covers the basics of 3DFin and is a great tool to get started.
 
 
 # Download 
@@ -37,8 +37,7 @@ For Linux, the plugin is embedded into the CloudCompare [flatpak](https://flathu
 **3DFin plugin in CloudCompare.**
 ![Fig_01](https://github.com/3DFin/3DFin/assets/68945855/2c874f53-39fd-4eff-b29c-15f3ca80013d)
 
-Running the plugin will open 3DFin's graphical user interface (GUI). Instructions on how to use 3DFin are available in the [Tutorial](https://github.com/fabianfassnacht/Cloud_Compare_3DFin/blob/main/1_3Dfin_cloudcompare.md) and in the [Documentation](https://github.com/3DFin/3DFin/blob/main/src/three_d_fin/documentation/documentation.pdf).
-
+Running the plugin will open 3DFin's graphical user interface (GUI). 
 **3DFin GUI. It is common to any version of 3DFin.**
 ![basic_tab](https://github.com/3DFin/3DFin/assets/68945855/d6d21e45-5934-4762-88ec-782c03f4700d)
 
@@ -82,7 +81,7 @@ macOS user may need to install and use an openMP capable compiler, such as GCC f
 
 CloudCompare plugin is the reccomended way of using 3DFin, as it provides enhanced features for visualisation of the results and exporting of the outputs (it allows to export the results as a CloudCompare native BIN file). 
 
-By default, running 3DFin (either the CloudCompare plugin or any version of 3DFin) will open a GUI window. The [Documentation](https://github.com/3DFin/3DFin/blob/main/src/three_d_fin/documentation/documentation.pdf) contains a detailed explanation of the GUI and its functionalities, and the [Tutorial](https://github.com/fabianfassnacht/Cloud_Compare_3DFin/blob/main/1_3Dfin_cloudcompare.md) demonstrates the CloudCompare plugin usage, although it is applicable to any version of 3DFin.
+By default, running 3DFin (either the CloudCompare plugin or any version of 3DFin) will open a GUI window.
 
 For batch processing you can use the CLI capabilities of 3DFin and running the following command:
 ```console
