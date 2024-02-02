@@ -70,10 +70,6 @@ jobs:
       - name: Build
         run: cmake --build build --parallel
 
-      # remove tests for now sincd we do not want to build with m3c2
-      # - name: Run Tests
-      #  run: cmake --build build --target pytest
-      
       - name: install
         run: |
           mkdir cloudcompare_install
@@ -83,3 +79,4 @@ jobs:
         with:
           name: 3dfin_cloudcompare_plugin
           path: cloudcompare_install/CloudCompare
+          compression-level: 1 # minimum compression we expect few uploads but a large amount of files to compress
