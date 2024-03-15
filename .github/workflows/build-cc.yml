@@ -8,8 +8,6 @@ jobs:
   Windows-Build:
     name: Windows
     runs-on: windows-latest
-    strategy:
-      fail-fast: false
 
     steps:
       - name: Clone CloudCompare
@@ -29,19 +27,29 @@ jobs:
         with:
           path: '3DFin_plugin'
 
-      - name: Install Miniconda
-        uses: conda-incubator/setup-miniconda@v3
+      - uses: actions/setup-python@v5
         with:
-          activate-environment: CloudCompareDev
-          auto-activate-base: false
-          python-version: "3.10"
-          miniconda-version: 'latest'
+          python-version: '3.10'
+
+      
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version:      '5.15.2'
+          host:         windows
+          target:       desktop
+          arch:         win64_msvc2019_64
+          dir:          ${{ runner.temp }}
+          setup-python: false
+      
 
       - name: Install Dependencies
+        shell: pwsh
         run: |
-          conda install -c conda-forge qt=5.12.* ninja doxygen
           pip install pybind11 numpy
+          pip install ninja
           pip install 3DFin_plugin/
+          python -c "import sys;print(sys.executable)"
 
       - name: Configure MSVC console
         uses: ilammy/msvc-dev-cmd@v1
@@ -64,6 +72,7 @@ jobs:
             -DOPTION_BUILD_CCVIEWER=OFF `
             -DCMAKE_INSTALL_PREFIX=install `
             -DPLUGIN_PYTHON=ON `
+            -DPYTHON_EXECUTABLE="C:\hostedtoolcache\windows\Python\3.10.11\x64\python.exe" `
             -DPLUGIN_PYTHON_USE_EMBEDDED_MODULES=ON `
             .
 
@@ -75,8 +84,8 @@ jobs:
           mkdir cloudcompare_install
           cmake --install build --prefix "cloudcompare_install"
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: 3dfin_cloudcompare_plugin
           path: cloudcompare_install/CloudCompare
-          compression-level: 1 # minimum compression we expect few uploads but a large amount of files to compress
+          compression-level: 6 
