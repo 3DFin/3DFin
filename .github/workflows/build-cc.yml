@@ -49,7 +49,6 @@ jobs:
           pip install pybind11 numpy
           pip install ninja
           pip install 3DFin_plugin/
-          python -c "import sys;print(sys.executable)"
 
       - name: Configure MSVC console
         uses: ilammy/msvc-dev-cmd@v1
@@ -83,9 +82,12 @@ jobs:
         run: |
           mkdir cloudcompare_install
           cmake --install build --prefix "cloudcompare_install"
+      
+      - name: zip
+        shell: pwsh
+        run: Compress-Archive -Path cloudcompare_install/CloudCompare  -DestinationPath 3dfin_cloudcompare_plugin.zip
 
       - uses: actions/upload-artifact@v4
         with:
           name: 3dfin_cloudcompare_plugin
-          path: cloudcompare_install/CloudCompare
-          compression-level: 6 
+          path: 3dfin_cloudcompare_plugin.zip
