@@ -1,0 +1,114 @@
+# This build file is inspired by https://github.com/tmontaigu/CloudCompare-PythonRuntime/blob/master/.github/workflows/Build.yml
+name: build cloudcompare plugin
+
+on: [ push, pull_request ]
+
+
+jobs:
+  Windows-Build:
+    name: Windows
+    runs-on: windows-latest
+
+    steps:
+      - name: Clone CloudCompare
+        uses: actions/checkout@v4
+        with:
+          repository: 'CloudCompare/CloudCompare'
+          submodules: recursive
+
+      - name: Clone CC-PythonRuntime
+        uses: actions/checkout@v4
+        with:
+          repository: 'tmontaigu/CloudCompare-PythonRuntime'
+          path: 'plugins/private/CloudCompare-PythonRuntime'
+
+      - name: Clone 3DFin
+        uses: actions/checkout@v4
+        with:
+          path: '3DFin_plugin'
+      
+      - name: Clone Laszip
+        uses: actions/checkout@v4
+        with:
+          repository: 'LASzip/LASzip'
+          ref: 3.4.3
+          path: laszip  
+   
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version:      '5.15.2'
+          host:         windows
+          target:       desktop
+          arch:         win64_msvc2019_64
+          dir:          ${{ runner.temp }}
+          setup-python: false
+      
+
+      - name: Install Python Dependencies
+        shell: pwsh
+        run: |
+          pip install pybind11 numpy
+          pip install ninja
+          pip install 3DFin_plugin/
+
+      - name: Configure MSVC console
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Set environment for MSVC
+        run: |
+          # Set these env vars so cmake picks the correct compiler
+          # https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-commands-for-github-actions#environment-files
+          echo "CXX=cl.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "CC=cl.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Configure LASzip CMake
+        shell: pwsh
+        run: |
+          mkdir laszip/build
+          cmake  laszip `
+            -G Ninja `
+            -B laszip/build `
+
+      - name: Build LASzip
+        run: cmake --build laszip/build --parallel
+      
+      - name: Install LASzip
+        shell: pwsh
+        run: |
+          cmake --install laszip/build --prefix laszip/install
+          ls laszip/install
+
+      - name: Configure CC CMake
+        shell: pwsh
+        run: |
+          mkdir build
+          cmake  `
+            -G Ninja `
+            -B build `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DOPTION_BUILD_CCVIEWER=OFF `
+            -DPLUGIN_IO_QLAS=ON `
+            -DLASZIP_INCLUDE_DIR=".\laszip\install\include\" `
+            -DLASZIP_LIBRARY=".\laszip\install\lib\laszip3.lib" `
+            -DPLUGIN_PYTHON=ON `
+            -DPYTHON_EXECUTABLE="C:\hostedtoolcache\windows\Python\3.10.11\x64\python.exe" `
+            -DPLUGIN_PYTHON_USE_EMBEDDED_MODULES=ON `
+            .
+
+      - name: Build CC
+        run: cmake --build build --parallel
+
+      - name: install CC
+        run: |
+          mkdir cloudcompare_install
+          cmake --install build --prefix "cloudcompare_install"
+      
+      - uses: actions/upload-artifact@v3
+        with:
+          name: 3dfin_cloudcompare_plugin
+          path: cloudcompare_install/CloudCompare
