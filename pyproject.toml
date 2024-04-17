@@ -73,7 +73,7 @@ qt-moc = [
 qt-ressource = "pyrcc5 {args} qt-files/src/gui_ressources.qrc -o src/three_d_fin/gui/gui_ressources.py"
 qt-all = ["qt-moc", "qt-ressource"]
 
-[tool.hatch.build.targets.sdist.hooks.custom]
+[tool.hatch.build.hooks.custom]
 path = "scripts/qt_build_hook.py"
 src_folder = "qt-files/src"
 dest_folder = "src/three_d_fin/gui"
@@ -84,14 +84,6 @@ import_from = "three_d_fin.gui" # TODO: it could be infered from dest_folder
 require-runtime-dependencies = true
 dependencies = ["pyinstaller"]
 path = "scripts/pyinstaller_builder.py"
-
-# We need to duplicate this for pyinstaller custom target
-# it is not very DRY. The best would be to depends on sdist target
-[tool.hatch.build.targets.custom.hooks.custom] 
-path = "scripts/qt_build_hook.py"
-src_folder = "qt-files/src"
-dest_folder = "src/three_d_fin/gui"
-import_from = "three_d_fin.gui" # TODO: it could be infered from dest_folder
 
 [[tool.hatch.envs.test.matrix]]
 python = ["39", "310", "311", "312"]
