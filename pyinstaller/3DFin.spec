@@ -12,7 +12,6 @@ a = Analysis(
         ("../src/three_d_fin/documentation/documentation.pdf", "."),
     ],
     hiddenimports=[
-        "jakteristics.utils",
         "laszip",
         "lazrs",
         "sklearn.metrics._pairwise_distances_reduction._datasets_pair",
