@@ -76,6 +76,7 @@ jobs:
           cmake  laszip `
             -G Ninja `
             -B laszip/build `
+            -DCMAKE_BUILD_TYPE=Release `
 
       - name: Build LASzip
         run: cmake --build laszip/build --parallel
@@ -104,7 +105,7 @@ jobs:
             .
 
       - name: Build CC
-        run: cmake --build build --parallel
+        run: cmake --build build --config Release --parallel
 
       - name: install CC
         run: |
