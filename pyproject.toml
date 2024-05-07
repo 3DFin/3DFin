@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "pyqt5~=5.15"]
 build-backend = "hatchling.build"
 
 [project]
@@ -32,7 +32,7 @@ dependencies = [
   "XlsxWriter~=3.2.0",
   "dendromatics~=0.5.0a0",
   "pydantic~=1.10.15",
-  "PyQt5~=5.15"
+  "pyqt5~=5.15"
 ]
 dynamic = ["version"]
 
