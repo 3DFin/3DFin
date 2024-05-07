@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling", "PyQT5~=5.15"]
+requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
@@ -32,7 +32,7 @@ dependencies = [
   "XlsxWriter~=3.2.0",
   "dendromatics~=0.5.0a0",
   "pydantic~=1.10.15",
-  "PyQT5~=5.15"
+  "PyQt5~=5.15"
 ]
 dynamic = ["version"]
 
@@ -126,7 +126,7 @@ target-version = "py310"
 select = ["I001","E", "W", "YTT", "PTH", "NPY", "RET", "PYI", "Q", "F", "B", "I", "D"]
 # TODO: for now we ignore "Line too long error (E501)" 
 # because our comments are too longs
-# Black will take care of the line length in code anyway
+# code formatting will take care of the line length in code anyway
 ignore = [
   "E501",
   # Ignore docstring in public package and module
