@@ -92,15 +92,11 @@ will give you an overview of the available parameters.
 
 # Citing 3DFin
 
-As of now, the best way to cite 3DFin is by referring to the original paper describing the algorithm behind:
+If you use 3DFin in your research, please cite the following paper:
 
-Cabo, C., Ordóñez, C., López-Sánchez, C. A., & Armesto, J. (2018). Automatic dendrometry: Tree detection, tree height and diameter estimation using terrestrial laser scanning. International Journal of Applied Earth Observation and Geoinformation, 69, 164–174. https://doi.org/10.1016/j.jag.2018.01.011
+Laino, D., Cabo, C., Prendes, C., Janvier, R., Ordonez, C., Nikonovas, T., Doerr, S., & Santin, C. (2024). 3DFin: a software for automated 3D forest inventories from terrestrial point clouds. Forestry: An International Journal of Forest Research. https://doi.org/10.1093/forestry/cpae020
 
-Or directly citing the repository itself:
-
-3DFin: 3D Forest Inventory. 3DFin https://github.com/3DFin/3DFin.
-
-We are currently working on a scientific article about 3DFin, which may be published in 2023.
+Thank you for citing 3DFin in your work! Your citations help to support the continued development and maintenance of this software.
 
 # References 
 
