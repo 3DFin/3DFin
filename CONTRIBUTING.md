@@ -2,11 +2,11 @@
 
 ## Tooling and workflow
 
-Apart from a `git` and a `Python` distribution (where `Python` version > 3.8) the unique build tool required is `hatch`, but note that for a simple build, because `hatch`/`hatchling` are PEP 517 compatible, you basically do not need to install anything. As for any other python package it could be recommended to set up a virtual environment before installation to keep the `PYTHONPATH` of your system clean. In development mode, since hatch has builtin [environment management](https://hatch.pypa.io/latest/environment) the need of a virtual env could be avoided. For example, instead of setting up a whole virtual enviroment and using `pip install -e .` to work on your editable package, you could simply enter in the default hatch environment with `hatch shell` and run 3DFin from its source three by running `python -m three_d_fin` from the `src` folder
+Apart from a `git` and a `Python` distribution (where `Python` version > 3.9) the unique build tool required is `hatch` (version>1.12), but note that for a simple build, because `hatch`/`hatchling` are PEP 517 compatible, you basically do not need to install anything. As for any other python package it could be recommended to set up a virtual environment before installation to keep the `PYTHONPATH` of your system clean. In development mode, since hatch has builtin [environment management](https://hatch.pypa.io/latest/environment) the need of a virtual env could be avoided. For example, instead of setting up a whole virtual enviroment and using `pip install -e .` to work on your editable package, you could simply enter in the default hatch environment with `hatch shell` and run 3DFin from its source three by running `python -m three_d_fin` from the `src` folder
 
 ## Code structure
 
-This section describes the file hierarchy in the repository. This structure may change in a near future, upon QGIS plugin inclusion.
+This section describes the file hierarchy in the repository.
 
 Source code is available under the `src` folder. End user documentation is stored under `src/documentation`. 
 
@@ -23,9 +23,9 @@ Source code related to the CloudCompare Plugin can be found inside `src/cloudcom
 
 ## Code style
 
-Code formatting and style are implicitly described in the `pyproject.toml` file on dedicated `Black` and `ruff` sections. CI is configured to check these rules on each PR. You can also check them locally by using `hatch run check-all` and try to enforce them automatically by using `hatch run fix-all`.
+Code formatting and style are implicitly described in the `pyproject.toml` file on dedicated and `ruff` sections. CI is configured to check these rules on each PR. You can also check them locally by using `hatch run lint:check-all` and try to enforce them automatically by using `hatch run lint:fix-all`.
 
 ## Building the standalone executable
 
-Standalone distribution can be build via a [hatch custom builder](https://hatch.pypa.io/latest/plugins/builder/custom/) invoking
+On Windows, Standalone distribution can be build via a [hatch custom builder](https://hatch.pypa.io/latest/plugins/builder/custom/) invoking
 `hatch build -t custom` will produce a `3DFin.exe` file under the `dist/` directory.

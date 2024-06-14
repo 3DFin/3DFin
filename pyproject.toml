@@ -58,13 +58,8 @@ packages = ["src/three_d_fin"]
 [tool.hatch.build.targets.sdist]
 exclude = ["pyinstaller", "scripts", "qt-files", ".github"]
 
-[tool.hatch.envs.default]
-dependencies = ["pytest", "pytest-cov"]
 
 [tool.hatch.envs.default.scripts]
-# test
-cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=src/three_d_fin/processing --cov=tests {args}"
-no-cov = "cov --no-cov {args}"
 # qt
 qt-moc = [
   "pyuic5 {args} qt-files/src/main_window.ui -o src/three_d_fin/gui/main_window.py --import-from=three_d_fin.gui --resource-suffix=", 
