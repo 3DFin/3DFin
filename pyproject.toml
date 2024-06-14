@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling", "pyqt5~=5.15"]
+requires = ["hatchling~=1.24", "pyqt5~=5.15"]
 build-backend = "hatchling.build"
 
 [project]
@@ -69,6 +69,7 @@ qt-ressource = "pyrcc5 {args} qt-files/src/gui_ressources.qrc -o src/three_d_fin
 qt-all = ["qt-moc", "qt-ressource"]
 
 [tool.hatch.build.targets.sdist.hooks.custom]
+dependencies = ["pyqt5~=5.15"]
 path = "scripts/qt_build_hook.py"
 src_folder = "qt-files/src"
 dest_folder = "src/three_d_fin/gui"
@@ -83,6 +84,8 @@ path = "scripts/pyinstaller_builder.py"
 # We need to duplicate this for pyinstaller custom target
 # it is not very DRY. The best would be to depends on sdist target
 [tool.hatch.build.targets.custom.hooks.custom] 
+require-runtime-dependencies = true
+dependencies = ["pyqt5~=5.15"]
 path = "scripts/qt_build_hook.py"
 src_folder = "qt-files/src"
 dest_folder = "src/three_d_fin/gui"

@@ -2,6 +2,8 @@ import subprocess
 from pathlib import Path
 from typing import Any, Dict, Generator
 
+# needed to have access to PyQT binaries
+import PyQt5  # noqa
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 
 
