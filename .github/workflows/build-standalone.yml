@@ -50,4 +50,4 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')  && matrix.os == 'macos-latest'
         with:
           files: |
-            dist/3DFin.exe
+            dist/3DFin
