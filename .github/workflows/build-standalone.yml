@@ -38,13 +38,16 @@ jobs:
       - name: Build standalone
         run: hatch build -t custom
 
-      - name: Add to release page
+      - name: Add to the release page (Windows)
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')  && matrix.os == 'windows-latest'
         with:
           files: |
             dist/3DFin.exe
+
+      - name: Add to the release page (macOS)
+        uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')  && matrix.os == 'macos-latest'
         with:
           files: |
-            dist/3DFin
+            dist/3DFin.exe
