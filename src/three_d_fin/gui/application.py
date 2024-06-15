@@ -41,6 +41,7 @@ class ApplicationWorker(QObject):
 
     finished = pyqtSignal()
     error = pyqtSignal(str, str)
+    memory_error = pyqtSignal()
 
     def __init__(self, processing_object: FinProcessing, parent=None):
         """Construct the Worker.
@@ -52,8 +53,8 @@ class ApplicationWorker(QObject):
             it is responsible for the computing logic.
             Its process() method is triggered by the "compute" button of the GUI.
         parent : Optional[QWidget]
-            An optional parent. Should be None if runned as standalone but could
-            be a parent QWidget from the base application if runned as a plugin
+            An optional parent. Should be None if run as standalone but could
+            be a parent QWidget from the base application if run as a plugin
 
         """
         super().__init__(parent)
@@ -68,6 +69,8 @@ class ApplicationWorker(QObject):
         """
         try:
             self.processing_object.process()
+        except MemoryError:
+            self.memory_error.emit()
         except Exception as e:
             self.error.emit(str(e), traceback.format_exc())
         self.finished.emit()
@@ -77,7 +80,7 @@ class ExpertDialog(QDialog):
     """Create the expert / about dialog.
 
     For now, it's an empty shell but it is left as is for further
-    programatically added parameters.
+    programmatically added parameters.
     """
 
     def __init__(self, parent=None):
@@ -121,8 +124,8 @@ class Application(QMainWindow):
             the z0_entry will be turned into a dropdown menu. If present but void,
             height normalization radio buttons will be disabled.
         parent : Optional[QWidget]
-            An optional parent. Should be None if runned as standalone but could
-            be a parent QWidget from the base application if runned as a plugin
+            An optional parent. Should be None if run as standalone but could
+            be a parent QWidget from the base application if run as a plugin
 
         """
         super().__init__(parent)
@@ -133,7 +136,7 @@ class Application(QMainWindow):
         self.file_externally_defined = file_externally_defined
         self.cloud_fields = cloud_fields
 
-        # Force current index to be 0, since QT creator could change when .ui file is savec
+        # Force current index to be 0, since QT creator could change when .ui file is saved
         self.ui.tabWidget.setCurrentIndex(0)
         self.setWindowIcon(QIcon(":/assets/assets/icon_window.ico"))
 
@@ -186,7 +189,7 @@ class Application(QMainWindow):
             [parameter_name]_lbl = main label, populated by FieldInfo.name
             [parameter_name]_in = main input, populated by default value i.e. FieldInfo.default
             [parameter_name]_ht = input hint, populated by FieldInfo.extra.hint
-            tooltip_text is infered from the FieldInfo.description
+            tooltip_text is inferred from the FieldInfo.description
         This works for most numeric fields, but this mapping won't work for few exceptions:
             z0_name can be a QComboBox and a QTextEdit
             input_file / output_file have their own way to define default values
@@ -347,8 +350,8 @@ class Application(QMainWindow):
         """Get parameters from widgets and return them organized in a dictionary.
 
         Like _populate_fields(), parameters are collected taking advantage of
-        the name correspondance between Pydantic Fields defined in the configuration
-        module an name of the input fields in the QT ui file.
+        the match between Pydantic Fields name defined in the configuration
+        module and the name of the input fields in the QT ui file.
 
         Returns
         -------
@@ -412,7 +415,7 @@ class Application(QMainWindow):
         self.processing_object.set_config(fin_config)
 
         # Here we will check in an abstract way if the output could collide
-        # with results ofprevious computations... and ask if we want to overwrite them.
+        # with results of previous computations... and ask if we want to overwrite them.
         if self.processing_object.check_already_computed_data():
             overwrite = QMessageBox.question(
                 self,
@@ -430,6 +433,19 @@ class Application(QMainWindow):
         def _enable_btn() -> None:
             self.ui.compute_btn.setDisabled(False)
             self.ui.compute_btn.setText("Compute")
+
+        def _memory_error_handling():
+            _enable_btn()
+            msg_box = QMessageBox(self)
+            msg_box.setIcon(QMessageBox.Icon.Critical)
+            msg_box.setWindowTitle("3DFin memory Error")
+            msg_box.setTextFormat(Qt.TextFormat.RichText)
+            msg_box.setText("3DFin encountered a memory error")
+            msg_box.setInformativeText(
+                "Try to free memory by closing other applications running on your computer.\n"
+                + "You could also split your point cloud in smaller part or run 3DFin on a computer with a larger amount of RAM."
+            )
+            msg_box.exec_()
 
         def _error_handling(error_message: str, stack_trace: str) -> None:
             _enable_btn()
@@ -466,6 +482,7 @@ class Application(QMainWindow):
         self.worker.finished.connect(self._show_normalization_warning)
         self.worker.finished.connect(_enable_btn)
         self.worker.error.connect(_error_handling)
+        self.worker.memory_error.connect(_memory_error_handling)
         self.thread.finished.connect(self.thread.deleteLater)
 
         self.thread.start()
