@@ -30,7 +30,7 @@ dependencies = [
   "lazrs~=0.6.0",
   "pandas~=2.2.0",
   "XlsxWriter~=3.2.0",
-  "dendromatics~=0.5.0a0",
+  "dendromatics~=0.5.0",
   "pydantic~=1.10.15",
   "pyqt5~=5.15"
 ]
