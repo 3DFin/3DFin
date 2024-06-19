@@ -18,4 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Now depends on `dendromatics` 0.5.0 which notably now use `pgeof` instead of `jakteristics` for feature computation.
 3Fin should be faster and is compatible with macOS out of the box.
 
-### Removed
+### Fixed
+
+- Add a fix for multiprocessing in a frozen context (standalone).
