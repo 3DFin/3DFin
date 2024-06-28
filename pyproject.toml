@@ -1,12 +1,12 @@
 [build-system]
-requires = ["hatchling", "PyQT5~=5.15"]
+requires = ["hatchling~=1.24", "pyqt5~=5.15"]
 build-backend = "hatchling.build"
 
 [project]
 name = "3DFin"
 description = "Automatic dendrometry and forest inventory for terrestrial point clouds, application package"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = "GPL-3.0-or-later"
 keywords = ["lidar", "forestry", "tls"]
 authors = [
@@ -27,12 +27,12 @@ classifiers = [
   "Intended Audience :: Science/Research",
 ]
 dependencies = [
-  "lazrs~=0.5.0",
-  "pandas~=2.0.0",
-  "XlsxWriter~=3.1.0",
-  "dendromatics~=0.4.2",
-  "pydantic~=1.10.7",
-  "PyQT5~=5.15"
+  "lazrs~=0.6.0",
+  "pandas~=2.2.0",
+  "XlsxWriter~=3.2.0",
+  "dendromatics~=0.5.0",
+  "pydantic~=1.10.15",
+  "pyqt5~=5.15"
 ]
 dynamic = ["version"]
 
@@ -58,13 +58,8 @@ packages = ["src/three_d_fin"]
 [tool.hatch.build.targets.sdist]
 exclude = ["pyinstaller", "scripts", "qt-files", ".github"]
 
-[tool.hatch.envs.default]
-dependencies = ["pytest", "pytest-cov"]
 
 [tool.hatch.envs.default.scripts]
-# test
-cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=src/three_d_fin/processing --cov=tests {args}"
-no-cov = "cov --no-cov {args}"
 # qt
 qt-moc = [
   "pyuic5 {args} qt-files/src/main_window.ui -o src/three_d_fin/gui/main_window.py --import-from=three_d_fin.gui --resource-suffix=", 
@@ -74,6 +69,7 @@ qt-ressource = "pyrcc5 {args} qt-files/src/gui_ressources.qrc -o src/three_d_fin
 qt-all = ["qt-moc", "qt-ressource"]
 
 [tool.hatch.build.targets.sdist.hooks.custom]
+dependencies = ["pyqt5~=5.15"]
 path = "scripts/qt_build_hook.py"
 src_folder = "qt-files/src"
 dest_folder = "src/three_d_fin/gui"
@@ -88,13 +84,15 @@ path = "scripts/pyinstaller_builder.py"
 # We need to duplicate this for pyinstaller custom target
 # it is not very DRY. The best would be to depends on sdist target
 [tool.hatch.build.targets.custom.hooks.custom] 
+require-runtime-dependencies = true
+dependencies = ["pyqt5~=5.15"]
 path = "scripts/qt_build_hook.py"
 src_folder = "qt-files/src"
 dest_folder = "src/three_d_fin/gui"
 import_from = "three_d_fin.gui" # TODO: it could be infered from dest_folder
 
 [[tool.hatch.envs.test.matrix]]
-python = ["38", "39", "310", "311", "312"]
+python = ["39", "310", "311", "312"]
 
 [tool.coverage.run]
 branch = true
@@ -106,25 +104,27 @@ exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
 
 [tool.hatch.envs.lint]
 detached = true
-dependencies = ["ruff>=0.0.261", "black>=23.3.0", "mypy>=1.2.0"]
+dependencies = ["mypy>=1.2.0"]
 
 [tool.hatch.envs.lint.scripts]
 # static analysis with ruff
 check-type = "mypy --install-types --non-interactive {args:src/three_d_fin tests}"
-check-static = "ruff check {args:.}"
-check-format = "black --check --diff --color {args:.}"
-fix-static = "ruff --fix {args:.}"
-fix-format = "black {args:.}"
+check-static = "hatch fmt -l --check"
+check-format = "hatch fmt -f --check"
+fix-static = "hatch fmt -l"
+fix-format = "hatch fmt -f"
 check-all = ["check-static", "check-format"]
 fix-all = ["fix-static", "fix-format", "check-all"]
 
 [tool.ruff]
-select = ["E", "W", "YTT", "PTH", "NPY", "RET", "PYI", "Q", "F", "B", "I", "D"]
-target-version = "py310"
 line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["I001","E", "W", "YTT", "PTH", "NPY", "RET", "PYI", "Q", "F", "B", "I", "D"]
 # TODO: for now we ignore "Line too long error (E501)" 
 # because our comments are too longs
-# Black will take care of the line lenght in code anyway
+# code formatting will take care of the line length in code anyway
 ignore = [
   "E501",
   # Ignore docstring in public package and module
@@ -136,12 +136,8 @@ ignore = [
   "D213",
 ]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["three_d_fin"]
 
-[tool.ruff.flake8-tidy-imports]
+[tool.ruff.lint.flake8-tidy-imports]
 ban-relative-imports = "all"
-
-[tool.black]
-line-length = 88
-target-version = ["py310"]

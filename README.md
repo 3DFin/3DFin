@@ -49,13 +49,15 @@ Note that for now this does not provide much added value in comparison with Clou
 
 ## 3. Standalone program
 
-3DFin is also available in Windows as a standalone program, which can be downloaded from here: 
+3DFin is also available in Windows and macOS as a standalone program, which can be downloaded from here: 
 
-[Standalone](https://github.com/3DFin/3DFin/releases/download/v0.2.0rc5/3DFin.exe).
+[Standalone](https://github.com/3DFin/3DFin/releases). 
 
-3DFin standalone does not require a CloudCompare installation and provides the fastest computation times. 
+`3DFin.exe` file is the Windows version while `3DFin` is the macOS version.
+These binaries are built into Github servers and are thus unsigned and unverified. As consequences, while executing theses binaries your system may warn from security issues and should ask you to grant some permissions. 
+If you have a complete Python environment on your system, please consider installing 3DFin standalone via [`pip` package manager](#4-python-package-3dfin).
 
-Older versions of 3DFin standalone may also be downloaded from [Releases](https://github.com/3DFin/3DFin/releases/). From there, simply navigate to the desired version and click on __3DFin.exe__.
+Older versions of 3DFin standalone may also be downloaded from [Releases](https://github.com/3DFin/3DFin/releases/). From there, simply navigate to the desired version and click on __3DFin[.exe]__.
 
 
 ## 4. Python package (3DFin)
@@ -74,8 +76,6 @@ python -m three_d_fin
 ```console
 3DFin[.exe]
 ```
-
-macOS user may need to install and use an openMP capable compiler, such as GCC from [Homebrew](https://brew.sh/) in order to install the dependencies. 
 
 # Usage
 

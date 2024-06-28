@@ -26,14 +26,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: '3DFin_plugin'
-      
+
       - name: Clone Laszip
         uses: actions/checkout@v4
         with:
           repository: 'LASzip/LASzip'
           ref: 3.4.3
           path: laszip  
-   
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
@@ -47,14 +47,17 @@ jobs:
           arch:         win64_msvc2019_64
           dir:          ${{ runner.temp }}
           setup-python: false
-      
 
       - name: Install Python Dependencies
         shell: pwsh
         run: |
-          pip install pybind11 numpy
-          pip install ninja
-          pip install 3DFin_plugin/
+          python -m pip install pip --upgrade
+          python -m pip install pybind11 numpy
+          python -m pip install ninja hatch
+          cd 3DFin_plugin
+          python -m hatch build
+          python -m pip install .
+          cd ..
 
       - name: Configure MSVC console
         uses: ilammy/msvc-dev-cmd@v1
@@ -73,10 +76,11 @@ jobs:
           cmake  laszip `
             -G Ninja `
             -B laszip/build `
+            -DCMAKE_BUILD_TYPE=Release `
 
       - name: Build LASzip
         run: cmake --build laszip/build --parallel
-      
+
       - name: Install LASzip
         shell: pwsh
         run: |
@@ -101,13 +105,13 @@ jobs:
             .
 
       - name: Build CC
-        run: cmake --build build --parallel
+        run: cmake --build build --config Release --parallel
 
       - name: install CC
         run: |
           mkdir cloudcompare_install
           cmake --install build --prefix "cloudcompare_install"
-      
+ 
       - uses: actions/upload-artifact@v3
         with:
           name: 3dfin_cloudcompare_plugin
