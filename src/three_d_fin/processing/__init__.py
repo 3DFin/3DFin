@@ -43,36 +43,26 @@ def launch_application() -> int:
             {__about__.__copyright_info_2__}
             {__about__.__license_msg__}""",
     )
-    parser.add_argument(
-        "--version", "-v", action="version", version=__about__.__version__
-    )
+    parser.add_argument("--version", "-v", action="version", version=__about__.__version__)
 
     # Create a subparser for cli subcommand
     subparsers = parser.add_subparsers(dest="subcommand")
-    cli_subparser = subparsers.add_parser(
-        "cli", help="launch the app in command line mode"
-    )
+    cli_subparser = subparsers.add_parser("cli", help="launch the app in command line mode")
     cli_subparser.add_argument("input_file", help="Las or Laz input file")
-    cli_subparser.add_argument(
-        "output_directory", help="output directory where to put the results"
-    )
+    cli_subparser.add_argument("output_directory", help="output directory where to put the results")
     cli_subparser.add_argument("params_file", help=".ini files with parameters")
     cli_subparser.add_argument(
         "--export_txt",
         action="store_true",
         help="Export tabular data in ASCII (space separated) files instead of XLSX",
     )
-    cli_subparser.add_argument(
-        "--normalize", action="store_true", help="Normalize the data with CSF algorithm"
-    )
+    cli_subparser.add_argument("--normalize", action="store_true", help="Normalize the data with CSF algorithm")
     cli_subparser.add_argument(
         "--denoise",
         action="store_true",
         help="Denoise the data, if outliers below ground level are expected",
     )
-    cli_subparser.add_argument(
-        "--version", "-v", action="version", version=__about__.__version__
-    )
+    cli_subparser.add_argument("--version", "-v", action="version", version=__about__.__version__)
 
     cli_parse = parser.parse_args()
 
@@ -86,16 +76,12 @@ def launch_application() -> int:
         # for legacy purpose we look for a configuration file on the cwd
         try:
             config_file_path = Path("3DFinconfig.ini")
-            config = FinConfiguration.From_config_file(
-                config_file_path.resolve(strict=True), init_misc=True
-            )
+            config = FinConfiguration.From_config_file(config_file_path.resolve(strict=True), init_misc=True)
             print("Configuration file found. Setting default parameters from the file")
             fin_processing.set_config(config)
         except ValidationError:
             # Error message in this case, but stick to default parameters
-            print(
-                "Configuration file found but it has validation errors, fallback to default"
-            )
+            print("Configuration file found but it has validation errors, fallback to default")
             pass
         except FileNotFoundError:
             # No error message in this case, stick to default parameters
@@ -125,9 +111,7 @@ def launch_application() -> int:
         print("Parameters: invalid .ini file")
         return EXIT_ERROR
     except configparser.NoOptionError as error:
-        print(
-            f"Parameters: invalid option '{error.option}' in section '{error.section}'"
-        )
+        print(f"Parameters: invalid option '{error.option}' in section '{error.section}'")
         return EXIT_ERROR
     except ValueError as error:
         print(f"Parameters: {error.args[0]}")

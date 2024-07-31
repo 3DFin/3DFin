@@ -115,8 +115,7 @@ class AdvancedParameters(BaseModel):
     # sections are this long (z length)
     section_len: float = Field(
         title="Distance between sections",
-        description="Height of the sections (z length). Diameters will then be "
-        "computed for every section.",
+        description="Height of the sections (z length). Diameters will then be computed for every section.",
         gt=0,
         default=0.2,
         hint="meters",
@@ -315,16 +314,14 @@ class ExpertParameters(BaseModel):
     # Number of points inside the inner circle
     point_threshold: int = Field(
         title="Points within inner circle",
-        description="Maximum number of points inside the inner circle"
-        "to consider the fitting as OK.",
+        description="Maximum number of points inside the inner circle to consider the fitting as OK.",
         gt=0,
         default=5,
     )
     # Maximum distance among points to be considered within the same cluster.
     point_distance: float = Field(
         title="Maximum point distance",
-        description="Maximum distance among points to be considered within the "
-        "same cluster during circle fitting.",
+        description="Maximum distance among points to be considered within the same cluster during circle fitting.",
         gt=0,
         default=0.02,
         hint="meters",
@@ -363,8 +360,7 @@ class ExpertParameters(BaseModel):
     # Distance between points used to draw axes in the _axes file/cloud
     p_interval: float = Field(
         title="Interval at which points are drawn while drawing",
-        description="Distance at which points will be placed from one to another"
-        "while drawing the axes point cloud.",
+        description="Distance at which points will be placed from one to another while drawing the axes point cloud.",
         gt=0,
         default=0.01,
         hint="meters",
@@ -394,8 +390,7 @@ class ExpertParameters(BaseModel):
     # Voxel resolution for cloth simulation and denoising process
     res_ground: float = Field(
         title="(x, y) voxel resolution",
-        description="(x, y, z) voxel resolution during denoising.\n"
-        "Note that the whole point cloud is voxelated.",
+        description="(x, y, z) voxel resolution during denoising.\nNote that the whole point cloud is voxelated.",
         gt=0,
         default=0.15,
         hint="meters",
@@ -404,8 +399,7 @@ class ExpertParameters(BaseModel):
     # will be considered as noise
     min_points_ground: int = Field(
         title="Minimum number of points",
-        description="Clusters with size smaller than this value will be"
-        "regarded as noise and thus eliminated.",
+        description="Clusters with size smaller than this value will be regarded as noise and thus eliminated.",
         gt=0,
         default=2,
     )
@@ -436,9 +430,7 @@ class MiscParameters(BaseModel):
         default=False,
     )
     # input file is not mandatory and could be provided by another mean.
-    input_file: Optional[FilePath] = Field(
-        title="Input file", description="Input File (*.las, *.laz)", default=None
-    )
+    input_file: Optional[FilePath] = Field(title="Input file", description="Input File (*.las, *.laz)", default=None)
     output_dir: DirectoryPath = Field(
         title="Output dir",
         description="output directory",
@@ -466,9 +458,7 @@ class FinConfiguration(BaseModel):
     misc: Optional[MiscParameters] = MiscParameters()  # Misc parameters are optional.
 
     @classmethod
-    def From_config_file(
-        cls: "FinConfiguration", filename: Path, init_misc: bool = False
-    ) -> "FinConfiguration":
+    def From_config_file(cls: "FinConfiguration", filename: Path, init_misc: bool = False) -> "FinConfiguration":
         """Import parameters from a .ini file. The misc parameter could be initialized if not present.
 
         Could raise exceptions (ValidationError, FileNotFound, configparser.Error)

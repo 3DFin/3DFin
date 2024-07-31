@@ -50,9 +50,7 @@ class StandaloneLASProcessing(FinProcessing):
         ).transpose()
 
     def _get_xyz_from_base(self) -> np.ndarray:
-        return np.vstack(
-            (self.base_cloud.x, self.base_cloud.y, self.base_cloud.z)
-        ).transpose()
+        return np.vstack((self.base_cloud.x, self.base_cloud.y, self.base_cloud.z)).transpose()
 
     def _export_dtm(self, dtm: np.ndarray):
         las_dtm_points = laspy.create(point_format=2, file_version="1.4")
@@ -73,9 +71,7 @@ class StandaloneLASProcessing(FinProcessing):
         # We have to check extra field existence before. It could be a cloud from a previous run
         # or user may already have defined these fields for a reason or another.
         if not hasattr(self.base_cloud, "dist_axes"):
-            extra_fields.append(
-                laspy.ExtraBytesParams(name="dist_axes", type=np.float64)
-            )
+            extra_fields.append(laspy.ExtraBytesParams(name="dist_axes", type=np.float64))
         if not hasattr(self.base_cloud, "tree_ID"):
             extra_fields.append(laspy.ExtraBytesParams(name="tree_ID", type=np.int32))
 
@@ -92,17 +88,13 @@ class StandaloneLASProcessing(FinProcessing):
             # In this case no need to ask if we want to override, since the whole enriched
             # cloud is saved in another file instance.
             if not hasattr(self.base_cloud, "Z0"):
-                self.base_cloud.add_extra_dim(
-                    laspy.ExtraBytesParams(name="Z0", type=np.float64)
-                )
+                self.base_cloud.add_extra_dim(laspy.ExtraBytesParams(name="Z0", type=np.float64))
             self.base_cloud.Z0 = assigned_cloud[:, 3]
 
         if self.base_cloud.header.version < laspy.header.Version(major=1, minor=4):
             # The base file is maybe not in point_format == 6 but since it's a copy it won't hurt
             # the base file in itself.
-            self.base_cloud = laspy.convert(
-                self.base_cloud, point_format_id=2, file_version="1.4"
-            )
+            self.base_cloud = laspy.convert(self.base_cloud, point_format_id=2, file_version="1.4")
 
         self.base_cloud.write(str(self.output_basepath) + "_tree_ID_dist_axes.las")
 
@@ -129,9 +121,7 @@ class StandaloneLASProcessing(FinProcessing):
         las_circ.add_extra_dims(
             [
                 laspy.ExtraBytesParams(name="tree_ID", type=np.int32),
-                laspy.ExtraBytesParams(
-                    name="sector_occupancy_percent", type=np.float64
-                ),
+                laspy.ExtraBytesParams(name="sector_occupancy_percent", type=np.float64),
                 laspy.ExtraBytesParams(name="pts_inner_circle", type=np.int32),
                 laspy.ExtraBytesParams(name="Z0", type=np.float64),
                 laspy.ExtraBytesParams(name="Diameter", type=np.float64),
@@ -153,21 +143,15 @@ class StandaloneLASProcessing(FinProcessing):
     def _export_axes(self, axes_points: np.ndarray, tilt: np.ndarray):
         las_axes = laspy.create(point_format=2, file_version="1.4")
         las_axes.xyz = axes_points[:, 0:3]
-        las_axes.add_extra_dim(
-            laspy.ExtraBytesParams(name="tilting_degree", type=np.float64)
-        )
+        las_axes.add_extra_dim(laspy.ExtraBytesParams(name="tilting_degree", type=np.float64))
         las_axes.tilting_degree = tilt
 
         las_axes.write(str(self.output_basepath) + "_axes.las")
 
-    def _export_tree_locations(
-        self, tree_locations: np.ndarray, dbh_values: np.ndarray
-    ):
+    def _export_tree_locations(self, tree_locations: np.ndarray, dbh_values: np.ndarray):
         las_tree_locations = laspy.create(point_format=2, file_version="1.4")
         las_tree_locations.xyz = tree_locations[:, 0:3]
-        las_tree_locations.add_extra_dim(
-            laspy.ExtraBytesParams(name="diameters", type=np.float64)
-        )
+        las_tree_locations.add_extra_dim(laspy.ExtraBytesParams(name="diameters", type=np.float64))
         las_tree_locations.diameters = dbh_values[:, 0]
 
         las_tree_locations.write(str(self.output_basepath) + "_tree_locator.las")

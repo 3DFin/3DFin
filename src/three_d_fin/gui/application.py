@@ -267,9 +267,7 @@ class Application(QMainWindow):
             base_path = Path(sys._MEIPASS)
         except Exception:
             base_path = Path(__file__).absolute().parents[1] / "documentation"
-        QDesktopServices.openUrl(
-            QUrl.fromLocalFile(str(Path(base_path / "documentation.pdf").resolve()))
-        )
+        QDesktopServices.openUrl(QUrl.fromLocalFile(str(Path(base_path / "documentation.pdf").resolve())))
 
     def _show_normalization_warning(self) -> None:
         """Show Dialog with normalization warning.
@@ -306,9 +304,7 @@ class Application(QMainWindow):
         parent directory)
         """
         initial_path = Path(self.ui.input_file_in.text())
-        is_initial_file = (
-            True if initial_path.exists() and initial_path.is_file() else False
-        )
+        is_initial_file = True if initial_path.exists() and initial_path.is_file() else False
         initial_dir = initial_path.parent.resolve() if is_initial_file else Path.home()
         las_file, _ = QFileDialog.getOpenFileName(
             self,
@@ -332,15 +328,11 @@ class Application(QMainWindow):
     def _ask_output_dir(self) -> None:
         """Ask for a proper output directory."""
         initial_path = Path(self.ui.output_dir_in.text())
-        has_valid_initial_dir = (
-            True if initial_path.exists() and initial_path.is_dir() else False
-        )
+        has_valid_initial_dir = True if initial_path.exists() and initial_path.is_dir() else False
         initial_dir = initial_path if has_valid_initial_dir else Path.home()
         self.ui.output_dir_in.setText(str(initial_dir.resolve()))
 
-        output_dir = QFileDialog.getExistingDirectory(
-            self, "3DFin output directory", str(initial_dir)
-        )
+        output_dir = QFileDialog.getExistingDirectory(self, "3DFin output directory", str(initial_dir))
 
         # If the dialog was not closed/canceled
         if output_dir != "" and not None:
@@ -377,9 +369,7 @@ class Application(QMainWindow):
                 elif key_param == "export_txt":
                     category_dict[key_param] = self.ui.export_txt_rb_1.isChecked()
                 else:
-                    category_dict[key_param] = getattr(
-                        self.ui, key_param + "_in"
-                    ).text()
+                    category_dict[key_param] = getattr(self.ui, key_param + "_in").text()
             config_dict[category_name] = category_dict
         return config_dict
 
@@ -400,11 +390,7 @@ class Application(QMainWindow):
                 error_loc: list[str] = error["loc"]
                 # Get the human readable value for the field by introspection
                 # (stored in "title "attribute).
-                field: ModelField = (
-                    FinConfiguration.__fields__[error_loc[0]]
-                    .type_()
-                    .__fields__[error_loc[1]]
-                )
+                field: ModelField = FinConfiguration.__fields__[error_loc[0]].type_().__fields__[error_loc[1]]
                 title = field.field_info.title
                 # Error text formatting.
                 final_msg = final_msg + f"{title} \n"
