@@ -56,17 +56,12 @@ class StandaloneLASProcessing(FinProcessing):
 
     def _export_dtm(self, dtm: np.ndarray):
         las_dtm_points = laspy.create(point_format=2, file_version="1.4")
-        las_dtm_points.x = dtm[:, 0]
-        las_dtm_points.y = dtm[:, 1]
-        las_dtm_points.z = dtm[:, 2]
-
+        las_dtm_points.xyz = dtm[:, 0:3]
         las_dtm_points.write(str(self.output_basepath) + "_dtm_points.las")
 
     def _export_stripe(self, clust_stripe: np.ndarray):
         las_stripe = laspy.create(point_format=2, file_version="1.4")
-        las_stripe.x = clust_stripe[:, 0]
-        las_stripe.y = clust_stripe[:, 1]
-        las_stripe.z = clust_stripe[:, 2]
+        las_stripe.xyz = clust_stripe[:, 0:3]
 
         las_stripe.add_extra_dim(laspy.ExtraBytesParams(name="tree_ID", type=np.int32))
         las_stripe.tree_ID = clust_stripe[:, -1]
@@ -77,7 +72,6 @@ class StandaloneLASProcessing(FinProcessing):
 
         # We have to check extra field existence before. It could be a cloud from a previous run
         # or user may already have defined these fields for a reason or another.
-
         if not hasattr(self.base_cloud, "dist_axes"):
             extra_fields.append(
                 laspy.ExtraBytesParams(name="dist_axes", type=np.float64)
@@ -114,9 +108,7 @@ class StandaloneLASProcessing(FinProcessing):
 
     def _export_tree_height(self, tree_heights):
         las_tree_heights = laspy.create(point_format=2, file_version="1.4")
-        las_tree_heights.x = tree_heights[:, 0]
-        las_tree_heights.y = tree_heights[:, 1]
-        las_tree_heights.z = tree_heights[:, 2]
+        las_tree_heights.xyz = tree_heights[:, 0:3]
         las_tree_heights.add_extra_dims(
             [
                 laspy.ExtraBytesParams(name="z0", type=np.float64),
@@ -132,9 +124,7 @@ class StandaloneLASProcessing(FinProcessing):
     def _export_circles(self, circles_coords: np.ndarray):
         # LAS file containing circle coordinates.
         las_circ = laspy.create(point_format=2, file_version="1.4")
-        las_circ.x = circles_coords[:, 0]
-        las_circ.y = circles_coords[:, 1]
-        las_circ.z = circles_coords[:, 2]
+        las_circ.xyz = circles_coords[:, 0:3]
 
         las_circ.add_extra_dims(
             [
@@ -162,9 +152,7 @@ class StandaloneLASProcessing(FinProcessing):
 
     def _export_axes(self, axes_points: np.ndarray, tilt: np.ndarray):
         las_axes = laspy.create(point_format=2, file_version="1.4")
-        las_axes.x = axes_points[:, 0]
-        las_axes.y = axes_points[:, 1]
-        las_axes.z = axes_points[:, 2]
+        las_axes.xyz = axes_points[:, 0:3]
         las_axes.add_extra_dim(
             laspy.ExtraBytesParams(name="tilting_degree", type=np.float64)
         )
@@ -176,9 +164,7 @@ class StandaloneLASProcessing(FinProcessing):
         self, tree_locations: np.ndarray, dbh_values: np.ndarray
     ):
         las_tree_locations = laspy.create(point_format=2, file_version="1.4")
-        las_tree_locations.x = tree_locations[:, 0]
-        las_tree_locations.y = tree_locations[:, 1]
-        las_tree_locations.z = tree_locations[:, 2]
+        las_tree_locations.xyz = tree_locations[:, 0:3]
         las_tree_locations.add_extra_dim(
             laspy.ExtraBytesParams(name="diameters", type=np.float64)
         )
