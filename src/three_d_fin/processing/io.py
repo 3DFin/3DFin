@@ -30,7 +30,7 @@ def export_tabular_data(
     config : FinConfiguration
         A valid FinConfiguration instance.
     basepath_output : str
-        An already valided output path. it ends with a file base name (no extension).
+        A valid output path. it ends with a file base name (no extension).
     X_c : numpy.ndarray
         Matrix containing (x) coordinates of the center of the best-fit circles.
     Y_c : numpy.ndarray
@@ -78,18 +78,18 @@ def export_tabular_data(
     dbh_and_heights[:, 2] = tree_locations[:, 0]
     dbh_and_heights[:, 3] = tree_locations[:, 1]
 
-    if not config.misc.export_txt:
+    if config.misc is not None and not config.misc.export_txt:
         # Generating aggregated quality value for each section
         quality = np.zeros(sector_perct.shape)
         # Section does not pass quality check if:
         mask = (
             (
                 sector_perct < config.expert.m_number_sectors / config.expert.number_sectors * 100
-            )  # Percentange of occupied sectors less than minimum
+            )  # Percentage of occupied sectors less than minimum
             | (n_points_in > config.expert.point_threshold)
             | (outliers > 0.3)  # Outlier probability larger than 30 %
-            | (R < config.expert.minimum_diameter)  # Radius smaller than the minimum radius
-            | (R > config.advanced.maximum_diameter)  # Radius larger than the maximum radius
+            | (config.expert.minimum_diameter > R)  # Radius smaller than the minimum radius
+            | (config.advanced.maximum_diameter < R)  # Radius larger than the maximum radius
         )
         # 0: does not pass quality check - 1: passes quality checks
         quality = np.where(mask, quality, 1)

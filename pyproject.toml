@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling~=1.24", "pyqt5~=5.15"]
+requires = ["hatchling~=1.24", "pyqt5~=5.15.0"]
 build-backend = "hatchling.build"
 
 [project]
@@ -16,7 +16,6 @@ authors = [
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
@@ -32,7 +31,7 @@ dependencies = [
   "XlsxWriter~=3.2.0",
   "dendromatics~=0.5.0",
   "pydantic~=1.10.15",
-  "pyqt5~=5.15"
+  "pyqt5~=5.15.0"
 ]
 dynamic = ["version"]
 
@@ -85,7 +84,7 @@ path = "scripts/pyinstaller_builder.py"
 # it is not very DRY. The best would be to depends on sdist target
 [tool.hatch.build.targets.custom.hooks.custom] 
 require-runtime-dependencies = true
-dependencies = ["pyqt5~=5.15"]
+dependencies = ["pyqt5~=5.15.0"]
 path = "scripts/qt_build_hook.py"
 src_folder = "qt-files/src"
 dest_folder = "src/three_d_fin/gui"
@@ -121,7 +120,7 @@ line-length = 120
 target-version = "py310"
 
 [tool.ruff.lint]
-select = ["I001","E", "W", "YTT", "PTH", "NPY", "RET", "PYI", "Q", "F", "B", "I", "D"]
+select = ["E", "W", "YTT", "PTH", "NPY", "RET", "PYI", "Q", "F", "B", "I", "D", "SIM", "RUF"]
 # TODO: for now we ignore "Line too long error (E501)" 
 # because our comments are too longs
 # code formatting will take care of the line length in code anyway

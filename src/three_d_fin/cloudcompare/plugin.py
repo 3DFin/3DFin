@@ -50,7 +50,7 @@ def _create_app_and_run(plugin_processing: CloudComparePluginProcessing, scalar_
     loop.exec_()
 
 
-def main():
+def main() -> None:
     """3DFin CloudCompare Plugin main action."""
     cc = pycc.GetInstance()
 

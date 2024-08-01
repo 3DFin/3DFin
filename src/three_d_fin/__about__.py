@@ -9,9 +9,7 @@ __copyright_info_2__ = (
 
 __copyright_info_3__ = "See LICENSE at the bottom of this tab for further details."
 
-__license_msg__ = (
-    "See License at the bottom of 'About' tab for more details or visit <https://www.gnu.org/licenses/>"
-)
+__license_msg__ = "See License at the bottom of 'About' tab for more details or visit <https://www.gnu.org/licenses/>"
 
 
 # About the project
@@ -25,7 +23,7 @@ __about_1__ = (
 
 __nerc_project__ = "'Advancing 3D Fuel Mapping for Wildfire Behaviour and Risk Mitigation Modelling'"
 __csic_project__ = (
-    "‘Advancing carbon emission estimations from wildfires applying "
-    "artificial intelligence to 3D terrestrial point clouds’"
+    "'Advancing carbon emission estimations from wildfires applying "
+    "artificial intelligence to 3D terrestrial point clouds'"
 )
 __about_2__ = "and by the Spanish Knowledge Generation project (PID2021-126790NB-I00):"

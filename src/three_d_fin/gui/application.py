@@ -1,7 +1,7 @@
 import sys
 import traceback
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 from urllib.parse import quote
 
 import laspy
@@ -304,7 +304,7 @@ class Application(QMainWindow):
         parent directory)
         """
         initial_path = Path(self.ui.input_file_in.text())
-        is_initial_file = True if initial_path.exists() and initial_path.is_file() else False
+        is_initial_file = initial_path.exists() and initial_path.is_file()
         initial_dir = initial_path.parent.resolve() if is_initial_file else Path.home()
         las_file, _ = QFileDialog.getOpenFileName(
             self,
@@ -328,7 +328,7 @@ class Application(QMainWindow):
     def _ask_output_dir(self) -> None:
         """Ask for a proper output directory."""
         initial_path = Path(self.ui.output_dir_in.text())
-        has_valid_initial_dir = True if initial_path.exists() and initial_path.is_dir() else False
+        has_valid_initial_dir = initial_path.exists() and initial_path.is_dir()
         initial_dir = initial_path if has_valid_initial_dir else Path.home()
         self.ui.output_dir_in.setText(str(initial_dir.resolve()))
 
@@ -338,7 +338,7 @@ class Application(QMainWindow):
         if output_dir != "" and not None:
             self.ui.output_dir_in.setText(str(Path(output_dir).resolve()))
 
-    def _get_parameters(self) -> dict[str, dict[str, str]]:
+    def _get_parameters(self) -> dict[str, dict[str, Any]]:
         """Get parameters from widgets and return them organized in a dictionary.
 
         Like _populate_fields(), parameters are collected taking advantage of
@@ -347,15 +347,15 @@ class Application(QMainWindow):
 
         Returns
         -------
-        options : dict[str, dict[str, str]]
+        options : dict[str, dict[str, any]]
             Dictionary of parameters. It is organized following the
             3DFinconfig.ini file: Each parameters are sorted in a sub-dict
             ("basic", "expert", "advanced", "misc").
 
         """
-        config_dict: dict[str, dict[str, str]] = dict()
+        config_dict: dict[str, dict[str, Any]] = dict()
         for category_name, category_field in FinConfiguration.__fields__.items():
-            category_dict: dict[str, str] = dict()
+            category_dict: dict[str, Any] = dict()
             for key_param in category_field.type_().__fields__:
                 if key_param == "z0_name" and self.cloud_fields is not None:
                     category_dict[key_param] = self.ui.z0_name_in.currentText()
@@ -496,7 +496,7 @@ class Application(QMainWindow):
     def closeEvent(self, a0: QCloseEvent) -> None:
         """Close the application.
 
-        The event loop is exited if it was previously setted.
+        The event loop is exited if it was previously set.
 
         Parameters
         ----------

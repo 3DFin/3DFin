@@ -68,7 +68,7 @@ class FinProcessing(ABC):
         """
         any_of = False
         # Check existence of tabular output
-        if self.config.misc.export_txt:
+        if self.config.misc is not None and self.config.misc.export_txt:
             any_of |= Path(str(self.output_basepath) + "_diameters.txt").exists()
             any_of |= Path(str(self.output_basepath) + "_X_c.txt").exists()
             any_of |= Path(str(self.output_basepath) + "_Y_c.txt").exists()

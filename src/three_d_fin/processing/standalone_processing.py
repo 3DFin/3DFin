@@ -10,10 +10,7 @@ class StandaloneLASProcessing(FinProcessing):
     """Implement the FinProcessing interface for LAS files in a standalone context."""
 
     def _construct_output_path(self):
-        if self.config.misc.input_file is not None:
-            basename_las = Path(self.config.misc.input_file).stem
-        else:
-            basename_las = "3DFin"
+        basename_las = Path(self.config.misc.input_file).stem if self.config.misc.input_file is not None else "3DFin"
         self.output_basepath = Path(self.config.misc.output_dir) / Path(basename_las)
 
     def check_already_computed_data(self) -> bool:
@@ -81,7 +78,7 @@ class StandaloneLASProcessing(FinProcessing):
         self.base_cloud.dist_axes = assigned_cloud[:, 5]
         self.base_cloud.tree_ID = assigned_cloud[:, 4]
 
-        if not self.config.misc.is_normalized:
+        if self.config.misc is not None and not self.config.misc.is_normalized:
             # In the case the user still want to use our CSF normalization but already have
             # a field called Z0, adding the field with the same name will raise an exception.
             # So we have to check its existence before.

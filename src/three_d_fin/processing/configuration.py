@@ -143,7 +143,7 @@ class AdvancedParameters(BaseModel):
 class ExpertParameters(BaseModel):
     """Handle the "expert" parameters section."""
 
-    ### Stem identification whithin the stripe ###
+    ### Stem identification within the stripe ###
     # (x, y) voxel resolution during stem identification within the stripe
     res_xy_stripe: float = Field(
         title="(x, y) voxel resolution",
@@ -176,7 +176,7 @@ class ExpertParameters(BaseModel):
         default=0.1,
         hint="meters",
     )
-    # Verticality threshold durig stem identification within the stripe
+    # Verticality threshold during stem identification within the stripe
     verticality_thresh_stripe: float = Field(
         title="Verticality threshold",
         description="Verticality threshold durig stem identification.\n"
@@ -505,11 +505,7 @@ class FinConfiguration(BaseModel):
         field = cls.__fields__.get(category_key).type_.__fields__.get(field_key)
         description = field.field_info.description
         default_txt = f"Default: {field.field_info.default}"
-        if description is None:
-            tooltip_txt = f"{default_txt}"
-        else:
-            tooltip_txt = f"{description}\n{default_txt}"
-        return tooltip_txt
+        return f"{default_txt}" if description is None else f"{description}\n{default_txt}"
 
     @classmethod
     def field_hint(cls: "FinConfiguration", category_key: str, field_key: str):

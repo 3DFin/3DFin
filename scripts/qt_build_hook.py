@@ -1,6 +1,6 @@
 import subprocess
 from pathlib import Path
-from typing import Any, Dict, Generator
+from typing import Any, ClassVar, Dict, Generator
 
 # needed to have access to PyQT binaries
 import PyQt5  # noqa
@@ -37,7 +37,7 @@ def _pyrcc_subprocess(input_path: Path, output_path: Path):
 class QtBuildHook(BuildHookInterface):
     """Simple build hook to generate py files from QT ui ones."""
 
-    artifacts = []
+    artifacts: ClassVar[list[str]] = []
 
     def __init__(self, *args, **kwargs):
         """Init the hook, generate files."""
