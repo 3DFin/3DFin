@@ -30,7 +30,7 @@ def export_tabular_data(
     config : FinConfiguration
         A valid FinConfiguration instance.
     basepath_output : str
-        An already valided output path. it ends with a file base name (no extension).
+        A valid output path. it ends with a file base name (no extension).
     X_c : numpy.ndarray
         Matrix containing (x) coordinates of the center of the best-fit circles.
     Y_c : numpy.ndarray
@@ -78,23 +78,18 @@ def export_tabular_data(
     dbh_and_heights[:, 2] = tree_locations[:, 0]
     dbh_and_heights[:, 3] = tree_locations[:, 1]
 
-    if not config.misc.export_txt:
+    if config.misc is not None and not config.misc.export_txt:
         # Generating aggregated quality value for each section
         quality = np.zeros(sector_perct.shape)
         # Section does not pass quality check if:
         mask = (
             (
-                sector_perct
-                < config.expert.m_number_sectors / config.expert.number_sectors * 100
-            )  # Percentange of occupied sectors less than minimum
+                sector_perct < config.expert.m_number_sectors / config.expert.number_sectors * 100
+            )  # Percentage of occupied sectors less than minimum
             | (n_points_in > config.expert.point_threshold)
             | (outliers > 0.3)  # Outlier probability larger than 30 %
-            | (
-                R < config.expert.minimum_diameter
-            )  # Radius smaller than the minimum radius
-            | (
-                R > config.advanced.maximum_diameter
-            )  # Radius larger than the maximum radius
+            | (config.expert.minimum_diameter > R)  # Radius smaller than the minimum radius
+            | (config.advanced.maximum_diameter < R)  # Radius larger than the maximum radius
         )
         # 0: does not pass quality check - 1: passes quality checks
         quality = np.where(mask, quality, 1)
@@ -137,12 +132,8 @@ def export_tabular_data(
         info_diameters = """Diameter of every section (S) of every tree (T).
             Units are meters.
             """
-        info_X_c = (
-            """(x) coordinate of the centre of every section (S) of every tree (T)."""
-        )
-        info_Y_c = (
-            """(y) coordinate of the centre of every section (S) of every tree (T)."""
-        )
+        info_X_c = """(x) coordinate of the centre of every section (S) of every tree (T)."""
+        info_Y_c = """(y) coordinate of the centre of every section (S) of every tree (T)."""
         info_sections = """Normalized height (Z0) of every section (S).
         Units are meters."""
         info_quality = """Overal quality of every section (S) of every tree (T).
@@ -207,13 +198,9 @@ def export_tabular_data(
             merge_cells=False,
         )
 
-        df_info_X_c.to_excel(
-            writer, sheet_name="X", header=False, index=False, merge_cells=False
-        )
+        df_info_X_c.to_excel(writer, sheet_name="X", header=False, index=False, merge_cells=False)
 
-        df_info_Y_c.to_excel(
-            writer, sheet_name="Y", header=False, index=False, merge_cells=False
-        )
+        df_info_Y_c.to_excel(writer, sheet_name="Y", header=False, index=False, merge_cells=False)
 
         df_info_sections.to_excel(
             writer,
@@ -256,25 +243,15 @@ def export_tabular_data(
         )
 
         # Writing the data
-        df_dbh_and_heights.to_excel(
-            writer, sheet_name="Plot Metrics", startrow=2, startcol=1
-        )
+        df_dbh_and_heights.to_excel(writer, sheet_name="Plot Metrics", startrow=2, startcol=1)
         df_diameters.to_excel(writer, sheet_name="Diameters", startrow=2, startcol=1)
         df_X_c.to_excel(writer, sheet_name="X", startrow=2, startcol=1)
         df_Y_c.to_excel(writer, sheet_name="Y", startrow=2, startcol=1)
         df_sections.to_excel(writer, sheet_name="Sections", startrow=2, startcol=1)
-        df_quality.to_excel(
-            writer, sheet_name="Q(Overall Quality 0-1)", startrow=2, startcol=1
-        )
-        df_outliers.to_excel(
-            writer, sheet_name="Q1(Outlier Probability)", startrow=2, startcol=1
-        )
-        df_sector_perct.to_excel(
-            writer, sheet_name="Q2(Sector Occupancy)", startrow=2, startcol=1
-        )
-        df_n_points_in.to_excel(
-            writer, sheet_name="Q3(Points Inner Circle)", startrow=2, startcol=1
-        )
+        df_quality.to_excel(writer, sheet_name="Q(Overall Quality 0-1)", startrow=2, startcol=1)
+        df_outliers.to_excel(writer, sheet_name="Q1(Outlier Probability)", startrow=2, startcol=1)
+        df_sector_perct.to_excel(writer, sheet_name="Q2(Sector Occupancy)", startrow=2, startcol=1)
+        df_n_points_in.to_excel(writer, sheet_name="Q3(Points Inner Circle)", startrow=2, startcol=1)
 
         writer.close()
 
@@ -282,17 +259,11 @@ def export_tabular_data(
         np.savetxt(str(basepath_output) + "_diameters.txt", R * 2, fmt=("%.3f"))
         np.savetxt(str(basepath_output) + "_X_c.txt", X_c, fmt=("%.3f"))
         np.savetxt(str(basepath_output) + "_Y_c.txt", Y_c, fmt=("%.3f"))
-        np.savetxt(
-            str(basepath_output) + "_check_circle.txt", check_circle, fmt=("%.3f")
-        )
+        np.savetxt(str(basepath_output) + "_check_circle.txt", check_circle, fmt=("%.3f"))
         np.savetxt(str(basepath_output) + "_n_points_in.txt", n_points_in, fmt=("%.3f"))
-        np.savetxt(
-            str(basepath_output) + "_sector_perct.txt", sector_perct, fmt=("%.3f")
-        )
+        np.savetxt(str(basepath_output) + "_sector_perct.txt", sector_perct, fmt=("%.3f"))
         np.savetxt(str(basepath_output) + "_outliers.txt", outliers, fmt=("%.3f"))
-        np.savetxt(
-            str(basepath_output) + "_dbh_and_heights.txt", dbh_and_heights, fmt=("%.3f")
-        )
+        np.savetxt(str(basepath_output) + "_dbh_and_heights.txt", dbh_and_heights, fmt=("%.3f"))
         np.savetxt(
             str(basepath_output) + "_sections.txt",
             np.column_stack(sections),

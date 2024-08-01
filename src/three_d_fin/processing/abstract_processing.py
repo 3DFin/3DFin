@@ -3,9 +3,9 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any
 
-import dendromatics as dm
 import numpy as np
 
+import dendromatics as dm
 from three_d_fin.processing.configuration import FinConfiguration
 from three_d_fin.processing.io import export_tabular_data
 from three_d_fin.processing.progress import Progress
@@ -68,7 +68,7 @@ class FinProcessing(ABC):
         """
         any_of = False
         # Check existence of tabular output
-        if self.config.misc.export_txt:
+        if self.config.misc is not None and self.config.misc.export_txt:
             any_of |= Path(str(self.output_basepath) + "_diameters.txt").exists()
             any_of |= Path(str(self.output_basepath) + "_X_c.txt").exists()
             any_of |= Path(str(self.output_basepath) + "_Y_c.txt").exists()
@@ -232,9 +232,7 @@ class FinProcessing(ABC):
         pass
 
     @abstractmethod
-    def _export_tree_locations(
-        self, tree_locations: np.ndarray, dbh_values: np.ndarray
-    ):
+    def _export_tree_locations(self, tree_locations: np.ndarray, dbh_values: np.ndarray):
         """Export the tree locations.
 
         Parameters
@@ -422,9 +420,7 @@ class FinProcessing(ABC):
             print("Analyzing cloud size...")
             print("---------------------------------------------")
 
-            _, _, voxelated_ground = dm.voxelate(
-                coords, 1, 2000, n_digits, with_n_points=False, silent=False
-            )
+            _, _, voxelated_ground = dm.voxelate(coords, 1, 2000, n_digits, with_n_points=False, silent=False)
             cloud_size = coords.shape[0] / 1000000
             cloud_shape = voxelated_ground.shape[0]
             print("   This cloud has", "{:.2f}".format(cloud_size), "million points")
@@ -466,9 +462,7 @@ class FinProcessing(ABC):
                 print("---------------------------------------------")
                 t = timeit.default_timer()
                 # Extracting ground points and DTM
-                cloth_nodes = dm.generate_dtm(
-                    coords, cloth_resolution=config.basic.res_cloth
-                )
+                cloth_nodes = dm.generate_dtm(coords, cloth_resolution=config.basic.res_cloth)
 
                 elapsed = timeit.default_timer() - t
                 print("        ", "%.2f" % elapsed, "s: generating the DTM")
@@ -498,9 +492,7 @@ class FinProcessing(ABC):
             coords = np.append(coords, np.expand_dims(z0_values, axis=1), 1)
 
             # Check that the normalization is correct.
-            self.area_warning, area_discrepancy = dm.check_normalization_discrepancy(
-                coords[:, [0, 1, 3]], cloud_shape
-            )
+            self.area_warning, area_discrepancy = dm.check_normalization_discrepancy(coords[:, [0, 1, 3]], cloud_shape)
 
             elapsed = timeit.default_timer() - t
             print("        ", "%.2f" % elapsed, "s: Normalizing the point cloud")
@@ -517,8 +509,7 @@ class FinProcessing(ABC):
         print("---------------------------------------------")
 
         stripe = coords[
-            (coords[:, 3] > config.basic.lower_limit)
-            & (coords[:, 3] < config.basic.upper_limit),
+            (coords[:, 3] > config.basic.lower_limit) & (coords[:, 3] < config.basic.upper_limit),
             0:4,
         ]
         clust_stripe = dm.verticality_clustering(
@@ -586,10 +577,7 @@ class FinProcessing(ABC):
         xyz0_coords = assigned_cloud[
             (assigned_cloud[:, 5] < (config.advanced.stem_search_diameter / 2.0))
             & (assigned_cloud[:, 3] > config.advanced.minimum_height)
-            & (
-                assigned_cloud[:, 3]
-                < config.advanced.maximum_height + config.advanced.section_wid
-            ),
+            & (assigned_cloud[:, 3] < config.advanced.maximum_height + config.advanced.section_wid),
             :,
         ]
         stems = dm.verticality_clustering(

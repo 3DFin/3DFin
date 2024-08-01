@@ -11,9 +11,7 @@ class Progress(object):
     progress_char: str = "█"
     void_char: str = "░"
 
-    def __init__(
-        self, title="Progress", n_chars: int = 60, output: typing.TextIO = sys.stdout
-    ):
+    def __init__(self, title="Progress", n_chars: int = 60, output: typing.TextIO = sys.stdout):
         """Construct a progress bar object.
 
         A simple progress bar taylored for our needs. It is intended to be used with dendromatics.
@@ -43,9 +41,7 @@ class Progress(object):
             The total number of steps to be completed.
 
         """
-        self.output.write(
-            f"\n{self.title} [{(self.void_char * self.n_chars)}] 0/{total}"
-        )
+        self.output.write(f"\n{self.title} [{(self.void_char * self.n_chars)}] 0/{total}")
         self.output.flush()
 
     def _finish(self, total: int) -> None:
@@ -57,9 +53,7 @@ class Progress(object):
             The total number of steps to be completed.
 
         """
-        self.output.write(
-            f"\r{self.title} [{(self.progress_char * self.n_chars)}] {total}/{total}"
-        )
+        self.output.write(f"\r{self.title} [{(self.progress_char * self.n_chars)}] {total}/{total}")
         self.output.flush()
         self.curr_progress = 0
         self.output.write("\n")

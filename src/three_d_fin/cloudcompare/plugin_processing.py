@@ -60,16 +60,12 @@ class CloudComparePluginProcessing(FinProcessing):
 
     def _construct_output_path(self):
         # We still use the stem attribute since in CC cloud could name could be based on filenames
-        self.output_basepath = (
-            Path(self.config.misc.output_dir) / Path(self.base_cloud.getName()).stem
-        )
+        self.output_basepath = Path(self.config.misc.output_dir) / Path(self.base_cloud.getName()).stem
         self.group_name = f"{Path(self.base_cloud.getName()).stem}_3DFin"
 
     def _pre_processing_hook(self):
         # Be sure to load our custom colorscale
-        color_scale_path = str(
-            (Path(__file__).parents[0] / "assets" / "3dfin_color_scale.xml").resolve()
-        )
+        color_scale_path = str((Path(__file__).parents[0] / "assets" / "3dfin_color_scale.xml").resolve())
         scale_manager = pycc.ccColorScalesManager.GetUniqueInstance()
         color_scale = pycc.ccColorScale.LoadFromXML(color_scale_path)
         scale_manager.addScale(color_scale)
@@ -106,14 +102,10 @@ class CloudComparePluginProcessing(FinProcessing):
         self.cc_instance.addToDB(cloud_dtm)
 
     def _export_stripe(self, clust_stripe: np.ndarray):
-        cloud_stripe = pycc.ccPointCloud(
-            clust_stripe[:, 0], clust_stripe[:, 1], clust_stripe[:, 2]
-        )
+        cloud_stripe = pycc.ccPointCloud(clust_stripe[:, 0], clust_stripe[:, 1], clust_stripe[:, 2])
         cloud_stripe.copyGlobalShiftAndScale(self.base_cloud)
         cloud_stripe.setName("Stems in stripe")
-        CloudComparePluginProcessing.write_sf(
-            cloud_stripe, clust_stripe[:, -1], "tree_ID"
-        )
+        CloudComparePluginProcessing.write_sf(cloud_stripe, clust_stripe[:, -1], "tree_ID")
         cloud_stripe.setCurrentDisplayedScalarField(0)
         cloud_stripe.toggleSF()
         cloud_stripe.setEnabled(False)
@@ -126,21 +118,13 @@ class CloudComparePluginProcessing(FinProcessing):
         copy_base_cloud.reserve(self.base_cloud.size())
 
         # Could be a pycc.ccPointCloud.clone() but we do not want to clone all SFs
-        copy_base_cloud.addPoints(
-            assigned_cloud[:, 0], assigned_cloud[:, 1], assigned_cloud[:, 2]
-        )
+        copy_base_cloud.addPoints(assigned_cloud[:, 0], assigned_cloud[:, 1], assigned_cloud[:, 2])
 
-        CloudComparePluginProcessing.write_sf(
-            copy_base_cloud, assigned_cloud[:, 5], "dist_axes"
-        )
-        CloudComparePluginProcessing.write_sf(
-            copy_base_cloud, assigned_cloud[:, 4], "tree_ID"
-        )
+        CloudComparePluginProcessing.write_sf(copy_base_cloud, assigned_cloud[:, 5], "dist_axes")
+        CloudComparePluginProcessing.write_sf(copy_base_cloud, assigned_cloud[:, 4], "tree_ID")
 
         # Use assigned_cloud z0 anyway
-        CloudComparePluginProcessing.write_sf(
-            copy_base_cloud, assigned_cloud[:, 3], "Z0"
-        )
+        CloudComparePluginProcessing.write_sf(copy_base_cloud, assigned_cloud[:, 3], "Z0")
 
         copy_base_cloud.toggleSF()
         copy_base_cloud.setCurrentDisplayedScalarField(0)  # dist_axes
@@ -156,17 +140,11 @@ class CloudComparePluginProcessing(FinProcessing):
         self.cc_instance.addToDB(copy_base_cloud)
 
     def _export_tree_height(self, tree_heights: np.ndarray):
-        cloud_tree_heights = pycc.ccPointCloud(
-            tree_heights[:, 0], tree_heights[:, 1], tree_heights[:, 2]
-        )
+        cloud_tree_heights = pycc.ccPointCloud(tree_heights[:, 0], tree_heights[:, 1], tree_heights[:, 2])
         cloud_tree_heights.copyGlobalShiftAndScale(self.base_cloud)
         cloud_tree_heights.setName("Highest points")
-        CloudComparePluginProcessing.write_sf(
-            cloud_tree_heights, tree_heights[:, 3], "z0"
-        )
-        CloudComparePluginProcessing.write_sf(
-            cloud_tree_heights, tree_heights[:, 4], "deviated"
-        )
+        CloudComparePluginProcessing.write_sf(cloud_tree_heights, tree_heights[:, 3], "z0")
+        CloudComparePluginProcessing.write_sf(cloud_tree_heights, tree_heights[:, 4], "deviated")
         cloud_tree_heights.setPointSize(8)
         z0 = cloud_tree_heights.getScalarField(0)  # z0
 
@@ -189,39 +167,23 @@ class CloudComparePluginProcessing(FinProcessing):
         self.cc_instance.addToDB(cloud_tree_heights, autoExpandDBTree=False)
 
     def _export_circles(self, circles_coords: np.ndarray):
-        cloud_circles = pycc.ccPointCloud(
-            circles_coords[:, 0], circles_coords[:, 1], circles_coords[:, 2]
-        )
+        cloud_circles = pycc.ccPointCloud(circles_coords[:, 0], circles_coords[:, 1], circles_coords[:, 2])
         cloud_circles.copyGlobalShiftAndScale(self.base_cloud)
         cloud_circles.setName("Fitted sections")
-        CloudComparePluginProcessing.write_sf(
-            cloud_circles, circles_coords[:, 4], "tree_ID"
-        )
-        CloudComparePluginProcessing.write_sf(
-            cloud_circles, circles_coords[:, 5], "sector_occupancy_percent"
-        )
-        CloudComparePluginProcessing.write_sf(
-            cloud_circles, circles_coords[:, 6], "pts_inner_circle"
-        )
+        CloudComparePluginProcessing.write_sf(cloud_circles, circles_coords[:, 4], "tree_ID")
+        CloudComparePluginProcessing.write_sf(cloud_circles, circles_coords[:, 5], "sector_occupancy_percent")
+        CloudComparePluginProcessing.write_sf(cloud_circles, circles_coords[:, 6], "pts_inner_circle")
         CloudComparePluginProcessing.write_sf(cloud_circles, circles_coords[:, 7], "Z0")
-        CloudComparePluginProcessing.write_sf(
-            cloud_circles, circles_coords[:, 8], "Diameter"
-        )
-        CloudComparePluginProcessing.write_sf(
-            cloud_circles, circles_coords[:, 9], "outlier_prob"
-        )
-        CloudComparePluginProcessing.write_sf(
-            cloud_circles, circles_coords[:, 10], "quality"
-        )
+        CloudComparePluginProcessing.write_sf(cloud_circles, circles_coords[:, 8], "Diameter")
+        CloudComparePluginProcessing.write_sf(cloud_circles, circles_coords[:, 9], "outlier_prob")
+        CloudComparePluginProcessing.write_sf(cloud_circles, circles_coords[:, 10], "quality")
         cloud_circles.toggleSF()
         cloud_circles.setCurrentDisplayedScalarField(6)  # = quality
         self.base_group.addChild(cloud_circles)
         self.cc_instance.addToDB(cloud_circles)
 
     def _export_axes(self, axes_points: np.ndarray, tilt: np.ndarray):
-        cloud_axes = pycc.ccPointCloud(
-            axes_points[:, 0], axes_points[:, 1], axes_points[:, 2]
-        )
+        cloud_axes = pycc.ccPointCloud(axes_points[:, 0], axes_points[:, 1], axes_points[:, 2])
         cloud_axes.copyGlobalShiftAndScale(self.base_cloud)
         cloud_axes.setName("Axes")
         CloudComparePluginProcessing.write_sf(cloud_axes, tilt, "tilting_degree")
@@ -231,9 +193,7 @@ class CloudComparePluginProcessing(FinProcessing):
         self.base_group.addChild(cloud_axes)
         self.cc_instance.addToDB(cloud_axes)
 
-    def _export_tree_locations(
-        self, tree_locations: np.ndarray, dbh_values: np.ndarray
-    ):
+    def _export_tree_locations(self, tree_locations: np.ndarray, dbh_values: np.ndarray):
         cloud_tree_locations = pycc.ccPointCloud(
             tree_locations[:, 0],
             tree_locations[:, 1],
@@ -242,9 +202,7 @@ class CloudComparePluginProcessing(FinProcessing):
         cloud_tree_locations.copyGlobalShiftAndScale(self.base_cloud)
         cloud_tree_locations.setName("Tree locator")
         cloud_tree_locations.setPointSize(8)
-        CloudComparePluginProcessing.write_sf(
-            cloud_tree_locations, dbh_values.reshape(-1), "dbh"
-        )
+        CloudComparePluginProcessing.write_sf(cloud_tree_locations, dbh_values.reshape(-1), "dbh")
         cloud_tree_locations.setColor(255, 0, 255, 255)
         cloud_tree_locations.toggleColors()
         dbh = cloud_tree_locations.getScalarField(0)  # dbh

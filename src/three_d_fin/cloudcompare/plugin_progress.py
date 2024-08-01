@@ -22,9 +22,7 @@ class CloudCompareProgress(Progress):
 
         """
         self.curr_progress = 0
-        self.output.write(
-            f"\n{self.title} [{(self.void_char * self.n_chars)}] 0/{total}"
-        )
+        self.output.write(f"\n{self.title} [{(self.void_char * self.n_chars)}] 0/{total}")
 
     def _finish(self, total: int):
         """Terminate the progress bar.
@@ -35,9 +33,7 @@ class CloudCompareProgress(Progress):
             The total number of steps to be completed.
 
         """
-        self.output.write(
-            f"\n{self.title} [{(self.progress_char * self.n_chars)}] {total}/{total}"
-        )
+        self.output.write(f"\n{self.title} [{(self.progress_char * self.n_chars)}] {total}/{total}")
         self.curr_progress = 0
         self.output.write("\n")
 
