@@ -24,20 +24,14 @@ class ThreeDFinCC(pycc.PythonPluginInterface):
             the string representation of the path to the plugin icon.
 
         """
-        return str(
-            (Path(__file__).parents[0] / "assets" / "3dfin_logo_plugin.png").resolve()
-        )
+        return str((Path(__file__).parents[0] / "assets" / "3dfin_logo_plugin.png").resolve())
 
     def getActions(self) -> list[pycc.Action]:
         """List of actions exposed by the plugin."""
-        return [
-            pycc.Action(name="3D Forest INventory", icon=self.getIcon(), target=main)
-        ]
+        return [pycc.Action(name="3D Forest INventory", icon=self.getIcon(), target=main)]
 
 
-def _create_app_and_run(
-    plugin_processing: CloudComparePluginProcessing, scalar_fields: list[str]
-):
+def _create_app_and_run(plugin_processing: CloudComparePluginProcessing, scalar_fields: list[str]):
     """Encapsulate the 3DFin GUI and processing.
 
     Parameters
@@ -49,16 +43,14 @@ def _create_app_and_run(
         the 3DFin GUI.
 
     """
-    plugin_widget = Application(
-        plugin_processing, file_externally_defined=True, cloud_fields=scalar_fields
-    )
+    plugin_widget = Application(plugin_processing, file_externally_defined=True, cloud_fields=scalar_fields)
     loop = QEventLoop()
     plugin_widget.show()
     plugin_widget.set_event_loop(loop)
     loop.exec_()
 
 
-def main():
+def main() -> None:
     """3DFin CloudCompare Plugin main action."""
     cc = pycc.GetInstance()
 
@@ -78,17 +70,13 @@ def main():
         scalar_fields.append(point_cloud.getScalarFieldName(i))
 
     # TODO: Handle big coodinates (could be tested but maybe wait for CC API update).
-    plugin_processing = CloudComparePluginProcessing(
-        cc, point_cloud, FinConfiguration()
-    )
+    plugin_processing = CloudComparePluginProcessing(cc, point_cloud, FinConfiguration())
 
     cc.freezeUI(True)
     try:
         _create_app_and_run(plugin_processing, scalar_fields)
     except Exception:
-        raise RuntimeError(
-            "Something went wrong!"
-        ) from None  # TODO: Catch exceptions into modals.
+        raise RuntimeError("Something went wrong!") from None  # TODO: Catch exceptions into modals.
     finally:
         cc.freezeUI(False)
         cc.updateUI()
