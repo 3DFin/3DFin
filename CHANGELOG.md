@@ -10,7 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
- - Fixed some typos, improve coding style
+- Fixed some typos, improve coding style
+
+### Added
+
+- Include the 3DFin version number in "automatic" Github issue reporting.
 
 ## [0.4.1]  2024-06-28
 

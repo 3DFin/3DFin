@@ -444,7 +444,7 @@ class Application(QMainWindow):
                 "For more details please read the stack trace below. "
                 + "If you think this is a bug, please open an "
                 + 'issue on <a href="https://github.com/3DFin/3DFin/issues/new?body='
-                + quote("Hi!\n 3DFin failed with this error: \n" + stack_trace)
+                + quote(f"Hi!\n 3DFin v{__about__.__version__} failed with this error: \n {stack_trace}")
                 + '">Github</a>'
             )
             msg_box.setDetailedText(stack_trace)
