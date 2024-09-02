@@ -111,8 +111,12 @@ jobs:
         run: |
           mkdir cloudcompare_install
           cmake --install build --prefix "cloudcompare_install"
- 
+
+      - name: zip CC distribution
+        shell: powershell
+        run: Compress-Archive -Path cloudcompare_install/CloudCompare/* -Destination cloudcompare_3dfin.zip
+
       - uses: actions/upload-artifact@v4
         with:
           name: 3dfin_cloudcompare_plugin
-          path: cloudcompare_install/CloudCompare
+          path: cloudcompare_3dfin.zip
