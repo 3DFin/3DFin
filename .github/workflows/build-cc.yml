@@ -116,7 +116,7 @@ jobs:
         shell: powershell
         run: |
           cd cloudcompare_install
-          Compress-Archive -Path ./CloudCompare/* -Destination cloudcompare_3dfin.zip
+          7z a -tzip cloudcompare.zip ./CloudCompare
 
       - uses: actions/upload-artifact@v4
         with:
