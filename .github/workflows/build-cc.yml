@@ -113,10 +113,10 @@ jobs:
           cmake --install build --prefix "cloudcompare_install"
 
       - name: zip CC distribution
-        shell: powershell
+        shell: pwsh
         run: |
           cd cloudcompare_install
-          7z a -tzip cloudcompare.zip ./CloudCompare
+          7z a -tzip cloudcompare.zip .\CloudCompare
 
       - uses: actions/upload-artifact@v4
         with:
