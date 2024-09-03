@@ -114,9 +114,8 @@ jobs:
       - name: zip CC distribution
         shell: pwsh
         run: |
-          rm ./cloudcompare_install/CloudCompare/plugins/Python/python3.exe
-          cd cloudcompare_install
-          7z a -tzip cloudcompare.zip .\CloudCompare
+          rm .\cloudcompare_install\CloudCompare\plugins\Python\python3.exe #rm this file it does not exists (sic.) !
+          7z a -tzip cloudcompare_3dfin.zip .\cloudcompare_install\CloudCompare
 
       - uses: actions/upload-artifact@v4
         with:
