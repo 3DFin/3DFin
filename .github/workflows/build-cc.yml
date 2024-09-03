@@ -114,7 +114,9 @@ jobs:
 
       - name: zip CC distribution
         shell: powershell
-        run: Compress-Archive -Path ./cloudcompare_install/CloudCompare/* -Destination cloudcompare_3dfin.zip
+        run: |
+          cd cloudcompare_install
+          Compress-Archive -Path ./CloudCompare/* -Destination cloudcompare_3dfin.zip
 
       - uses: actions/upload-artifact@v4
         with:
