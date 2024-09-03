@@ -114,6 +114,7 @@ jobs:
       - name: zip CC distribution
         shell: pwsh
         run: |
+          rm ./cloudcompare_install/CloudCompare/plugins/Python/python3.exe
           cd cloudcompare_install
           7z a -tzip cloudcompare.zip .\CloudCompare
 
