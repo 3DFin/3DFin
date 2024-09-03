@@ -100,7 +100,6 @@ jobs:
             -DLASZIP_INCLUDE_DIR=".\laszip\install\include\" `
             -DLASZIP_LIBRARY=".\laszip\install\lib\laszip3.lib" `
             -DPLUGIN_PYTHON=ON `
-            -DPYTHON_EXECUTABLE="C:\hostedtoolcache\windows\Python\3.10.11\x64\python.exe" `
             -DPLUGIN_PYTHON_USE_EMBEDDED_MODULES=ON `
             .
 
@@ -111,8 +110,14 @@ jobs:
         run: |
           mkdir cloudcompare_install
           cmake --install build --prefix "cloudcompare_install"
- 
-      - uses: actions/upload-artifact@v3
+
+      - name: zip CC distribution
+        shell: pwsh
+        run: |
+          rm .\cloudcompare_install\CloudCompare\plugins\Python\python3.exe #rm this file it does not exists (sic.) !
+          7z a -tzip cloudcompare_3dfin.zip .\cloudcompare_install\CloudCompare
+
+      - uses: actions/upload-artifact@v4
         with:
           name: 3dfin_cloudcompare_plugin
-          path: cloudcompare_install/CloudCompare
+          path: cloudcompare_3dfin.zip
