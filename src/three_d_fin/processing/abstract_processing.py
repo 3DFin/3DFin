@@ -401,7 +401,6 @@ class FinProcessing(ABC):
                 2000,
                 n_digits,
                 with_n_points=False,
-                silent=False,
             )
             cloud_size = coords.shape[0] / 1000000
             cloud_shape = voxelated_ground.shape[0]
@@ -420,7 +419,7 @@ class FinProcessing(ABC):
             print("Analyzing cloud size...")
             print("---------------------------------------------")
 
-            _, _, voxelated_ground = dm.voxelate(coords, 1, 2000, n_digits, with_n_points=False, silent=False)
+            _, _, voxelated_ground = dm.voxelate(coords, 1, 2000, n_digits, with_n_points=False)
             cloud_size = coords.shape[0] / 1000000
             cloud_shape = voxelated_ground.shape[0]
             print("   This cloud has", "{:.2f}".format(cloud_size), "million points")

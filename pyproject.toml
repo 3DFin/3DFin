@@ -29,7 +29,7 @@ dependencies = [
   "lazrs~=0.6.0",
   "pandas~=2.2.0",
   "XlsxWriter~=3.2.0",
-  "dendromatics~=0.5.0",
+  "dendromatics[dendroptimized]==0.6.0a1",
   "pydantic~=1.10.15",
   "pyqt5~=5.15.0"
 ]
@@ -68,7 +68,7 @@ qt-ressource = "pyrcc5 {args} qt-files/src/gui_ressources.qrc -o src/three_d_fin
 qt-all = ["qt-moc", "qt-ressource"]
 
 [tool.hatch.build.targets.sdist.hooks.custom]
-dependencies = ["pyqt5~=5.15"]
+dependencies = ["pyqt5~=5.15.0"]
 path = "scripts/qt_build_hook.py"
 src_folder = "qt-files/src"
 dest_folder = "src/three_d_fin/gui"
