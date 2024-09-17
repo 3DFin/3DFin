@@ -1,4 +1,4 @@
-__version__ = "0.4.1"
+__version__ = "0.5.0a0"
 
 # Copyright infos
 __copyright_info_1__ = "3DFin: Forest Inventory Copyright (C) 2023 Carlos Cabo & Diego Laino."

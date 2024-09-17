@@ -69,14 +69,13 @@ def main() -> None:
     for i in range(point_cloud.getNumberOfScalarFields()):
         scalar_fields.append(point_cloud.getScalarFieldName(i))
 
-    # TODO: Handle big coodinates (could be tested but maybe wait for CC API update).
     plugin_processing = CloudComparePluginProcessing(cc, point_cloud, FinConfiguration())
 
     cc.freezeUI(True)
     try:
         _create_app_and_run(plugin_processing, scalar_fields)
     except Exception:
-        raise RuntimeError("Something went wrong!") from None  # TODO: Catch exceptions into modals.
+        raise RuntimeError("Something went wrong!") from None
     finally:
         cc.freezeUI(False)
         cc.updateUI()
