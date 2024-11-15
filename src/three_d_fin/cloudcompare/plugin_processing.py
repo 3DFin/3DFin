@@ -86,7 +86,7 @@ class CloudComparePluginProcessing(FinProcessing):
             self.base_cloud.getScalarField(
                 self.base_cloud.getScalarFieldIndexByName(self.config.basic.z0_name)
             ).asArray(),
-        ]
+        ].astype(np.double)
 
     def _get_xyz_from_base(self) -> np.ndarray:
         # TODO(RJ) double conversion is only needed for DTM processing,
