@@ -30,9 +30,11 @@ dependencies = [
     "lazrs~=0.6.0",
     "pandas~=2.2.0",
     "XlsxWriter~=3.2.0",
-    "dendromatics[dendroptimized]==0.6.0a4",
-    "pydantic~=1.10.15",
+    "dendromatics[dendroptimized]==0.6.0a5",
+    "csf-3dfin==2.0.0a3", # temporary to force pre-release.
+    "pydantic~=1.10.15", 
     "pyqt5~=5.15.0",
+    "pyqt5-qt5==5.15.2; platform_system == 'Windows'", # needed to improve package resolution.
 ]
 dynamic = ["version"]
 

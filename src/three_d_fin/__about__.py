@@ -1,7 +1,7 @@
 __version__ = "0.5.0a0"
 
 # Copyright infos
-__copyright_info_1__ = "3DFin: Forest Inventory Copyright (C) 2023 Carlos Cabo & Diego Laino."
+__copyright_info_1__ = "3DFin: Forest Inventory Copyright (C) 2023-2025 Carlos Cabo & Diego Laino."
 __copyright_info_2__ = (
     "This program comes with ABSOLUTELY NO WARRANTY. This is a free "
     "software, and you are welcome to redistribute it under certain conditions."
