@@ -1,5 +1,10 @@
 [build-system]
-requires = ["hatchling~=1.24", "pyqt5~=5.15.0"]
+requires = [
+    "hatchling~=1.24",
+    "pyqt5~=5.15.0",
+    "pyqt5-qt5<=5.15.2; platform_system == 'Windows'",
+    "pyqt5-qt5>=5.15.16; platform_system != 'Windows'",
+]
 build-backend = "hatchling.build"
 
 [project]
@@ -30,11 +35,11 @@ dependencies = [
     "lazrs~=0.6.0",
     "pandas~=2.2.0",
     "XlsxWriter~=3.2.0",
-    "dendromatics[dendroptimized]==0.6.0a5",
-    "csf-3dfin==2.0.0a3", # temporary to force pre-release.
-    "pydantic~=1.10.15", 
+    "dendromatics[dendroptimized]==0.6.0",
+    "pydantic~=1.10.15",
     "pyqt5~=5.15.0",
-    "pyqt5-qt5==5.15.2; platform_system == 'Windows'", # needed to improve package resolution.
+    "pyqt5-qt5<=5.15.2; platform_system == 'Windows'",
+    "pyqt5-qt5>=5.15.16; platform_system != 'Windows'",
 ]
 dynamic = ["version"]
 
