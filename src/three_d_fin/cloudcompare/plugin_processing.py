@@ -212,9 +212,9 @@ class CloudComparePluginProcessing(FinProcessing):
             dlabel.addPickedPoint(cloud_tree_locations, i)
             value = round(dbh.asArray()[i], 3)
             if value == 0.0:
-                dlabel.setName(f"Tree {i+1} | Non Reliable")
+                dlabel.setName(f"Tree {i + 1} | Non Reliable")
             else:
-                dlabel.setName(f"Tree {i+1} | {value:.3f}")
+                dlabel.setName(f"Tree {i + 1} | {value:.3f}")
             dlabel.displayPointLegend(True)
             dlabel.toggleVisibility()
             dlabel.setDisplayedIn2D(False)
