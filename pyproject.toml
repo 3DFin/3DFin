@@ -85,7 +85,7 @@ import_from = "three_d_fin.gui"     # TODO: it could be infered from dest_folder
 # PyInstaller builder
 [tool.hatch.build.targets.custom]
 require-runtime-dependencies = true
-dependencies = ["pyinstaller"]
+dependencies = ["pyinstaller~=6.14.0"]
 path = "scripts/pyinstaller_builder.py"
 
 # We need to duplicate this for pyinstaller custom target
