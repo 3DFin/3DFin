@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] 2025-06-25
+
 ### Fixed
 
 - Fixed some typos, improve coding style
@@ -26,9 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   A New version of `CSF-3DFin` and an approximate parallel method for computing distances to axes
   should also offer runtime improvements.
 
-- Added `uv` support for installation
+- Added `uv` support for installation. see `CONTRIBUTING.md`
 
-## [0.4.1]  2024-06-28
+## [0.4.1] 2024-06-28
 
 ### Added
 
