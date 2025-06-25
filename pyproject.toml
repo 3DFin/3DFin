@@ -109,6 +109,9 @@ omit = ["src/three_d_fin/__about__.py"]
 [tool.coverage.report]
 exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
 
+[tool.hatch.envs.default]
+installer = "uv"
+
 [tool.hatch.envs.lint]
 detached = true
 dependencies = ["mypy>=1.2.0"]

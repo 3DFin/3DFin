@@ -13,9 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed some typos, improve coding style
 
 - Fixed MSVC runtime issue that lead to a crash in the standalone and packaged version on Windows.
-  PyQt5 embed its own version of Qt (via `PyQt5-qt5`) which bundle a MSVC runtime incompatible with 
+  PyQt5 embed its own version of Qt (via `PyQt5-qt5`) which bundle a MSVC runtime incompatible with
   `pgeof` and `dendroptimized` when they are compiled with an aggressive set of optimizations.
-  CC plugin was not affected, because in this specific context PyQT5 load the MSVC RT and Qt5 libs 
+  CC plugin was not affected, because in this specific context PyQT5 load the MSVC RT and Qt5 libs
   included into CC.
 
 ### Added
@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Include the 3DFin version number in "automatic" Github issue reporting.
 
 - Now depends on `dendromatics` with `dendroptimized` support for massive runtime improvements.
+  A New version of `CSF-3DFin` and an approximate parallel method for computing distances to axes
+  should also offer runtime improvements.
+
+- Added `uv` support for installation
 
 ## [0.4.1]  2024-06-28
 
