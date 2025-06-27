@@ -57,8 +57,7 @@ class BasicParameters(BaseModel):
     # Resolution of cloth grid
     res_cloth: float = Field(
         title="Cloth resolution",
-        description="Initial cloth grid resolution to generate the DTM that"
-        "will be used to compute normalized heights.",
+        description="Initial cloth grid resolution to generate the DTM that will be used to compute normalized heights.",
         gt=0,
         default=0.7,
         hint="meters",
@@ -278,8 +277,7 @@ class ExpertParameters(BaseModel):
     # Maximum degree of vertical deviation from the axis
     maximum_dev: float = Field(
         title="Maximum vertical deviation from axis",
-        description="Maximum degree of vertical deviation from the axis for "
-        "a tree height to be considered as valid.",
+        description="Maximum degree of vertical deviation from the axis for a tree height to be considered as valid.",
         gt=0,
         default=25.0,
         hint="degrees",
@@ -343,7 +341,7 @@ class ExpertParameters(BaseModel):
     # Width, in meters, around the circumference to look for points
     circle_width: float = Field(
         title="Circle width",
-        description="Width, in meters, around the circumference to look" "for points.",
+        description="Width, in meters, around the circumference to look for points.",
         gt=0,
         default=0.02,
         hint="meters",

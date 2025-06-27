@@ -1,37 +1,45 @@
 [build-system]
-requires = ["hatchling~=1.24", "pyqt5~=5.15.0"]
+requires = [
+    "hatchling~=1.24",
+    "pyqt5~=5.15.0",
+    "pyqt5-qt5<=5.15.2; platform_system == 'Windows'",
+    "pyqt5-qt5>=5.15.16; platform_system != 'Windows'",
+]
 build-backend = "hatchling.build"
 
 [project]
 name = "3DFin"
 description = "Automatic dendrometry and forest inventory for terrestrial point clouds, application package"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = "GPL-3.0-or-later"
 keywords = ["lidar", "forestry", "tls"]
 authors = [
-  { name = "Carlos Cabo", email = "carloscabo@uniovi.es" },
-  { name = "Diego Laino", email = "diegolainor@gmail.com" },
+    { name = "Carlos Cabo", email = "carloscabo@uniovi.es" },
+    { name = "Diego Laino", email = "diegolainor@gmail.com" },
 ]
 classifiers = [
-  "Development Status :: 4 - Beta",
-  "Programming Language :: Python",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: Implementation :: CPython",
-  "Topic :: Scientific/Engineering",
-  "Topic :: Scientific/Engineering :: GIS",
-  "Intended Audience :: Science/Research",
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Intended Audience :: Science/Research",
 ]
 dependencies = [
-  "lazrs~=0.6.0",
-  "pandas~=2.2.0",
-  "XlsxWriter~=3.2.0",
-  "dendromatics~=0.5.0",
-  "pydantic~=1.10.15",
-  "pyqt5~=5.15.0"
+    "lazrs~=0.6.0",
+    "pandas~=2.2.0",
+    "XlsxWriter~=3.2.0",
+    "dendromatics[dendroptimized]==0.6.0",
+    "pydantic~=1.10.15",
+    "pyqt5~=5.15.0",
+    "pyqt5-qt5<=5.15.2; platform_system == 'Windows'",
+    "pyqt5-qt5>=5.15.16; platform_system != 'Windows'",
 ]
 dynamic = ["version"]
 
@@ -61,37 +69,37 @@ exclude = ["pyinstaller", "scripts", "qt-files", ".github"]
 [tool.hatch.envs.default.scripts]
 # qt
 qt-moc = [
-  "pyuic5 {args} qt-files/src/main_window.ui -o src/three_d_fin/gui/main_window.py --import-from=three_d_fin.gui --resource-suffix=", 
-  "pyuic5 {args} qt-files/src/expert_dlg.ui -o src/three_d_fin/gui/expert_dlg.py --import-from=three_d_fin.gui --resource-suffix="
+    "pyuic5 {args} qt-files/src/main_window.ui -o src/three_d_fin/gui/main_window.py --import-from=three_d_fin.gui --resource-suffix=",
+    "pyuic5 {args} qt-files/src/expert_dlg.ui -o src/three_d_fin/gui/expert_dlg.py --import-from=three_d_fin.gui --resource-suffix=",
 ]
 qt-ressource = "pyrcc5 {args} qt-files/src/gui_ressources.qrc -o src/three_d_fin/gui/gui_ressources.py"
 qt-all = ["qt-moc", "qt-ressource"]
 
 [tool.hatch.build.targets.sdist.hooks.custom]
-dependencies = ["pyqt5~=5.15"]
+dependencies = ["pyqt5~=5.15.0"]
 path = "scripts/qt_build_hook.py"
 src_folder = "qt-files/src"
 dest_folder = "src/three_d_fin/gui"
-import_from = "three_d_fin.gui" # TODO: it could be infered from dest_folder
+import_from = "three_d_fin.gui"     # TODO: it could be infered from dest_folder
 
 # PyInstaller builder
 [tool.hatch.build.targets.custom]
 require-runtime-dependencies = true
-dependencies = ["pyinstaller"]
+dependencies = ["pyinstaller~=6.14.0"]
 path = "scripts/pyinstaller_builder.py"
 
 # We need to duplicate this for pyinstaller custom target
 # it is not very DRY. The best would be to depends on sdist target
-[tool.hatch.build.targets.custom.hooks.custom] 
+[tool.hatch.build.targets.custom.hooks.custom]
 require-runtime-dependencies = true
 dependencies = ["pyqt5~=5.15.0"]
 path = "scripts/qt_build_hook.py"
 src_folder = "qt-files/src"
 dest_folder = "src/three_d_fin/gui"
-import_from = "three_d_fin.gui" # TODO: it could be infered from dest_folder
+import_from = "three_d_fin.gui"     # TODO: it could be infered from dest_folder
 
 [[tool.hatch.envs.test.matrix]]
-python = ["39", "310", "311", "312"]
+python = ["310", "311", "312", "313"]
 
 [tool.coverage.run]
 branch = true
@@ -100,6 +108,9 @@ omit = ["src/three_d_fin/__about__.py"]
 
 [tool.coverage.report]
 exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
+
+[tool.hatch.envs.default]
+installer = "uv"
 
 [tool.hatch.envs.lint]
 detached = true
@@ -120,19 +131,34 @@ line-length = 120
 target-version = "py310"
 
 [tool.ruff.lint]
-select = ["E", "W", "YTT", "PTH", "NPY", "RET", "PYI", "Q", "F", "B", "I", "D", "SIM", "RUF"]
-# TODO: for now we ignore "Line too long error (E501)" 
+select = [
+    "E",
+    "W",
+    "YTT",
+    "PTH",
+    "NPY",
+    "RET",
+    "PYI",
+    "Q",
+    "F",
+    "B",
+    "I",
+    "D",
+    "SIM",
+    "RUF",
+]
+# TODO: for now we ignore "Line too long error (E501)"
 # because our comments are too longs
 # code formatting will take care of the line length in code anyway
 ignore = [
-  "E501",
-  # Ignore docstring in public package and module
-  "D100",
-  "D104",
-  # Blank line before class
-  "D203",
-  # multiline summary second line
-  "D213",
+    "E501",
+    # Ignore docstring in public package and module
+    "D100",
+    "D104",
+    # Blank line before class
+    "D203",
+    # multiline summary second line
+    "D213",
 ]
 
 [tool.ruff.lint.isort]

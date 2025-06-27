@@ -86,7 +86,7 @@ class CloudComparePluginProcessing(FinProcessing):
             self.base_cloud.getScalarField(
                 self.base_cloud.getScalarFieldIndexByName(self.config.basic.z0_name)
             ).asArray(),
-        ]
+        ].astype(np.double)
 
     def _get_xyz_from_base(self) -> np.ndarray:
         # TODO(RJ) double conversion is only needed for DTM processing,
@@ -212,9 +212,9 @@ class CloudComparePluginProcessing(FinProcessing):
             dlabel.addPickedPoint(cloud_tree_locations, i)
             value = round(dbh.asArray()[i], 3)
             if value == 0.0:
-                dlabel.setName(f"Tree {i+1} | Non Reliable")
+                dlabel.setName(f"Tree {i + 1} | Non Reliable")
             else:
-                dlabel.setName(f"Tree {i+1} | {value:.3f}")
+                dlabel.setName(f"Tree {i + 1} | {value:.3f}")
             dlabel.displayPointLegend(True)
             dlabel.toggleVisibility()
             dlabel.setDisplayedIn2D(False)

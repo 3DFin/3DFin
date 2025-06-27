@@ -2,7 +2,6 @@ name: build and release on PyPi
 
 on: [push]
 
-
 permissions:
   contents: write
 
@@ -17,7 +16,7 @@ jobs:
       fail-fast: false # The full workflow does not fail if one build fail
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
 
     steps:
       - name: Checkout
