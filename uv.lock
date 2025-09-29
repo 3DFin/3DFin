@@ -31,7 +31,7 @@ requires-dist = [
     { name = "lazrs", specifier = "~=0.6.0" },
     { name = "pandas", specifier = "~=2.2.0" },
     { name = "pydantic", specifier = "~=1.10.15" },
-    { name = "pyside6", specifier = "~=6.8.1" },
+    { name = "pyside6", specifier = ">=6.8.1" },
     { name = "xlsxwriter", specifier = "~=3.2.0" },
 ]
 

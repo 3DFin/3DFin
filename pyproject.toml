@@ -35,7 +35,7 @@ dependencies = [
     "XlsxWriter~=3.2.0",
     "dendromatics[dendroptimized]==0.6.0",
     "pydantic~=1.10.15",
-    "pyside6~=6.8.1",
+    "pyside6>=6.8.1",
 ]
 dynamic = ["version"]
 
