@@ -1,9 +1,7 @@
 [build-system]
 requires = [
     "hatchling~=1.24",
-    "pyqt5~=5.15.0",
-    "pyqt5-qt5<=5.15.2; platform_system == 'Windows'",
-    "pyqt5-qt5>=5.15.16; platform_system != 'Windows'",
+    "pyside6~=6.8.1",
 ]
 build-backend = "hatchling.build"
 
@@ -37,9 +35,7 @@ dependencies = [
     "XlsxWriter~=3.2.0",
     "dendromatics[dendroptimized]==0.6.0",
     "pydantic~=1.10.15",
-    "pyqt5~=5.15.0",
-    "pyqt5-qt5<=5.15.2; platform_system == 'Windows'",
-    "pyqt5-qt5>=5.15.16; platform_system != 'Windows'",
+    "pyside6~=6.8.1",
 ]
 dynamic = ["version"]
 
@@ -69,14 +65,14 @@ exclude = ["pyinstaller", "scripts", "qt-files", ".github"]
 [tool.hatch.envs.default.scripts]
 # qt
 qt-moc = [
-    "pyuic5 {args} qt-files/src/main_window.ui -o src/three_d_fin/gui/main_window.py --import-from=three_d_fin.gui --resource-suffix=",
-    "pyuic5 {args} qt-files/src/expert_dlg.ui -o src/three_d_fin/gui/expert_dlg.py --import-from=three_d_fin.gui --resource-suffix=",
+    "pyside6-uic {args} qt-files/src/main_window.ui -o src/three_d_fin/gui/main_window.py --from-imports",
+    "pyside6-uic {args} qt-files/src/expert_dlg.ui -o src/three_d_fin/gui/expert_dlg.py  --from-imports",
 ]
-qt-ressource = "pyrcc5 {args} qt-files/src/gui_ressources.qrc -o src/three_d_fin/gui/gui_ressources.py"
+qt-ressource = "pyside6-rcc {args} qt-files/src/gui_ressources.qrc -o src/three_d_fin/gui/gui_ressources_rc.py"
 qt-all = ["qt-moc", "qt-ressource"]
 
 [tool.hatch.build.targets.sdist.hooks.custom]
-dependencies = ["pyqt5~=5.15.0"]
+dependencies = ["pyside6~=6.8.1"]
 path = "scripts/qt_build_hook.py"
 src_folder = "qt-files/src"
 dest_folder = "src/three_d_fin/gui"
@@ -92,7 +88,7 @@ path = "scripts/pyinstaller_builder.py"
 # it is not very DRY. The best would be to depends on sdist target
 [tool.hatch.build.targets.custom.hooks.custom]
 require-runtime-dependencies = true
-dependencies = ["pyqt5~=5.15.0"]
+dependencies = ["pyside6~=6.8.1"]
 path = "scripts/qt_build_hook.py"
 src_folder = "qt-files/src"
 dest_folder = "src/three_d_fin/gui"

@@ -3,19 +3,18 @@ from pathlib import Path
 from typing import Any, ClassVar, Dict, Generator
 
 # needed to have access to PyQT binaries
-import PyQt5  # noqa
+import PySide6  # noqa
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 
 
-def _pyuic_subprocess(input_path: Path, output_path: Path, import_from):
+def _pyuic_subprocess(input_path: Path, output_path: Path):
     subprocess.call(
         [
-            "pyuic5",
+            "pyside6-uic",
             str(input_path),
             "-o",
             str(output_path),
-            f"--import-from={import_from}",
-            "--resource-suffix=",
+            "--from-import",
         ],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
@@ -26,7 +25,7 @@ def _pyuic_subprocess(input_path: Path, output_path: Path, import_from):
 
 def _pyrcc_subprocess(input_path: Path, output_path: Path):
     subprocess.call(
-        ["pyrcc5", str(input_path), "-o", str(output_path)],
+        ["pyside6-rcc", str(input_path), "-o", str(output_path)],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -52,15 +51,13 @@ class QtBuildHook(BuildHookInterface):
         except KeyError:
             self.app.abort("[QT-hook] dest_folder undefined")
 
-        self.import_from = self.config.pop("import_from", ".")
-
         self._generate_ui()
         self._generate_rc()
 
     def _generate_ui(self):
         for ui_file in self._glob_ui():
             dest_file = self._dest_from_src(ui_file)
-            _pyuic_subprocess(ui_file, dest_file, self.import_from)
+            _pyuic_subprocess(ui_file, dest_file)
             self.app.display_info(f"[QT-hook] mocking {ui_file}")
             self.artifacts.append(str(dest_file))
 
