@@ -8,13 +8,13 @@ from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 
 
 def _pyuic_subprocess(input_path: Path, output_path: Path):
-    subprocess.call(
+    _ = subprocess.call(
         [
             "pyside6-uic",
             str(input_path),
             "-o",
             str(output_path),
-            "--from-import",
+            "--from-imports",
         ],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
@@ -24,7 +24,7 @@ def _pyuic_subprocess(input_path: Path, output_path: Path):
 
 
 def _pyrcc_subprocess(input_path: Path, output_path: Path):
-    subprocess.call(
+    _ = subprocess.call(
         ["pyside6-rcc", str(input_path), "-o", str(output_path)],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
@@ -63,7 +63,7 @@ class QtBuildHook(BuildHookInterface):
 
     def _generate_rc(self):
         for rc_file in self._glob_rc():
-            dest_file = self._dest_from_src(rc_file)
+            dest_file = self._rc_dest_from_src(rc_file)
             _pyrcc_subprocess(rc_file, dest_file)
             self.app.display_info(f"[QT-hook] generating {rc_file}")
             self.artifacts.append(str(dest_file))
@@ -73,6 +73,10 @@ class QtBuildHook(BuildHookInterface):
 
     def _glob_rc(self) -> Generator[Path, None, None]:
         return Path(self.src_folder).glob("*.qrc")
+
+    def _rc_dest_from_src(self, src: Path) -> Path:
+        base_name = src.stem
+        return Path(self.dest_folder) / Path(base_name + "_rc.py")
 
     def _dest_from_src(self, src: Path) -> Path:
         base_name = src.stem

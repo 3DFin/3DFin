@@ -76,7 +76,6 @@ dependencies = ["pyside6~=6.8.1"]
 path = "scripts/qt_build_hook.py"
 src_folder = "qt-files/src"
 dest_folder = "src/three_d_fin/gui"
-import_from = "three_d_fin.gui"     # TODO: it could be infered from dest_folder
 
 # PyInstaller builder
 [tool.hatch.build.targets.custom]
