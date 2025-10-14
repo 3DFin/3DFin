@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Update to QT6 / PySide6.
+- Update to QT6 / PySide6
+- default cloth resolution is now 0.45 meters.
 
 ## [0.5.0] 2025-06-25
 

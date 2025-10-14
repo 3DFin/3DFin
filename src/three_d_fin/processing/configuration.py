@@ -59,7 +59,7 @@ class BasicParameters(BaseModel):
         title="Cloth resolution",
         description="Initial cloth grid resolution to generate the DTM that will be used to compute normalized heights.",
         gt=0,
-        default=0.7,
+        default=0.45,
         hint="meters",
     )
 
