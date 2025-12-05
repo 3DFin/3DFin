@@ -30,11 +30,11 @@ classifiers = [
     "Intended Audience :: Science/Research",
 ]
 dependencies = [
-    "lazrs~=0.6.0",
-    "pandas~=2.2.0",
-    "XlsxWriter~=3.2.0",
-    "dendromatics[dendroptimized]==0.6.0",
-    "pydantic~=1.10.15",
+    "lazrs~=0.8.0",
+    "pandas~=2.3.0",
+    "XlsxWriter~=3.2.4",
+    "dendromatics[dendroptimized]==0.7.0",
+    "pydantic~=1.10",
     "pyside6>=6.8.1",
 ]
 dynamic = ["version"]
