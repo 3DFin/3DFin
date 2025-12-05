@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import pycc
-from PyQt5.QtCore import QEventLoop
+from PySide6.QtCore import QEventLoop
 
 from three_d_fin.cloudcompare.plugin_processing import CloudComparePluginProcessing
 from three_d_fin.gui.application import Application

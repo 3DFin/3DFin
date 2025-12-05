@@ -24,8 +24,8 @@ def launch_application() -> int:
     """
     import laspy
     import pydantic
-    from PyQt5 import QtCore
-    from PyQt5.QtWidgets import QApplication
+    from PySide6 import QtCore
+    from PySide6.QtWidgets import QApplication
 
     from three_d_fin import __about__
     from three_d_fin.gui.application import Application

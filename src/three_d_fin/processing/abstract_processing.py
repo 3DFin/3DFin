@@ -678,8 +678,6 @@ class FinProcessing(ABC):
             sector_perct,
             R,
             outliers,
-            n_points_in,
-            config.expert.point_threshold,
             X_field,
             Y_field,
             Z_field,

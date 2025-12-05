@@ -136,7 +136,7 @@ def export_tabular_data(
         info_Y_c = """(y) coordinate of the centre of every section (S) of every tree (T)."""
         info_sections = """Normalized height (Z0) of every section (S).
         Units are meters."""
-        info_quality = """Overal quality of every section (S) of every tree (T).
+        info_quality = """Overall quality of every section (S) of every tree (T).
         0: Section does not pass quality checks - 1: Section passes quality checks.
         """
         info_outliers = """'Outlier probability' of every section (S) of every tree (T).

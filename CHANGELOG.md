@@ -5,8 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-
 ## [Unreleased]
+
+## [0.6.0] 2025-12-05
+
+### Changed
+
+- Update to `Qt6` / `PySide6`
+
+- default cloth resolution is now 0.45 meters.
+
+- Update to `dendromatics` 0.7.0 (change the way DBH is computed)
 
 ## [0.5.0] 2025-06-25
 
@@ -17,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed MSVC runtime issue that lead to a crash in the standalone and packaged version on Windows.
   PyQt5 embed its own version of Qt (via `PyQt5-qt5`) which bundle a MSVC runtime incompatible with
   `pgeof` and `dendroptimized` when they are compiled with an aggressive set of optimizations.
-  CC plugin was not affected, because in this specific context PyQT5 load the MSVC RT and Qt5 libs
+  CC plugin was not affected, because in this specific context PyQt5 load the MSVC RT and Qt5 libs
   included into CC.
 
 ### Added

@@ -7,15 +7,15 @@ from urllib.parse import quote
 import laspy
 from pydantic import ValidationError
 from pydantic.fields import ModelField
-from PyQt5.QtCore import QEventLoop, QLocale, QObject, Qt, QThread, QUrl, pyqtSignal
-from PyQt5.QtGui import (
+from PySide6.QtCore import QEventLoop, QLocale, QObject, Qt, QThread, QUrl, Signal
+from PySide6.QtGui import (
     QCloseEvent,
     QDesktopServices,
     QDoubleValidator,
     QIcon,
     QIntValidator,
 )
-from PyQt5.QtWidgets import (
+from PySide6.QtWidgets import (
     QComboBox,
     QDialog,
     QFileDialog,
@@ -39,9 +39,9 @@ class ApplicationWorker(QObject):
     object to make it suitable for a QThread processing
     """
 
-    finished = pyqtSignal()
-    error = pyqtSignal(str, str)
-    memory_error = pyqtSignal()
+    finished = Signal()
+    error = Signal(str, str)
+    memory_error = Signal()
 
     def __init__(self, processing_object: FinProcessing, parent=None):
         """Construct the Worker.
